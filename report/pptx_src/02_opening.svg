@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" data-pptx-page-role="content" font-family="Arial, Microsoft YaHei">
+  <rect id="bg" data-pptx-role="background" x="0" y="0" width="1280" height="720" fill="#FFFFFF"/>
+  <g id="header" data-pptx-bounds="64 24 1152 92">
+    <rect x="64" y="56" width="6" height="36" fill="#0173B2"/>
+    <text x="84" y="44" font-size="14" fill="#5F6772">01 · 开场</text>
+    <text x="84" y="86" font-size="34" font-weight="bold" fill="#1B1F24">同一个骨干、同样含 InternData-A1 的数据，两篇论文结论相反</text>
+    <line x1="64" y1="112" x2="1216" y2="112" stroke="#D5D9DE" stroke-width="1"/>
+  </g>
+  <g id="lead" data-pptx-bounds="64 126 1152 34">
+    <text x="84" y="150" font-size="22" font-weight="bold" fill="#0173B2">差别不在数据量，在轨迹如何塑造骨干表征</text>
+  </g>
+  <g id="p02-opening-table" data-pptx-replace-with="table" data-pptx-bounds="64 196 1152 200" font-size="18" fill="#1B1F24" data-pptx-fallback-sha256="27235b69acf03d767092fac9c9d45840f1fc082cc07becdd3e94ddeb86b0e50b">
+    <metadata type="application/json">
+{"schema":"ppt-master.semantic-table.v2","name":"p02-opening-table","x":64,"y":196,"width":1152,"height":200,"header_rows":1,
+ "column_widths":[200,260,520,172],"row_heights":[44,46,46,64],
+ "style":{"font_family":"Microsoft YaHei","font_size":18,"body_text":"#1B1F24","band_row":false,"valign":"middle","padding":6},
+ "defaults":{"cell":{"align":"l","borders":{"left":{"style":"none"},"right":{"style":"none"},"top":{"style":"none"},"bottom":{"style":"solid","color":"#D5D9DE","width":1}}}},
+ "cell_styles":{"head":{"bold":true,"color":"#5F6772","borders":{"left":{"style":"none"},"right":{"style":"none"},"top":{"style":"none"},"bottom":{"style":"solid","color":"#1B1F24","width":2}}}},
+ "columns":[{"text":"论文","cell_style":"head"},{"text":"预训练方式","cell_style":"head"},{"text":"RoboCasa-GR1（预训练未见的人形）","cell_style":"head"},{"text":"结论","cell_style":"head"}],
+ "rows":[
+  ["StarVLA-α（2026-04）","朴素动作拟合 + OXE",{"paragraphs":[{"runs":[{"text":"24×10 demos：9.8 → "},{"text":"1.2","color":"#DE8F05","bold":true}]}]},"双刃剑"],
+  ["StarVLA-α（2026-04）","朴素动作拟合 + InternData-A1",{"paragraphs":[{"runs":[{"text":"24×1000：53.8 → "},{"text":"35.4","color":"#DE8F05","bold":true}]}]},"双刃剑"],
+  ["VLAct（2026-08）","表示中心配方",{"paragraphs":[{"runs":[{"text":"全量 48.8 → "},{"text":"54.0","color":"#029E73","bold":true},{"text":"；"}]},{"runs":[{"text":"20% 数据 "},{"text":"49.5","color":"#029E73","bold":true},{"text":"，已超全量 GR00T-N1.6（47.6）"}]}]},"净收益"]
+ ]}
+    </metadata>
+    <line x1="64" y1="240" x2="1216" y2="240" stroke="#1B1F24" stroke-width="2"/>
+    <line x1="64" y1="286" x2="1216" y2="286" stroke="#D5D9DE" stroke-width="1"/>
+    <line x1="64" y1="332" x2="1216" y2="332" stroke="#D5D9DE" stroke-width="1"/>
+    <line x1="64" y1="396" x2="1216" y2="396" stroke="#D5D9DE" stroke-width="1"/>
+    <g font-weight="bold" fill="#5F6772">
+      <text x="76" y="224">论文</text>
+      <text x="276" y="224">预训练方式</text>
+      <text x="536" y="224">RoboCasa-GR1（预训练未见的人形）</text>
+      <text x="1056" y="224">结论</text>
+    </g>
+    <text x="76" y="269">StarVLA-α（2026-04）</text>
+    <text x="276" y="269">朴素动作拟合 + OXE</text>
+    <text x="536" y="269">24×10 demos：9.8 → <tspan fill="#DE8F05" font-weight="bold">1.2</tspan></text>
+    <text x="1056" y="269">双刃剑</text>
+    <text x="76" y="315">StarVLA-α（2026-04）</text>
+    <text x="276" y="315">朴素动作拟合 + InternData-A1</text>
+    <text x="536" y="315">24×1000：53.8 → <tspan fill="#DE8F05" font-weight="bold">35.4</tspan></text>
+    <text x="1056" y="315">双刃剑</text>
+    <text x="76" y="358">VLAct（2026-08）</text>
+    <text x="276" y="358">表示中心配方</text>
+    <text x="536" y="358">全量 48.8 → <tspan fill="#029E73" font-weight="bold">54.0</tspan>；<tspan x="536" dy="22">20% 数据 <tspan fill="#029E73" font-weight="bold">49.5</tspan>，已超全量 GR00T-N1.6（47.6）</tspan></text>
+    <text x="1056" y="358">净收益</text>
+  </g>
+  <g id="talk-route" data-pptx-bounds="64 436 1152 108">
+    <text x="64" y="456" font-size="18" fill="#5F6772">本次汇报的路线</text>
+<g id="p02-route-1" data-pptx-authoring="preset" data-pptx-object="shape" data-pptx-prst="chevron" data-pptx-frame="64 476 306 60" fill="#E3EEF6" stroke="none">
+<path d="M 64 476 L 340 476 L 370 506 L 340 536 L 64 536 L 94 506 Z"/>
+</g>
+<g id="p02-route-2" data-pptx-authoring="preset" data-pptx-object="shape" data-pptx-prst="chevron" data-pptx-frame="346 476 306 60" fill="#E3EEF6" stroke="none">
+<path d="M 346 476 L 622 476 L 652 506 L 622 536 L 346 536 L 376 506 Z"/>
+</g>
+<g id="p02-route-3" data-pptx-authoring="preset" data-pptx-object="shape" data-pptx-prst="chevron" data-pptx-frame="628 476 306 60" fill="#E3EEF6" stroke="none">
+<path d="M 628 476 L 904 476 L 934 506 L 904 536 L 628 536 L 658 506 Z"/>
+</g>
+<g id="p02-route-4" data-pptx-authoring="preset" data-pptx-object="shape" data-pptx-prst="chevron" data-pptx-frame="910 476 306 60" fill="#0173B2" stroke="none">
+<path d="M 910 476 L 1186 476 L 1216 506 L 1186 536 L 910 536 L 940 506 Z"/>
+</g>
+    <g fill="#1B1F24">
+      <text x="108" y="501" font-size="18" font-weight="bold">StarVLA 代码库</text>
+      <text x="108" y="524" font-size="16" fill="#5F6772">基础设施</text>
+      <text x="390" y="501" font-size="18" font-weight="bold">StarVLA-α</text>
+      <text x="390" y="524" font-size="16" fill="#5F6772">对照板</text>
+      <text x="672" y="501" font-size="18" font-weight="bold">VLAct</text>
+      <text x="672" y="524" font-size="16" fill="#5F6772">配方</text>
+      <text x="954" y="501" font-size="18" font-weight="bold" fill="#FFFFFF">下一步</text>
+      <text x="954" y="524" font-size="16" fill="#FFFFFF">基准 · 代码落点 · 路线图</text>
+    </g>
+  </g>
+  <g id="footer" data-pptx-role="footer" data-pptx-bounds="64 676 1152 26" font-size="14" fill="#8A929C">
+    <text x="64" y="694">来源：StarVLA-α（arXiv 2604.11757）表 3；VLAct（arXiv 2608.27550）</text>
+    <text x="1216" y="694" text-anchor="end">02 / 18</text>
+  </g>
+</svg>

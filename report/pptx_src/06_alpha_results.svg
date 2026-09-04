@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" data-pptx-page-role="content" font-family="Arial, Microsoft YaHei">
+  <rect id="bg" data-pptx-role="background" x="0" y="0" width="1280" height="720" fill="#FFFFFF"/>
+  <g id="header" data-pptx-bounds="64 24 1152 92">
+    <rect x="64" y="56" width="6" height="36" fill="#0173B2"/>
+    <text x="84" y="44" font-size="14" fill="#5F6772">03 · StarVLA-α</text>
+    <text x="84" y="86" font-size="34" font-weight="bold" fill="#1B1F24">最简基线 Qwen3-VL-4B + MLP 头，追平或超过更复杂系统</text>
+    <line x1="64" y1="112" x2="1216" y2="112" stroke="#D5D9DE" stroke-width="1"/>
+  </g>
+  <g id="lead" data-pptx-bounds="64 126 1152 34">
+    <text x="84" y="150" font-size="22" font-weight="bold" fill="#0173B2">骨干够强时，最简单的头就够用；短板只在低数据 + 关节角控制</text>
+  </g>
+  <g id="design-note" data-pptx-bounds="64 168 1152 28">
+    <text x="64" y="188" font-size="18" fill="#5F6772">设计：原始 RGB + 指令；z-score 归一化；无状态 / 历史 / 机器人预训练；骨干 lr 1e-5、头 lr 1e-4、cosine、≤100k 步</text>
+  </g>
+  <g id="p06-alpha-table" data-pptx-replace-with="table" data-pptx-bounds="64 206 1152 268" font-size="16" fill="#1B1F24" data-pptx-fallback-sha256="90f62bd0a9a5322341ddfe4070321196a11525ad6f7d3ef906c1a6bdac18254e">
+    <metadata type="application/json">
+{"schema":"ppt-master.semantic-table.v2","name":"p06-alpha-table","x":64,"y":206,"width":1152,"height":268,"header_rows":1,
+ "column_widths":[272,130,120,140,300,190],"row_heights":[40,38,38,38,38,38,38],
+ "style":{"font_family":"Microsoft YaHei","font_size":16,"body_text":"#1B1F24","band_row":false,"valign":"middle","padding":5},
+ "defaults":{"cell":{"align":"l","borders":{"left":{"style":"none"},"right":{"style":"none"},"top":{"style":"none"},"bottom":{"style":"solid","color":"#D5D9DE","width":1}}}},
+ "cell_styles":{
+  "head":{"bold":true,"color":"#5F6772","borders":{"left":{"style":"none"},"right":{"style":"none"},"top":{"style":"none"},"bottom":{"style":"solid","color":"#1B1F24","width":2}}},
+  "head-r":{"bold":true,"align":"r","color":"#5F6772","borders":{"left":{"style":"none"},"right":{"style":"none"},"top":{"style":"none"},"bottom":{"style":"solid","color":"#1B1F24","width":2}}},
+  "name":{"bold":true},"num":{"align":"r"},"num-pos":{"align":"r","color":"#029E73","bold":true}},
+ "columns":[{"text":"方法","cell_style":"head"},{"text":"LIBERO avg","cell_style":"head-r"},{"text":"WidowX","cell_style":"head-r"},{"text":"Google VM","cell_style":"head-r"},{"text":"RoboTwin clean* / random*","cell_style":"head-r"},{"text":"RoboCasa-GR1","cell_style":"head-r"}],
+ "rows":[
+  ["OpenVLA-OFT",{"text":"97.1","cell_style":"num"},{"text":"31.3","cell_style":"num"},{"text":"63.0","cell_style":"num"},{"text":"–","cell_style":"num"},{"text":"–","cell_style":"num"}],
+  ["π0",{"text":"94.1","cell_style":"num"},{"text":"27.1","cell_style":"num"},{"text":"58.8","cell_style":"num"},{"text":"65.9 / 58.4","cell_style":"num"},{"text":"–","cell_style":"num"}],
+  ["π0.5",{"text":"96.9","cell_style":"num"},{"text":"46.9","cell_style":"num"},{"text":"72.7","cell_style":"num"},{"text":"82.7 / 76.8","cell_style":"num"},{"text":"37.0","cell_style":"num"}],
+  ["GR00T-N1.6",{"text":"97.0","cell_style":"num"},{"text":"62.0","cell_style":"num"},{"text":"67.7","cell_style":"num"},{"text":"–","cell_style":"num"},{"text":"47.6","cell_style":"num"}],
+  [{"text":"StarVLA-α（specialist）","cell_style":"name"},{"text":"98.8","cell_style":"num-pos"},{"text":"64.6","cell_style":"num"},{"text":"76.0","cell_style":"num-pos"},{"text":"88.2 / 88.3","cell_style":"num"},{"text":"53.8","cell_style":"num"}],
+  [{"text":"StarVLA-α（generalist）","cell_style":"name"},{"text":"97.8","cell_style":"num"},{"text":"65.2","cell_style":"num-pos"},{"text":"74.3","cell_style":"num"},{"align":"r","paragraphs":[{"runs":[{"text":"88.7","color":"#029E73","bold":true},{"text":" / 87.8"}]}]},{"text":"57.3","cell_style":"num-pos"}]
+ ]}
+    </metadata>
+    <line x1="64" y1="246" x2="1216" y2="246" stroke="#1B1F24" stroke-width="2"/>
+    <line x1="64" y1="284" x2="1216" y2="284" stroke="#D5D9DE" stroke-width="1"/>
+    <line x1="64" y1="322" x2="1216" y2="322" stroke="#D5D9DE" stroke-width="1"/>
+    <line x1="64" y1="360" x2="1216" y2="360" stroke="#D5D9DE" stroke-width="1"/>
+    <line x1="64" y1="398" x2="1216" y2="398" stroke="#D5D9DE" stroke-width="1"/>
+    <line x1="64" y1="436" x2="1216" y2="436" stroke="#D5D9DE" stroke-width="1"/>
+    <line x1="64" y1="474" x2="1216" y2="474" stroke="#D5D9DE" stroke-width="1"/>
+    <g font-weight="bold" fill="#5F6772">
+      <text x="76" y="232">方法</text>
+      <text x="454" y="232" text-anchor="end">LIBERO avg</text>
+      <text x="574" y="232" text-anchor="end">WidowX</text>
+      <text x="714" y="232" text-anchor="end">Google VM</text>
+      <text x="1014" y="232" text-anchor="end">RoboTwin clean* / random*</text>
+      <text x="1204" y="232" text-anchor="end">RoboCasa-GR1</text>
+    </g>
+    <text x="76" y="271">OpenVLA-OFT</text>
+    <g text-anchor="end">
+      <text x="454" y="271">97.1</text><text x="574" y="271">31.3</text><text x="714" y="271">63.0</text><text x="1014" y="271">–</text><text x="1204" y="271">–</text>
+    </g>
+    <text x="76" y="309">π0</text>
+    <g text-anchor="end">
+      <text x="454" y="309">94.1</text><text x="574" y="309">27.1</text><text x="714" y="309">58.8</text><text x="1014" y="309">65.9 / 58.4</text><text x="1204" y="309">–</text>
+    </g>
+    <text x="76" y="347">π0.5</text>
+    <g text-anchor="end">
+      <text x="454" y="347">96.9</text><text x="574" y="347">46.9</text><text x="714" y="347">72.7</text><text x="1014" y="347">82.7 / 76.8</text><text x="1204" y="347">37.0</text>
+    </g>
+    <text x="76" y="385">GR00T-N1.6</text>
+    <g text-anchor="end">
+      <text x="454" y="385">97.0</text><text x="574" y="385">62.0</text><text x="714" y="385">67.7</text><text x="1014" y="385">–</text><text x="1204" y="385">47.6</text>
+    </g>
+    <text x="76" y="423" font-weight="bold">StarVLA-α（specialist）</text>
+    <g text-anchor="end">
+      <text x="454" y="423" font-weight="bold" fill="#029E73">98.8</text><text x="574" y="423">64.6</text><text x="714" y="423" font-weight="bold" fill="#029E73">76.0</text><text x="1014" y="423">88.2 / 88.3</text><text x="1204" y="423">53.8</text>
+    </g>
+    <text x="76" y="461" font-weight="bold">StarVLA-α（generalist）</text>
+    <g text-anchor="end">
+      <text x="454" y="461">97.8</text><text x="574" y="461" font-weight="bold" fill="#029E73">65.2</text><text x="714" y="461">74.3</text><text x="1014" y="461"><tspan font-weight="bold" fill="#029E73">88.7</tspan> / 87.8</text><text x="1204" y="461" font-weight="bold" fill="#029E73">57.3</text>
+    </g>
+  </g>
+  <g id="table-note" data-pptx-bounds="64 480 1152 24">
+    <text x="64" y="497" font-size="16" fill="#8A929C">* clean + random 数据都用于训练。</text>
+  </g>
+  <g id="alpha-notes" data-pptx-bounds="64 508 1152 160" font-size="22" fill="#1B1F24">
+    <rect x="84" y="518" width="8" height="8" fill="#0173B2"/>
+    <text x="108" y="530">唯一输掉的一格：RoboTwin Base（50 clean/任务）50.3 &lt; π0.5 60.2<tspan x="108" dy="28">—— <tspan fill="#DE8F05" font-weight="bold">低数据 + 关节角控制是短板</tspan></tspan></text>
+    <rect x="84" y="580" width="8" height="8" fill="#0173B2"/>
+    <text x="108" y="592">四个基准数据合训一个 generalist，GR1 反而 <tspan fill="#029E73" font-weight="bold">+3.5</tspan></text>
+    <rect x="84" y="614" width="8" height="8" fill="#0173B2"/>
+    <text x="108" y="626">规模与优化：4B→8B 增益 &lt; 1 点（4B 是甜点）；batch 64→1024 使 GR1 <tspan fill="#029E73" font-weight="bold">+19</tspan> 点，<tspan x="108" dy="28">比模型规模影响更大；真机 RoboChallenge ARX5：SR 33.6 vs π0.5 12.7</tspan></text>
+  </g>
+  <g id="footer" data-pptx-role="footer" data-pptx-bounds="64 676 1152 26" font-size="14" fill="#8A929C">
+    <text x="64" y="694">来源：StarVLA-α（arXiv 2604.11757）主结果与规模消融；reports/03</text>
+    <text x="1216" y="694" text-anchor="end">06 / 18</text>
+  </g>
+</svg>

@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" data-pptx-page-role="content" font-family="Arial, Microsoft YaHei">
+  <rect id="bg" data-pptx-role="background" x="0" y="0" width="1280" height="720" fill="#FFFFFF"/>
+  <g id="header" data-pptx-bounds="64 24 1152 92">
+    <rect x="64" y="56" width="6" height="36" fill="#0173B2"/>
+    <text x="84" y="44" font-size="14" fill="#5F6772">06 · 代码库</text>
+    <text x="84" y="86" font-size="34" font-weight="bold" fill="#1B1F24">代码库地图：契约落在 baseframework 与 collate_fn</text>
+    <line x1="64" y1="112" x2="1216" y2="112" stroke="#D5D9DE" stroke-width="1"/>
+  </g>
+  <g id="lead" data-pptx-bounds="64 126 1152 34">
+    <text x="84" y="150" font-size="22" font-weight="bold" fill="#0173B2">两条契约在代码里只是软约束；三份训练循环约 80% 重复，是最明显的可重构点</text>
+  </g>
+  <g id="p13-codemap-table" data-pptx-replace-with="table" data-pptx-bounds="64 176 650 368" font-size="16" fill="#1B1F24" data-pptx-fallback-sha256="f7d62b1ae22a2f46e0266d15ed21fe8b947ad01825957fe955b978c5df9082df">
+    <metadata type="application/json">
+{"schema":"ppt-master.semantic-table.v2","name":"p13-codemap-table","x":64,"y":176,"width":650,"height":368,"header_rows":1,
+ "column_widths":[210,440],"row_heights":[36,52,52,36,52,52,52,36],
+ "style":{"font_family":"Microsoft YaHei","font_size":16,"body_text":"#1B1F24","band_row":false,"valign":"middle","padding":5},
+ "defaults":{"cell":{"align":"l","borders":{"left":{"style":"none"},"right":{"style":"none"},"top":{"style":"none"},"bottom":{"style":"solid","color":"#D5D9DE","width":1}}}},
+ "cell_styles":{
+  "head":{"bold":true,"color":"#5F6772","borders":{"left":{"style":"none"},"right":{"style":"none"},"top":{"style":"none"},"bottom":{"style":"solid","color":"#1B1F24","width":2}}},
+  "name":{"bold":true}},
+ "columns":[{"text":"目录","cell_style":"head"},{"text":"职责 / 关键类","cell_style":"head"}],
+ "rows":[
+  [{"text":"model/framework/","cell_style":"name"},{"paragraphs":["28 个注册框架（VLM4A 20、WM4A 6、VM4A 2）；","build_framework(cfg) 查注册表"]}],
+  [{"text":"modules/action_model/","cell_style":"name"},{"paragraphs":["11 个动作头文件：MLP(OFT)、FAST、","Layerwise-FM(PI)、FM DiT(GR00T)"]}],
+  [{"text":"modules/vlm/","cell_style":"name"},"10 个接口，get_vlm_model 分派 9 个分支"],
+  [{"text":"dataloader/","cell_style":"name"},{"paragraphs":["GR00T LeRobot 管线移植；VLM LLaVA-json；","UMI 适配"]}],
+  [{"text":"training/","cell_style":"name"},{"paragraphs":["4 个显式循环脚本 + trainer_utils","（冻结 / 分组 lr / 加载）"]}],
+  [{"text":"examples/","cell_style":"name"},{"paragraphs":["25 个目录：13 仿真基准、5 真机、","6 模型扩展、1 human2robot"]}],
+  [{"text":"deployment/","cell_style":"name"},"WebSocket / ZMQ 策略服务器、Docker、HF 上传"]
+ ]}
+    </metadata>
+    <line x1="64" y1="212" x2="714" y2="212" stroke="#1B1F24" stroke-width="2"/>
+    <g stroke="#D5D9DE" stroke-width="1">
+      <line x1="64" y1="264" x2="714" y2="264"/><line x1="64" y1="316" x2="714" y2="316"/><line x1="64" y1="352" x2="714" y2="352"/><line x1="64" y1="404" x2="714" y2="404"/>
+      <line x1="64" y1="456" x2="714" y2="456"/><line x1="64" y1="508" x2="714" y2="508"/><line x1="64" y1="544" x2="714" y2="544"/>
+    </g>
+    <g font-weight="bold" fill="#5F6772">
+      <text x="76" y="200">目录</text>
+      <text x="286" y="200">职责 / 关键类</text>
+    </g>
+    <text x="76" y="244" font-weight="bold">model/framework/</text>
+    <text x="286" y="233">28 个注册框架（VLM4A 20、WM4A 6、VM4A 2）；<tspan x="286" dy="22">build_framework(cfg) 查注册表</tspan></text>
+    <text x="76" y="296" font-weight="bold">modules/action_model/</text>
+    <text x="286" y="285">11 个动作头文件：MLP(OFT)、FAST、<tspan x="286" dy="22">Layerwise-FM(PI)、FM DiT(GR00T)</tspan></text>
+    <text x="76" y="340" font-weight="bold">modules/vlm/</text>
+    <text x="286" y="340">10 个接口，get_vlm_model 分派 9 个分支</text>
+    <text x="76" y="384" font-weight="bold">dataloader/</text>
+    <text x="286" y="373">GR00T LeRobot 管线移植；VLM LLaVA-json；<tspan x="286" dy="22">UMI 适配</tspan></text>
+    <text x="76" y="436" font-weight="bold">training/</text>
+    <text x="286" y="425">4 个显式循环脚本 + trainer_utils<tspan x="286" dy="22">（冻结 / 分组 lr / 加载）</tspan></text>
+    <text x="76" y="488" font-weight="bold">examples/</text>
+    <text x="286" y="477">25 个目录：13 仿真基准、5 真机、<tspan x="286" dy="22">6 模型扩展、1 human2robot</tspan></text>
+    <text x="76" y="532" font-weight="bold">deployment/</text>
+    <text x="286" y="532">WebSocket / ZMQ 策略服务器、Docker、HF 上传</text>
+  </g>
+  <g id="scale-facts" data-pptx-bounds="754 176 462 212" font-size="20" fill="#1B1F24">
+    <text x="754" y="200" font-size="22" font-weight="bold">实测规模</text>
+    <rect x="754" y="223" width="8" height="8" fill="#0173B2"/>
+    <text x="778" y="234">261 个 Python 文件，57.6k 行；<tspan x="778" dy="28">starVLA/ 139 个文件</tspan></text>
+    <rect x="754" y="287" width="8" height="8" fill="#0173B2"/>
+    <text x="778" y="298">12 个 model2*_interface.py 基准适配器</text>
+    <rect x="754" y="323" width="8" height="8" fill="#0173B2"/>
+    <text x="778" y="334">测试：7 文件 / 40 用例 / 1,067 行，<tspan fill="#DE8F05" font-weight="bold">无 CI</tspan></text>
+    <rect x="754" y="359" width="8" height="8" fill="#0173B2"/>
+    <text x="778" y="370">浅历史 131 次提交，40 位作者</text>
+  </g>
+  <g id="contract-facts" data-pptx-bounds="754 404 462 200" font-size="20" fill="#1B1F24">
+    <text x="754" y="428" font-size="22" font-weight="bold">契约在代码中的落点</text>
+    <rect x="754" y="451" width="8" height="8" fill="#0173B2"/>
+    <text x="778" y="462">baseframework（继承 PreTrainedModel）<tspan x="778" dy="28">软约束 forward / predict_action</tspan></text>
+    <rect x="754" y="515" width="8" height="8" fill="#0173B2"/>
+    <text x="778" y="526">collate_fn 就是 return batch：样本 =<tspan x="778" dy="28">{action, image, lang, robot_tag, state?}</tspan></text>
+    <rect x="754" y="579" width="8" height="8" fill="#0173B2"/>
+    <text x="778" y="590">框架文件末尾自带 __main__ smoke test</text>
+  </g>
+  <g id="footer" data-pptx-role="footer" data-pptx-bounds="64 676 1152 26" font-size="14" fill="#8A929C">
+    <text x="64" y="694">来源：starVLA_dev @ d81fc66（2026-09）实测；reports/02、04；assets/starvla_code_facts.md</text>
+    <text x="1216" y="694" text-anchor="end">13 / 18</text>
+  </g>
+</svg>

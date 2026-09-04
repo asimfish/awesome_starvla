@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" data-pptx-page-role="content" font-family="Arial, Microsoft YaHei">
+  <rect id="bg" data-pptx-role="background" x="0" y="0" width="1280" height="720" fill="#FFFFFF"/>
+  <g id="header" data-pptx-bounds="64 24 1152 92">
+    <rect x="64" y="56" width="6" height="36" fill="#0173B2"/>
+    <text x="84" y="44" font-size="14" fill="#5F6772">02 · StarVLA 代码库</text>
+    <text x="84" y="86" font-size="34" font-weight="bold" fill="#1B1F24">四种动作头只在取动作方式上不同</text>
+    <line x1="64" y1="112" x2="1216" y2="112" stroke="#D5D9DE" stroke-width="1"/>
+  </g>
+  <g id="lead" data-pptx-bounds="64 126 1152 34">
+    <text x="84" y="150" font-size="22" font-weight="bold" fill="#0173B2">OFT 同时是诊断工具：它表现好 ⇒ 骨干表征线性可读地暴露了连续控制信息</text>
+  </g>
+  <g id="p05-heads-table" data-pptx-replace-with="table" data-pptx-bounds="64 176 1152 224" font-size="18" fill="#1B1F24" data-pptx-fallback-sha256="47a1213e9eac95e6c4dc8aa0897b2df7361253176f122caabfa0febaeb7a5445">
+    <metadata type="application/json">
+{"schema":"ppt-master.semantic-table.v2","name":"p05-heads-table","x":64,"y":176,"width":1152,"height":224,"header_rows":1,
+ "column_widths":[100,300,460,292],"row_heights":[44,45,45,45,45],
+ "style":{"font_family":"Microsoft YaHei","font_size":18,"body_text":"#1B1F24","band_row":false,"valign":"middle","padding":6},
+ "defaults":{"cell":{"align":"l","borders":{"left":{"style":"none"},"right":{"style":"none"},"top":{"style":"none"},"bottom":{"style":"solid","color":"#D5D9DE","width":1}}}},
+ "cell_styles":{"head":{"bold":true,"color":"#5F6772","borders":{"left":{"style":"none"},"right":{"style":"none"},"top":{"style":"none"},"bottom":{"style":"solid","color":"#1B1F24","width":2}}},"name":{"bold":true}},
+ "columns":[{"text":"头","cell_style":"head"},{"text":"接口","cell_style":"head"},{"text":"目标","cell_style":"head"},{"text":"推理","cell_style":"head"}],
+ "rows":[
+  [{"text":"FAST","cell_style":"name"},"离散 token，LLM 词表","逐 token 自回归交叉熵","自回归 + 逆 tokenizer"],
+  [{"text":"OFT","cell_style":"name"},"K 个 action query","K 个 query 输出与 a(t+k) 的平均 L1","一次前向"],
+  [{"text":"π","cell_style":"name"},"逐层 cross-DiT 流匹配","流匹配 MSE：预测速度 v ≈ A − ε","N 步积分"],
+  [{"text":"GR00T","cell_style":"name"},"双系统：VLM 慢 + DiT 快","同上，额外条件于状态 s、本体 e","N 步去噪"]
+ ]}
+    </metadata>
+    <line x1="64" y1="220" x2="1216" y2="220" stroke="#1B1F24" stroke-width="2"/>
+    <line x1="64" y1="265" x2="1216" y2="265" stroke="#D5D9DE" stroke-width="1"/>
+    <line x1="64" y1="310" x2="1216" y2="310" stroke="#D5D9DE" stroke-width="1"/>
+    <line x1="64" y1="355" x2="1216" y2="355" stroke="#D5D9DE" stroke-width="1"/>
+    <line x1="64" y1="400" x2="1216" y2="400" stroke="#D5D9DE" stroke-width="1"/>
+    <g font-weight="bold" fill="#5F6772">
+      <text x="76" y="204">头</text>
+      <text x="176" y="204">接口</text>
+      <text x="476" y="204">目标</text>
+      <text x="936" y="204">推理</text>
+    </g>
+    <text x="76" y="249" font-weight="bold">FAST</text>
+    <text x="176" y="249">离散 token，LLM 词表</text>
+    <text x="476" y="249">逐 token 自回归交叉熵</text>
+    <text x="936" y="249">自回归 + 逆 tokenizer</text>
+    <text x="76" y="294" font-weight="bold">OFT</text>
+    <text x="176" y="294">K 个 action query</text>
+    <text x="476" y="294">K 个 query 输出与 a(t+k) 的平均 L1</text>
+    <text x="936" y="294">一次前向</text>
+    <text x="76" y="339" font-weight="bold">π</text>
+    <text x="176" y="339">逐层 cross-DiT 流匹配</text>
+    <text x="476" y="339">流匹配 MSE：预测速度 v ≈ A − ε</text>
+    <text x="936" y="339">N 步积分</text>
+    <text x="76" y="384" font-weight="bold">GR00T</text>
+    <text x="176" y="384">双系统：VLM 慢 + DiT 快</text>
+    <text x="476" y="384">同上，额外条件于状态 s、本体 e</text>
+    <text x="936" y="384">N 步去噪</text>
+  </g>
+  <g id="flow-note" data-pptx-bounds="64 418 1152 40">
+    <text x="84" y="446" font-size="22" fill="#1B1F24">线性路径 A<tspan baseline-shift="super" font-size="14">τ</tspan> = (1 − τ)ε + τA，目标速度 u = A − ε；π 与 GR00T 只差运动模块的耦合方式</text>
+  </g>
+  <g id="heads-notes" data-pptx-bounds="64 470 1152 184" font-size="22" fill="#1B1F24">
+    <rect x="84" y="482" width="8" height="8" fill="#0173B2"/>
+    <text x="108" y="494">StarVLA-α 同骨干、同数据只换头：FAST 在 WidowX 落后 <tspan font-weight="bold" fill="#DE8F05">29</tspan> 个点、RoboTwin 落后 <tspan font-weight="bold" fill="#DE8F05">16</tspan> 个点；<tspan x="108" dy="30">三种连续头（MLP / GR00T / π）在 LIBERO 与 RoboTwin 的差距 &lt; 1 个点</tspan></text>
+    <rect x="84" y="552" width="8" height="8" fill="#0173B2"/>
+    <text x="108" y="564">FAST 是唯一不改架构的方案，代价是离散瓶颈 + 串行解码</text>
+    <rect x="84" y="588" width="8" height="8" fill="#0173B2"/>
+    <text x="108" y="600">新范式 = 实现并注册一个头；骨干、训练循环、评测管线不动</text>
+    <rect x="84" y="624" width="8" height="8" fill="#0173B2"/>
+    <text x="108" y="636">骨干够强时动作头的复杂度不必要；但这是同头微调的结论，VLAct 追问：骨干可复用吗</text>
+  </g>
+  <g id="footer" data-pptx-role="footer" data-pptx-bounds="64 676 1152 26" font-size="14" fill="#8A929C">
+    <text x="64" y="694">来源：StarVLA（arXiv 2604.05014）§3；StarVLA-α 同骨干换头实验；reports/05</text>
+    <text x="1216" y="694" text-anchor="end">05 / 18</text>
+  </g>
+</svg>

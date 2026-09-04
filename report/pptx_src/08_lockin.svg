@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" data-pptx-page-role="content" font-family="Arial, Microsoft YaHei">
+  <rect id="bg" data-pptx-role="background" x="0" y="0" width="1280" height="720" fill="#FFFFFF"/>
+  <g id="header" data-pptx-bounds="64 24 1152 92">
+    <rect x="64" y="56" width="6" height="36" fill="#0173B2"/>
+    <text x="84" y="44" font-size="14" fill="#5F6772">04 · VLAct</text>
+    <text x="84" y="86" font-size="34" font-weight="bold" fill="#1B1F24">VLAct 先导实验：单头预训练造成 decoder lock-in</text>
+    <line x1="64" y1="112" x2="1216" y2="112" stroke="#D5D9DE" stroke-width="1"/>
+  </g>
+  <g id="lead" data-pptx-bounds="64 126 1152 34">
+    <text x="84" y="150" font-size="22" font-weight="bold" fill="#0173B2">离散头丢信息；单一连续头把骨干锁进自己的解码几何，多头共监督是解法（PI 60.5 → 77.0）</text>
+  </g>
+  <g id="setup-note" data-pptx-bounds="64 168 1152 28">
+    <text x="64" y="188" font-size="18" fill="#5F6772">设定：固定 Qwen3-VL-4B，只改预训练头与微调头（LIBERO-Plus / RoboTwin-Clean）</text>
+  </g>
+  <g id="finding-a" data-pptx-bounds="64 206 576 200" fill="#1B1F24" font-size="20">
+    <rect x="64" y="212" width="6" height="22" fill="#DE8F05"/>
+    <text x="84" y="230" font-size="22" font-weight="bold">(a) 离散监督能迁移，但丢信息</text>
+    <rect x="84" y="255" width="8" height="8" fill="#5F6772"/>
+    <text x="108" y="266">FAST 预训练 → GR00T 微调：略好于从零</text>
+    <rect x="84" y="287" width="8" height="8" fill="#5F6772"/>
+    <text x="108" y="298">保留 FAST 头：远低于任何连续头，预训练补不回来</text>
+    <rect x="84" y="319" width="8" height="8" fill="#5F6772"/>
+    <text x="108" y="330">离散化丢掉了幅度与时序细节</text>
+  </g>
+  <g id="finding-b" data-pptx-bounds="64 420 576 200" fill="#1B1F24" font-size="20">
+    <rect x="64" y="426" width="6" height="22" fill="#DE8F05"/>
+    <text x="84" y="444" font-size="22" font-weight="bold">(b) 单一连续头造成 head-specific 坍缩</text>
+    <rect x="84" y="469" width="8" height="8" fill="#5F6772"/>
+    <text x="108" y="480">OFT 预训练 → OFT 微调：大涨</text>
+    <rect x="84" y="501" width="8" height="8" fill="#5F6772"/>
+    <text x="108" y="512">同一骨干 → PI / GR00T 微调：<tspan fill="#DE8F05" font-weight="bold">低于从零</tspan></text>
+    <rect x="84" y="533" width="8" height="8" fill="#5F6772"/>
+    <text x="108" y="544">动作信息还在，但只有原头能解码</text>
+  </g>
+  <g id="p08-lockin-table" data-pptx-replace-with="table" data-pptx-bounds="700 206 516 224" font-size="18" fill="#1B1F24" data-pptx-fallback-sha256="c6230943fab331cb8154c745b72c71a331120d588e345b458cff7a03283e587c">
+    <metadata type="application/json">
+{"schema":"ppt-master.semantic-table.v2","name":"p08-lockin-table","x":700,"y":206,"width":516,"height":224,"header_rows":1,
+ "column_widths":[236,150,130],"row_heights":[44,45,45,45,45],
+ "style":{"font_family":"Microsoft YaHei","font_size":18,"body_text":"#1B1F24","band_row":false,"valign":"middle","padding":6},
+ "defaults":{"cell":{"align":"l","borders":{"left":{"style":"none"},"right":{"style":"none"},"top":{"style":"none"},"bottom":{"style":"solid","color":"#D5D9DE","width":1}}}},
+ "cell_styles":{
+  "head":{"bold":true,"color":"#5F6772","borders":{"left":{"style":"none"},"right":{"style":"none"},"top":{"style":"none"},"bottom":{"style":"solid","color":"#1B1F24","width":2}}},
+  "head-r":{"bold":true,"align":"r","color":"#5F6772","borders":{"left":{"style":"none"},"right":{"style":"none"},"top":{"style":"none"},"bottom":{"style":"solid","color":"#1B1F24","width":2}}},
+  "num":{"align":"r"},"num-pos":{"align":"r","color":"#029E73","bold":true},"num-neg":{"align":"r","color":"#DE8F05","bold":true}},
+ "columns":[{"text":"预训练头","cell_style":"head"},{"text":"下游 PI 微调","cell_style":"head-r"},{"text":"vs 从零","cell_style":"head-r"}],
+ "rows":[
+  ["无",{"text":"60.5","cell_style":"num"},{"text":"–","cell_style":"num"}],
+  ["OFT",{"text":"55.1","cell_style":"num-neg"},{"text":"−5.4","cell_style":"num-neg"}],
+  ["OFT + GR00T",{"text":"63.1","cell_style":"num"},{"text":"+2.6","cell_style":"num"}],
+  ["OFT + PI + GR00T",{"text":"77.0","cell_style":"num-pos"},{"text":"+16.5","cell_style":"num-pos"}]
+ ]}
+    </metadata>
+    <line x1="700" y1="250" x2="1216" y2="250" stroke="#1B1F24" stroke-width="2"/>
+    <line x1="700" y1="295" x2="1216" y2="295" stroke="#D5D9DE" stroke-width="1"/>
+    <line x1="700" y1="340" x2="1216" y2="340" stroke="#D5D9DE" stroke-width="1"/>
+    <line x1="700" y1="385" x2="1216" y2="385" stroke="#D5D9DE" stroke-width="1"/>
+    <line x1="700" y1="430" x2="1216" y2="430" stroke="#D5D9DE" stroke-width="1"/>
+    <g font-weight="bold" fill="#5F6772">
+      <text x="712" y="234">预训练头</text>
+      <text x="1074" y="234" text-anchor="end">下游 PI 微调</text>
+      <text x="1204" y="234" text-anchor="end">vs 从零</text>
+    </g>
+    <text x="712" y="279">无</text>
+    <g text-anchor="end"><text x="1074" y="279">60.5</text><text x="1204" y="279">–</text></g>
+    <text x="712" y="324">OFT</text>
+    <g text-anchor="end" font-weight="bold" fill="#DE8F05"><text x="1074" y="324">55.1</text><text x="1204" y="324">−5.4</text></g>
+    <text x="712" y="369">OFT + GR00T</text>
+    <g text-anchor="end"><text x="1074" y="369">63.1</text><text x="1204" y="369">+2.6</text></g>
+    <text x="712" y="414">OFT + PI + GR00T</text>
+    <g text-anchor="end" font-weight="bold" fill="#029E73"><text x="1074" y="414">77.0</text><text x="1204" y="414">+16.5</text></g>
+  </g>
+  <g id="lockin-def" data-pptx-bounds="700 456 516 164">
+    <rect x="700" y="456" width="516" height="164" fill="#E3EEF6"/>
+    <text x="724" y="484" font-size="16" fill="#5F6772">命名</text>
+    <text x="724" y="516" font-size="22" font-weight="bold" fill="#0173B2">decoder lock-in</text>
+    <text x="724" y="552" font-size="18" fill="#1B1F24">骨干把动作信息组织成预训练那个头的解码几何。<tspan x="724" dy="28">同头成功率高估了骨干可复用性。</tspan></text>
+  </g>
+  <g id="footer" data-pptx-role="footer" data-pptx-bounds="64 676 1152 26" font-size="14" fill="#8A929C">
+    <text x="64" y="694">来源：VLAct（arXiv 2608.27550）先导实验；reports/01</text>
+    <text x="1216" y="694" text-anchor="end">08 / 18</text>
+  </g>
+</svg>

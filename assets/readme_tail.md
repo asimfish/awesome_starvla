@@ -78,6 +78,8 @@ awesome_starvla/
 ├── report/
 │   ├── awesome_starvla_slides.tex  # Beamer 源码（XeLaTeX + ctex，16:9）
 │   ├── awesome_starvla_slides.pdf  # 29 页
+│   ├── awesome_starvla_slides.pptx # 18 页原生 PPTX（ppt-master 生成）
+│   ├── pptx_src/                   # PPTX 的 SVG 源页 + 质量报告 + 导出报告
 │   ├── awesome_starvla_full_report.html / .pdf   # 44 页合订全文报告
 ├── code/
 │   └── vlact_ext/                  # VLAct 缺失组件的 StarVLA 扩展（多头框架、wrap loss、统一布局、冻结规则）+ 61 个测试
@@ -99,6 +101,7 @@ awesome_starvla/
 
 - **翻译**：[super_translate](https://github.com/asimfish/super_translate) `paper-translate` skill，DeepSeek 后端，`--preserve-graphics-text`（图表内文字与公式原样保留），译后 `inspect` 视觉 QA。三篇的 QA 报告随 PDF 存放在 `papers/zh/*.inspect.json`。已知瑕疵：VLAct 中文版 p29 公式内指示函数文字保留英文、p30 一行字号偏小；StarVLA-α 中文版 p16 附录目录 9 条保留英文（带 hyperref 引用被判为保护区）；StarVLA 报告中文版 p15 一处字号偏小。正文均已翻译。
 - **合订报告与图**：`python3 scripts/make_figures.py && python3 scripts/build_full_report.py --pdf`（需要 pandoc 与 Google Chrome；公式由 MathJax 渲染，报告源文件统一用 `$...$` / `$$...$$` 定界以兼容 GitHub）。
+- **PPTX**：用 [ppt-master](https://github.com/hugohe3/ppt-master) v6.2 的 Quick Generate 档从 Beamer 内容重排为 18 页，SVG 源页在 `report/pptx_src/`，可用其 `svg_to_pptx.py --quick-generate --native-charts-and-tables` 重新导出。字体为 Microsoft YaHei / Arial，文本框 `wrap=none`；用 LibreOffice 预览时缺少 YaHei 会出现假性折行，PowerPoint 中正常（已按真实字体度量核对：无任何一行超出页面右边距）。
 - **幻灯片**：`bash scripts/build_slides.sh`，需要 XeLaTeX 与 Fandol 字体（MiKTeX / TeX Live 均可）。遵循 [beamer-skill](https://github.com/Noi1r/beamer-skill) 规范：16:9、10pt、无 overlay、每页 ≤2 个彩色框、参考文献页 + 备份页。
 - **写作**：报告与 README 按 [anti-defensive-writing](https://github.com/Kiterlin/anti-defensive-writing) 与 [shuorenhua](https://github.com/MrGeDiao/shuorenhua) 的规则写：直接陈述、不做防御性免责、不用"值得注意的是 / 综上所述"类套话、术语保留英文、数字必须有出处。
 - **文献核验**：每条 arXiv 链接用 `curl "http://export.arxiv.org/api/query?id_list=<ID>"` 取回标题逐条比对；GitHub / 项目页链接经 HTTP 200 检查（2026-09-04）。

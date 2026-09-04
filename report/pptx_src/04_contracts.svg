@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" data-pptx-page-role="content" font-family="Arial, Microsoft YaHei">
+  <defs>
+    <marker id="arrowhead" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <polygon points="0,0 10,5 0,10" fill="#5F6772"/>
+    </marker>
+  </defs>
+  <rect id="bg" data-pptx-role="background" x="0" y="0" width="1280" height="720" fill="#FFFFFF"/>
+  <g id="header" data-pptx-bounds="64 24 1152 92">
+    <rect x="64" y="56" width="6" height="36" fill="#0173B2"/>
+    <text x="84" y="44" font-size="14" fill="#5F6772">02 · StarVLA 代码库</text>
+    <text x="84" y="86" font-size="34" font-weight="bold" fill="#1B1F24">StarVLA：两条契约把 VLA 拆成可替换的部件</text>
+    <line x1="64" y1="112" x2="1216" y2="112" stroke="#D5D9DE" stroke-width="1"/>
+  </g>
+  <g id="lead" data-pptx-bounds="64 126 1152 34">
+    <text x="84" y="150" font-size="22" font-weight="bold" fill="#0173B2">外层契约：训练输入 = 部署观测；内层契约：统一 hidden state 连接骨干与头，可独立替换</text>
+  </g>
+  <g id="contract-pipeline" data-pptx-bounds="64 176 1152 274">
+    <text x="655" y="200" font-size="16" fill="#5F6772" text-anchor="middle">内层契约：骨干与头通过统一 hidden-state 规格连接，可独立替换</text>
+    <g transform="rotate(90 655 226)">
+<g id="p04-brace-inner" data-pptx-authoring="preset" data-pptx-object="shape" data-pptx-prst="leftBrace" data-pptx-frame="644 -137 22 726" data-pptx-av-adj1="val 50000" fill="none" stroke="#5F6772" stroke-width="2">
+<path d="M 666 589 A 11 11 0 0 1 655 578 L 655 237 A 11 11 0 0 0 644 226 A 11 11 0 0 0 655 215 L 655 -126 A 11 11 0 0 1 666 -137 Z" stroke="none"/>
+<path d="M 666 589 A 11 11 0 0 1 655 578 L 655 237 A 11 11 0 0 0 644 226 A 11 11 0 0 0 655 215 L 655 -126 A 11 11 0 0 1 666 -137"/>
+</g>
+    </g>
+    <rect x="64" y="250" width="180" height="120" fill="#F3F4F6"/>
+    <rect x="292" y="250" width="290" height="120" fill="#E3EEF6"/>
+    <rect x="630" y="250" width="140" height="120" fill="#FFFFFF" stroke="#0173B2" stroke-width="2"/>
+    <rect x="818" y="250" width="200" height="120" fill="#E0F2EC"/>
+    <rect x="1066" y="250" width="150" height="120" fill="#F3F4F6"/>
+    <g fill="#1B1F24" font-size="16">
+      <text x="80" y="288" font-size="20" font-weight="bold">原始观测</text>
+      <text x="80" y="318">RGB 多视角 + 指令</text>
+      <text x="80" y="342">(+ 状态)</text>
+      <text x="308" y="282" font-size="20" font-weight="bold">VL 骨干</text>
+      <text x="308" y="308">Qwen2.5/3-VL · Qwen3.5</text>
+      <text x="308" y="330">Florence-2 · InternVL · Gemma</text>
+      <text x="308" y="352">或 Cosmos / Wan（视频 DiT）</text>
+      <text x="700" y="300" text-anchor="middle">hidden state</text>
+      <text x="700" y="338" font-size="26" font-weight="bold" font-style="italic" text-anchor="middle" fill="#0173B2">z</text>
+      <text x="834" y="288" font-size="20" font-weight="bold">动作头</text>
+      <text x="834" y="322">FAST / OFT / π / GR00T</text>
+      <text x="1082" y="288" font-size="20" font-weight="bold">动作块</text>
+      <text x="1082" y="322">归一化动作</text>
+    </g>
+    <g stroke="#5F6772" stroke-width="2">
+      <line x1="246" y1="310" x2="286" y2="310" marker-end="url(#arrowhead)"/>
+      <line x1="584" y1="310" x2="624" y2="310" marker-end="url(#arrowhead)"/>
+      <line x1="772" y1="310" x2="812" y2="310" marker-end="url(#arrowhead)"/>
+      <line x1="1020" y1="310" x2="1060" y2="310" marker-end="url(#arrowhead)"/>
+    </g>
+    <g transform="rotate(-90 640 396)">
+<g id="p04-brace-outer" data-pptx-authoring="preset" data-pptx-object="shape" data-pptx-prst="leftBrace" data-pptx-frame="629 -180 22 1152" data-pptx-av-adj1="val 50000" fill="none" stroke="#5F6772" stroke-width="2">
+<path d="M 651 972 A 11 11 0 0 1 640 961 L 640 407 A 11 11 0 0 0 629 396 A 11 11 0 0 0 640 385 L 640 -169 A 11 11 0 0 1 651 -180 Z" stroke="none"/>
+<path d="M 651 972 A 11 11 0 0 1 640 961 L 640 407 A 11 11 0 0 0 629 396 A 11 11 0 0 0 640 385 L 640 -169 A 11 11 0 0 1 651 -180"/>
+</g>
+    </g>
+    <text x="640" y="436" font-size="16" fill="#5F6772" text-anchor="middle">外层契约：forward / predict_action 都直接吃原始观测，训练输入 = 部署观测</text>
+  </g>
+  <g id="starvla-notes" data-pptx-bounds="64 470 1152 200" font-size="22" fill="#1B1F24">
+    <rect x="84" y="482" width="8" height="8" fill="#0173B2"/>
+    <text x="108" y="494">每个 framework 文件可单独运行（smoke test）；<tspan x="108" dy="30">YAML + 点路径命令行覆盖（--framework.qwenvl.base_vlm）</tspan></text>
+    <rect x="84" y="546" width="8" height="8" fill="#0173B2"/>
+    <text x="108" y="558">冻结 = 模块名正则；分模块学习率 = trainer.learning_rate 字典</text>
+    <rect x="84" y="580" width="8" height="8" fill="#0173B2"/>
+    <text x="108" y="592">评测：WebSocket 策略服务器 + 基准侧薄适配器（model2libero_interface.py 等），仿真与真机共用</text>
+    <rect x="84" y="614" width="8" height="8" fill="#0173B2"/>
+    <text x="108" y="626">13 个仿真基准 + 真机（Franka / Realman / Unitree G1 / RoboChallenge）</text>
+    <rect x="84" y="648" width="8" height="8" fill="#0173B2"/>
+    <text x="108" y="660">多节点扩展：GR00T 头从 8 卡到 256 卡效率 <tspan font-weight="bold" fill="#0173B2">79.1%</tspan>，数据量驱动的训练可放心扩到数百卡</text>
+  </g>
+  <g id="footer" data-pptx-role="footer" data-pptx-bounds="64 676 1152 26" font-size="14" fill="#8A929C">
+    <text x="64" y="694">来源：StarVLA（arXiv 2604.05014）；reports/02、04 代码库分析</text>
+    <text x="1216" y="694" text-anchor="end">04 / 18</text>
+  </g>
+</svg>

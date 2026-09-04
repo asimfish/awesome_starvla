@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" data-pptx-page-role="content" font-family="Arial, Microsoft YaHei">
+  <rect id="bg" data-pptx-role="background" x="0" y="0" width="1280" height="720" fill="#FFFFFF"/>
+  <g id="header" data-pptx-bounds="64 24 1152 92">
+    <rect x="64" y="56" width="6" height="36" fill="#0173B2"/>
+    <text x="84" y="44" font-size="14" fill="#5F6772">05 · 对话与评价</text>
+    <text x="84" y="86" font-size="34" font-weight="bold" fill="#1B1F24">同样的数据源，配方决定符号</text>
+    <line x1="64" y1="112" x2="1216" y2="112" stroke="#D5D9DE" stroke-width="1"/>
+  </g>
+  <g id="lead" data-pptx-bounds="64 126 1152 34">
+    <text x="84" y="150" font-size="22" font-weight="bold" fill="#0173B2">“Beyond Data Scaling” 的实证含义：预训练是否有用取决于配方，而不是数据量</text>
+  </g>
+  <g id="p11-dialogue-table" data-pptx-replace-with="table" data-pptx-bounds="64 176 1152 324" font-size="18" fill="#1B1F24" data-pptx-fallback-sha256="6b6357d34be778be2ccd72d468821dab885fe034f0c731d66947d5388e580b1f">
+    <metadata type="application/json">
+{"schema":"ppt-master.semantic-table.v2","name":"p11-dialogue-table","x":64,"y":176,"width":1152,"height":324,"header_rows":1,
+ "column_widths":[232,380,540],"row_heights":[44,44,60,44,44,44,44],
+ "style":{"font_family":"Microsoft YaHei","font_size":18,"body_text":"#1B1F24","band_row":false,"valign":"middle","padding":6},
+ "defaults":{"cell":{"align":"l","borders":{"left":{"style":"none"},"right":{"style":"none"},"top":{"style":"none"},"bottom":{"style":"solid","color":"#D5D9DE","width":1}}}},
+ "cell_styles":{
+  "head":{"bold":true,"color":"#5F6772","borders":{"left":{"style":"none"},"right":{"style":"none"},"top":{"style":"none"},"bottom":{"style":"solid","color":"#1B1F24","width":2}}},
+  "name":{"bold":true},"bold":{"bold":true}},
+ "columns":[{"text":"","cell_style":"head"},{"text":"StarVLA-α（2026-04）","cell_style":"head"},{"text":"VLAct（2026-08）","cell_style":"head"}],
+ "rows":[
+  [{"text":"骨干","cell_style":"name"},"Qwen3-VL-4B","Qwen3-VL-4B"],
+  [{"text":"预训练数据","cell_style":"name"},"OXE / InternData-A1 / RoboTwin-Rand",{"paragraphs":["DROID + InternData-A1 + RoboCoin","+ MolmoAct + caption"]}],
+  [{"text":"预训练方式","cell_style":"name"},"单 MLP 头，全参数，动作-only","冻浅层，三头，部分统一空间，caption 混训"],
+  [{"text":"GR1（未见本体）","cell_style":"name"},{"paragraphs":[{"runs":[{"text":"53.8 → "},{"text":"35.4","color":"#DE8F05","bold":true},{"text":"（+A1）"}]}]},{"paragraphs":[{"runs":[{"text":"48.8 → "},{"text":"54.0","color":"#029E73","bold":true},{"text":"；20% 数据 "},{"text":"49.5","color":"#029E73","bold":true}]}]}],
+  [{"text":"RoboTwin Base Clean","cell_style":"name"},"50.3 → 63.6（+A1）",{"paragraphs":[{"runs":[{"text":"61.7 → "},{"text":"80.5","color":"#029E73","bold":true}]}]}],
+  [{"text":"结论","cell_style":"name"},"预训练是双刃剑",{"text":"预训练是否有用取决于配方","cell_style":"bold"}]
+ ]}
+    </metadata>
+    <line x1="64" y1="220" x2="1216" y2="220" stroke="#1B1F24" stroke-width="2"/>
+    <g stroke="#D5D9DE" stroke-width="1">
+      <line x1="64" y1="264" x2="1216" y2="264"/><line x1="64" y1="324" x2="1216" y2="324"/><line x1="64" y1="368" x2="1216" y2="368"/>
+      <line x1="64" y1="412" x2="1216" y2="412"/><line x1="64" y1="456" x2="1216" y2="456"/><line x1="64" y1="500" x2="1216" y2="500"/>
+    </g>
+    <g font-weight="bold" fill="#5F6772">
+      <text x="308" y="204">StarVLA-α（2026-04）</text>
+      <text x="688" y="204">VLAct（2026-08）</text>
+    </g>
+    <text x="76" y="249" font-weight="bold">骨干</text><text x="308" y="249">Qwen3-VL-4B</text><text x="688" y="249">Qwen3-VL-4B</text>
+    <text x="76" y="300" font-weight="bold">预训练数据</text><text x="308" y="300">OXE / InternData-A1 / RoboTwin-Rand</text><text x="688" y="288">DROID + InternData-A1 + RoboCoin<tspan x="688" dy="22">+ MolmoAct + caption</tspan></text>
+    <text x="76" y="353" font-weight="bold">预训练方式</text><text x="308" y="353">单 MLP 头，全参数，动作-only</text><text x="688" y="353">冻浅层，三头，部分统一空间，caption 混训</text>
+    <text x="76" y="397" font-weight="bold">GR1（未见本体）</text><text x="308" y="397">53.8 → <tspan fill="#DE8F05" font-weight="bold">35.4</tspan>（+A1）</text><text x="688" y="397">48.8 → <tspan fill="#029E73" font-weight="bold">54.0</tspan>；20% 数据 <tspan fill="#029E73" font-weight="bold">49.5</tspan></text>
+    <text x="76" y="441" font-weight="bold">RoboTwin Base Clean</text><text x="308" y="441">50.3 → 63.6（+A1）</text><text x="688" y="441">61.7 → <tspan fill="#029E73" font-weight="bold">80.5</tspan></text>
+    <text x="76" y="485" font-weight="bold">结论</text><text x="308" y="485">预训练是双刃剑</text><text x="688" y="485" font-weight="bold">预训练是否有用取决于配方</text>
+  </g>
+  <g id="dialogue-notes" data-pptx-bounds="64 520 1152 134" font-size="22" fill="#1B1F24">
+    <rect x="84" y="532" width="8" height="8" fill="#0173B2"/>
+    <text x="108" y="544">动作空间上两篇也叠加：零填充 &gt; 独立头 / RDT（α 表 6）；<tspan x="108" dy="30">零填充之上再做物理同义维对齐再 +1（VLAct 表 12）</tspan></text>
+    <rect x="84" y="602" width="8" height="8" fill="#0173B2"/>
+    <text x="108" y="614">共训保护先验一线：ST4VLA（StarVLA 报告 §6）Google VM 66.1 → 84.6，<tspan x="108" dy="30">VLAct 选 caption 作最强单源锚点</tspan></text>
+  </g>
+  <g id="footer" data-pptx-role="footer" data-pptx-bounds="64 676 1152 26" font-size="14" fill="#8A929C">
+    <text x="64" y="694">来源：StarVLA-α 表 3、表 6；VLAct 表 12；reports/05、06</text>
+    <text x="1216" y="694" text-anchor="end">11 / 18</text>
+  </g>
+</svg>

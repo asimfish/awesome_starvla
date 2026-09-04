@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" data-pptx-page-role="content" font-family="Arial, Microsoft YaHei">
+  <rect id="bg" data-pptx-role="background" x="0" y="0" width="1280" height="720" fill="#FFFFFF"/>
+  <g id="header" data-pptx-bounds="64 24 1152 92">
+    <rect x="64" y="56" width="6" height="36" fill="#0173B2"/>
+    <text x="84" y="44" font-size="14" fill="#5F6772">07 · 基准与路线图</text>
+    <text x="84" y="86" font-size="34" font-weight="bold" fill="#1B1F24">研究持续预训练该用哪几个基准：五个优先，五个不建议</text>
+    <line x1="64" y1="112" x2="1216" y2="112" stroke="#D5D9DE" stroke-width="1"/>
+  </g>
+  <g id="lead" data-pptx-bounds="64 126 1152 34">
+    <text x="84" y="150" font-size="22" font-weight="bold" fill="#0173B2">训练集固定、提升只能来自骨干的基准优先；饱和、方差大或评测极贵的基准不建议</text>
+  </g>
+  <g id="p15-bench-table" data-pptx-replace-with="table" data-pptx-bounds="64 176 1152 288" font-size="16" fill="#1B1F24" data-pptx-fallback-sha256="eb08a3d358d49ad0678d1fa135cfe2e7285d643792dd12d26e34560f2cf28e9f">
+    <metadata type="application/json">
+{"schema":"ppt-master.semantic-table.v2","name":"p15-bench-table","x":64,"y":176,"width":1152,"height":288,"header_rows":1,
+ "column_widths":[90,300,260,502],"row_heights":[36,36,36,36,36,36,72],
+ "style":{"font_family":"Microsoft YaHei","font_size":16,"body_text":"#1B1F24","band_row":false,"valign":"middle","padding":5},
+ "defaults":{"cell":{"align":"l","borders":{"left":{"style":"none"},"right":{"style":"none"},"top":{"style":"none"},"bottom":{"style":"solid","color":"#D5D9DE","width":1}}}},
+ "cell_styles":{
+  "head":{"bold":true,"color":"#5F6772","borders":{"left":{"style":"none"},"right":{"style":"none"},"top":{"style":"none"},"bottom":{"style":"solid","color":"#1B1F24","width":2}}},
+  "rank":{"bold":true,"color":"#0173B2"},"no":{"bold":true,"color":"#DE8F05"},"name":{"bold":true}},
+ "columns":[{"text":"优先级","cell_style":"head"},{"text":"基准","cell_style":"head"},{"text":"考察的能力","cell_style":"head"},{"text":"理由","cell_style":"head"}],
+ "rows":[
+  [{"text":"1","cell_style":"rank"},{"text":"LIBERO-plus","cell_style":"name"},"零样本鲁棒性（7 维扰动）","训练集固定，提升只能来自骨干；10,030 实例噪声小"],
+  [{"text":"2","cell_style":"rank"},{"text":"RoboTwin 2.0 Base","cell_style":"name"},"少样本 + clean→random","50 条/任务放大表征价值；必须同报 clean 与 random"],
+  [{"text":"3","cell_style":"rank"},{"text":"RoboCasa-GR1 数据比例曲线","cell_style":"name"},"未见本体样本效率","人形，形态 / 动作空间都不同；基线也要跑同样比例点"],
+  [{"text":"4","cell_style":"rank"},{"text":"VLA-Arena","cell_style":"name"},"L0→L1/L2 外推、安全代价","与“表示能否支撑结构外推”一致"],
+  [{"text":"5","cell_style":"rank"},{"text":"RoboDojo","cell_style":"name"},"第三方裁判 + 五维诊断","唯一带 Memory / Precision 拆分的榜单；适合最终报告"],
+  [{"text":"不建议","cell_style":"no"},{"paragraphs":["LIBERO 标准版、SimplerEnv、","MetaWorld、CALVIN D→D、","BEHAVIOR"]},"–","饱和、方差大、或评测成本极高"]
+ ]}
+    </metadata>
+    <line x1="64" y1="212" x2="1216" y2="212" stroke="#1B1F24" stroke-width="2"/>
+    <g stroke="#D5D9DE" stroke-width="1">
+      <line x1="64" y1="248" x2="1216" y2="248"/><line x1="64" y1="284" x2="1216" y2="284"/><line x1="64" y1="320" x2="1216" y2="320"/>
+      <line x1="64" y1="356" x2="1216" y2="356"/><line x1="64" y1="392" x2="1216" y2="392"/><line x1="64" y1="464" x2="1216" y2="464"/>
+    </g>
+    <g font-weight="bold" fill="#5F6772">
+      <text x="76" y="200">优先级</text><text x="166" y="200">基准</text><text x="466" y="200">考察的能力</text><text x="726" y="200">理由</text>
+    </g>
+    <text x="76" y="236" font-weight="bold" fill="#0173B2">1</text><text x="166" y="236" font-weight="bold">LIBERO-plus</text><text x="466" y="236">零样本鲁棒性（7 维扰动）</text><text x="726" y="236">训练集固定，提升只能来自骨干；10,030 实例噪声小</text>
+    <text x="76" y="272" font-weight="bold" fill="#0173B2">2</text><text x="166" y="272" font-weight="bold">RoboTwin 2.0 Base</text><text x="466" y="272">少样本 + clean→random</text><text x="726" y="272">50 条/任务放大表征价值；必须同报 clean 与 random</text>
+    <text x="76" y="308" font-weight="bold" fill="#0173B2">3</text><text x="166" y="308" font-weight="bold">RoboCasa-GR1 数据比例曲线</text><text x="466" y="308">未见本体样本效率</text><text x="726" y="308">人形，形态 / 动作空间都不同；基线也要跑同样比例点</text>
+    <text x="76" y="344" font-weight="bold" fill="#0173B2">4</text><text x="166" y="344" font-weight="bold">VLA-Arena</text><text x="466" y="344">L0→L1/L2 外推、安全代价</text><text x="726" y="344">与“表示能否支撑结构外推”一致</text>
+    <text x="76" y="380" font-weight="bold" fill="#0173B2">5</text><text x="166" y="380" font-weight="bold">RoboDojo</text><text x="466" y="380">第三方裁判 + 五维诊断</text><text x="726" y="380">唯一带 Memory / Precision 拆分的榜单；适合最终报告</text>
+    <text x="76" y="435" font-weight="bold" fill="#DE8F05">不建议</text><text x="166" y="413">LIBERO 标准版、SimplerEnv、<tspan x="166" dy="22">MetaWorld、CALVIN D→D、</tspan><tspan x="166" dy="22">BEHAVIOR</tspan></text><text x="466" y="435">–</text><text x="726" y="435">饱和、方差大、或评测成本极高</text>
+  </g>
+  <g id="protocol-notes" data-pptx-bounds="64 484 1152 168" font-size="20" fill="#1B1F24">
+    <text x="64" y="508"><tspan x="64" dy="0"><tspan font-weight="bold">报告协议：</tspan>固定下游预算并写明 checkpoint 规则；≥3 seeds；区分见过 / held-out 本体</tspan><tspan x="64" dy="30">（VLAct 只有 GR1 与 ARX X5 是真 held-out）；RoboTwin 四个数都给；附表示层诊断（跨头迁移矩阵）</tspan></text>
+    <text x="64" y="584"><tspan x="64" dy="0"><tspan font-weight="bold">没有好基准的维度：</tspan>Memory（RoboDojo 6 任务几乎人人接近零）、中等长程分步计分、</tspan><tspan x="64" dy="30">跨本体零样本、动态场景（只有 DOMINO）</tspan></text>
+  </g>
+  <g id="footer" data-pptx-role="footer" data-pptx-bounds="64 676 1152 26" font-size="14" fill="#8A929C">
+    <text x="64" y="694">来源：reports/06 基准图谱；VLAct 与 StarVLA-α 的评测设定</text>
+    <text x="1216" y="694" text-anchor="end">15 / 18</text>
+  </g>
+</svg>

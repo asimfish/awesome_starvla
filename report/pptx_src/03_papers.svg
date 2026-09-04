@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" data-pptx-page-role="content" font-family="Arial, Microsoft YaHei">
+  <defs>
+    <marker id="arrowhead" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <polygon points="0,0 10,5 0,10" fill="#5F6772"/>
+    </marker>
+  </defs>
+  <rect id="bg" data-pptx-role="background" x="0" y="0" width="1280" height="720" fill="#FFFFFF"/>
+  <g id="header" data-pptx-bounds="64 24 1152 92">
+    <rect x="64" y="56" width="6" height="36" fill="#0173B2"/>
+    <text x="84" y="44" font-size="14" fill="#5F6772">01 · 开场</text>
+    <text x="84" y="86" font-size="34" font-weight="bold" fill="#1B1F24">三篇论文：同一团队、同一骨干、同一代码</text>
+    <line x1="64" y1="112" x2="1216" y2="112" stroke="#D5D9DE" stroke-width="1"/>
+  </g>
+  <g id="lead" data-pptx-bounds="64 126 1152 34">
+    <text x="84" y="150" font-size="22" font-weight="bold" fill="#0173B2">这让动作头、预训练配方、动作空间三个变量第一次可以被单独隔离</text>
+  </g>
+  <g id="paper-chain" data-pptx-bounds="64 190 1152 232">
+    <rect x="64" y="196" width="284" height="220" fill="#F3F4F6"/>
+    <rect x="64" y="196" width="284" height="4" fill="#0173B2"/>
+    <rect x="498" y="196" width="284" height="220" fill="#F3F4F6"/>
+    <rect x="498" y="196" width="284" height="4" fill="#0173B2"/>
+    <rect x="932" y="196" width="284" height="220" fill="#E0F2EC"/>
+    <rect x="932" y="196" width="284" height="4" fill="#029E73"/>
+    <g fill="#1B1F24" font-size="18">
+      <text x="84" y="250" font-size="22" font-weight="bold">StarVLA 代码库</text>
+      <text x="84" y="292">arXiv 2604.05014</text>
+      <text x="84" y="322">骨干–动作头两条契约</text>
+      <text x="84" y="352">4 头 × 2 类骨干 × 13 基准</text>
+      <text x="518" y="250" font-size="22" font-weight="bold">StarVLA-α</text>
+      <text x="518" y="292">arXiv 2604.11757 · ECCV 26</text>
+      <text x="518" y="322">最简基线 = 强 VLM + MLP</text>
+      <text x="518" y="352">重新检验三个“常识”</text>
+      <text x="952" y="250" font-size="22" font-weight="bold">VLAct</text>
+      <text x="952" y="292">arXiv 2608.27550</text>
+      <text x="952" y="322">表示中心持续预训练</text>
+      <text x="952" y="352">冻浅层 + 三头 + 统一动作空间</text>
+    </g>
+    <line x1="352" y1="306" x2="490" y2="306" stroke="#5F6772" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <line x1="786" y1="306" x2="924" y2="306" stroke="#5F6772" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <g font-size="16" fill="#5F6772" text-anchor="middle">
+      <text x="423" y="294">提供基础设施</text>
+      <text x="857" y="294">预训练是双刃剑</text>
+      <text x="857" y="332">⇒ 为什么？</text>
+    </g>
+  </g>
+  <g id="paper-notes" data-pptx-bounds="64 444 1152 84" font-size="22" fill="#1B1F24">
+    <rect x="84" y="458" width="8" height="8" fill="#0173B2"/>
+    <text x="108" y="470">共同点：同一团队（HKUST / CUHK / SmartMore，Jiaya Jia 组）、同一骨干、同一代码</text>
+    <rect x="84" y="498" width="8" height="8" fill="#0173B2"/>
+    <text x="108" y="510">本仓库：3 篇论文中英 PDF、7 份精读报告、~100 篇文献编目、本 PPT</text>
+  </g>
+  <g id="footer" data-pptx-role="footer" data-pptx-bounds="64 676 1152 26" font-size="14" fill="#8A929C">
+    <text x="64" y="694">来源：arXiv 2604.05014 / 2604.11757 / 2608.27550；awesome_starvla README</text>
+    <text x="1216" y="694" text-anchor="end">03 / 18</text>
+  </g>
+</svg>

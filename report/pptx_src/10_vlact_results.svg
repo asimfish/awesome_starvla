@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" data-pptx-page-role="content" font-family="Arial, Microsoft YaHei">
+  <rect id="bg" data-pptx-role="background" x="0" y="0" width="1280" height="720" fill="#FFFFFF"/>
+  <g id="header" data-pptx-bounds="64 24 1152 92">
+    <rect x="64" y="56" width="6" height="36" fill="#0173B2"/>
+    <text x="84" y="44" font-size="14" fill="#5F6772">04 · VLAct</text>
+    <text x="84" y="86" font-size="34" font-weight="bold" fill="#1B1F24">VLAct 主结果：只换骨干权重，相对同骨干基线全面提升</text>
+    <line x1="64" y1="112" x2="1216" y2="112" stroke="#D5D9DE" stroke-width="1"/>
+  </g>
+  <g id="lead" data-pptx-bounds="64 126 1152 34">
+    <text x="84" y="150" font-size="22" font-weight="bold" fill="#0173B2">LIBERO-Plus +7.6、VLA-Arena +21.4；GR1 用 20% 数据就超过全量 GR00T-N1.6</text>
+  </g>
+  <g id="p10-results-table" data-pptx-replace-with="table" data-pptx-bounds="64 172 1152 352" font-size="16" fill="#1B1F24" data-pptx-fallback-sha256="8070edd477c86b0faabc7712a36de156bdb2f9deef24abb3167015a61dfe246d">
+    <metadata type="application/json">
+{"schema":"ppt-master.semantic-table.v2","name":"p10-results-table","x":64,"y":172,"width":1152,"height":352,"header_rows":1,
+ "column_widths":[300,180,190,190,292],"row_heights":[32,32,32,32,32,32,32,32,32,32,32],
+ "style":{"font_family":"Microsoft YaHei","font_size":16,"body_text":"#1B1F24","band_row":false,"valign":"middle","padding":4},
+ "defaults":{"cell":{"align":"l","borders":{"left":{"style":"none"},"right":{"style":"none"},"top":{"style":"none"},"bottom":{"style":"solid","color":"#D5D9DE","width":1}}}},
+ "cell_styles":{
+  "head":{"bold":true,"color":"#5F6772","borders":{"left":{"style":"none"},"right":{"style":"none"},"top":{"style":"none"},"bottom":{"style":"solid","color":"#1B1F24","width":2}}},
+  "head-r":{"bold":true,"align":"r","color":"#5F6772","borders":{"left":{"style":"none"},"right":{"style":"none"},"top":{"style":"none"},"bottom":{"style":"solid","color":"#1B1F24","width":2}}},
+  "num":{"align":"r"},"num-pos":{"align":"r","color":"#029E73","bold":true},"bold":{"bold":true}},
+ "columns":[{"text":"基准","cell_style":"head"},{"text":"设定","cell_style":"head"},{"text":"VLAct","cell_style":"head-r"},{"text":"同骨干基线","cell_style":"head-r"},{"text":"最强外部对手","cell_style":"head"}],
+ "rows":[
+  ["LIBERO-Plus","7 类扰动均值",{"text":"82.6","cell_style":"num-pos"},{"text":"75.0","cell_style":"num"},"ABot-M0 80.5"],
+  ["VLA-Arena","11 套件加权",{"text":"54.8","cell_style":"num-pos"},{"text":"33.4","cell_style":"num"},"π0.5 44.3"],
+  ["RoboTwin 2.0 Base","Clean / Random",{"text":"80.5 / 41.5","cell_style":"num-pos"},{"text":"61.7 / 10.5","cell_style":"num"},"X-VLA 70.0 / 39.0"],
+  ["RoboTwin 2.0 Data Scaling","Clean / Random",{"align":"r","paragraphs":[{"runs":[{"text":"92.5","color":"#029E73","bold":true},{"text":" / 90.8"}]}]},{"text":"88.2 / 88.3","cell_style":"num"},"HoloBrain-0 91.9 / 92.3"],
+  ["DOMINO（动态）","SR / MS",{"text":"18.50 / 34.20","cell_style":"num-pos"},{"text":"10.86 / 30.49","cell_style":"num"},"π0.5 9.63 / 26.17"],
+  ["RoboCasa-GR1（未见本体）","全量",{"text":"54.0","cell_style":"num-pos"},{"text":"48.8","cell_style":"num"},"GR00T-N1.6 47.6"],
+  ["RoboCasa-GR1",{"text":"20% 数据","cell_style":"bold"},{"text":"49.5","cell_style":"num-pos"},{"text":"–","cell_style":"num"},"超全量 GR00T-N1.6"],
+  ["RoboDojo（ARX X5，未见）","分数 / 成功率",{"text":"10.66 / 7.60","cell_style":"num"},{"text":"α 6.40 / 3.24","cell_style":"num"},"DM0.5 24.90 / 19.34"],
+  ["真机 Franka 单臂短程","4 任务",{"text":"92.5","cell_style":"num-pos"},{"text":"77.5","cell_style":"num"},"–"],
+  ["真机 Franka 双臂协调","5 任务",{"text":"72.0","cell_style":"num-pos"},{"text":"44.0","cell_style":"num"},"–"]
+ ]}
+    </metadata>
+    <line x1="64" y1="204" x2="1216" y2="204" stroke="#1B1F24" stroke-width="2"/>
+    <g stroke="#D5D9DE" stroke-width="1">
+      <line x1="64" y1="236" x2="1216" y2="236"/><line x1="64" y1="268" x2="1216" y2="268"/><line x1="64" y1="300" x2="1216" y2="300"/><line x1="64" y1="332" x2="1216" y2="332"/><line x1="64" y1="364" x2="1216" y2="364"/>
+      <line x1="64" y1="396" x2="1216" y2="396"/><line x1="64" y1="428" x2="1216" y2="428"/><line x1="64" y1="460" x2="1216" y2="460"/><line x1="64" y1="492" x2="1216" y2="492"/><line x1="64" y1="524" x2="1216" y2="524"/>
+    </g>
+    <g font-weight="bold" fill="#5F6772">
+      <text x="76" y="194">基准</text>
+      <text x="376" y="194">设定</text>
+      <text x="722" y="194" text-anchor="end">VLAct</text>
+      <text x="912" y="194" text-anchor="end">同骨干基线</text>
+      <text x="936" y="194">最强外部对手</text>
+    </g>
+    <text x="76" y="226">LIBERO-Plus</text><text x="376" y="226">7 类扰动均值</text><text x="722" y="226" text-anchor="end" font-weight="bold" fill="#029E73">82.6</text><text x="912" y="226" text-anchor="end">75.0</text><text x="936" y="226">ABot-M0 80.5</text>
+    <text x="76" y="258">VLA-Arena</text><text x="376" y="258">11 套件加权</text><text x="722" y="258" text-anchor="end" font-weight="bold" fill="#029E73">54.8</text><text x="912" y="258" text-anchor="end">33.4</text><text x="936" y="258">π0.5 44.3</text>
+    <text x="76" y="290">RoboTwin 2.0 Base</text><text x="376" y="290">Clean / Random</text><text x="722" y="290" text-anchor="end" font-weight="bold" fill="#029E73">80.5 / 41.5</text><text x="912" y="290" text-anchor="end">61.7 / 10.5</text><text x="936" y="290">X-VLA 70.0 / 39.0</text>
+    <text x="76" y="322">RoboTwin 2.0 Data Scaling</text><text x="376" y="322">Clean / Random</text><text x="722" y="322" text-anchor="end"><tspan font-weight="bold" fill="#029E73">92.5</tspan> / 90.8</text><text x="912" y="322" text-anchor="end">88.2 / 88.3</text><text x="936" y="322">HoloBrain-0 91.9 / 92.3</text>
+    <text x="76" y="354">DOMINO（动态）</text><text x="376" y="354">SR / MS</text><text x="722" y="354" text-anchor="end" font-weight="bold" fill="#029E73">18.50 / 34.20</text><text x="912" y="354" text-anchor="end">10.86 / 30.49</text><text x="936" y="354">π0.5 9.63 / 26.17</text>
+    <text x="76" y="386">RoboCasa-GR1（未见本体）</text><text x="376" y="386">全量</text><text x="722" y="386" text-anchor="end" font-weight="bold" fill="#029E73">54.0</text><text x="912" y="386" text-anchor="end">48.8</text><text x="936" y="386">GR00T-N1.6 47.6</text>
+    <text x="76" y="418">RoboCasa-GR1</text><text x="376" y="418" font-weight="bold">20% 数据</text><text x="722" y="418" text-anchor="end" font-weight="bold" fill="#029E73">49.5</text><text x="912" y="418" text-anchor="end">–</text><text x="936" y="418">超全量 GR00T-N1.6</text>
+    <text x="76" y="450">RoboDojo（ARX X5，未见）</text><text x="376" y="450">分数 / 成功率</text><text x="722" y="450" text-anchor="end">10.66 / 7.60</text><text x="912" y="450" text-anchor="end">α 6.40 / 3.24</text><text x="936" y="450">DM0.5 24.90 / 19.34</text>
+    <text x="76" y="482">真机 Franka 单臂短程</text><text x="376" y="482">4 任务</text><text x="722" y="482" text-anchor="end" font-weight="bold" fill="#029E73">92.5</text><text x="912" y="482" text-anchor="end">77.5</text><text x="936" y="482">–</text>
+    <text x="76" y="514">真机 Franka 双臂协调</text><text x="376" y="514">5 任务</text><text x="722" y="514" text-anchor="end" font-weight="bold" fill="#029E73">72.0</text><text x="912" y="514" text-anchor="end">44.0</text><text x="936" y="514">–</text>
+  </g>
+  <g id="results-notes" data-pptx-bounds="64 540 1152 112" font-size="22" fill="#1B1F24">
+    <rect x="84" y="552" width="8" height="8" fill="#0173B2"/>
+    <text x="108" y="564">LIBERO-Plus 增益集中在 Camera（+26.9）/ Robot / Noise / Layout；<tspan fill="#DE8F05" font-weight="bold">Language 维度 −5.5</tspan></text>
+    <rect x="84" y="588" width="8" height="8" fill="#0173B2"/>
+    <text x="108" y="600">预训练只用单臂数据，双臂协调 44.0 → 72.0（叠裤子、叠毛巾各 +30）</text>
+    <rect x="84" y="624" width="8" height="8" fill="#0173B2"/>
+    <text x="108" y="636">RoboDojo 35 策略中成功率第 6，超过全部 4 个 WAM；<tspan fill="#DE8F05" font-weight="bold">Memory 0.66 / 0.56 接近零</tspan></text>
+  </g>
+  <g id="footer" data-pptx-role="footer" data-pptx-bounds="64 676 1152 26" font-size="14" fill="#8A929C">
+    <text x="64" y="694">来源：VLAct（arXiv 2608.27550）主结果与真机附录；reports/01</text>
+    <text x="1216" y="694" text-anchor="end">10 / 18</text>
+  </g>
+</svg>

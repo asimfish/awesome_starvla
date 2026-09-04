@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" data-pptx-page-role="cover" font-family="Arial, Microsoft YaHei">
+  <rect id="bg" data-pptx-role="background" x="0" y="0" width="1280" height="720" fill="#FFFFFF"/>
+  <g id="cover-plane" data-pptx-bounds="0 0 420 720">
+    <rect x="0" y="0" width="420" height="720" fill="#0173B2"/>
+    <text x="56" y="88" font-size="16" fill="#FFFFFF" letter-spacing="2">awesome_starvla</text>
+    <text x="56" y="122" font-size="22" font-weight="bold" fill="#FFFFFF">调研汇报</text>
+    <text x="56" y="618" font-size="18" fill="#FFFFFF">2026 年 9 月</text>
+    <text x="56" y="648" font-size="16" fill="#FFFFFF">github.com/asimfish/awesome_starvla</text>
+  </g>
+  <g id="cover-title" data-pptx-bounds="480 200 736 372">
+    <rect x="480" y="200" width="72" height="4" fill="#0173B2"/>
+    <text x="480" y="300" font-size="56" font-weight="bold" fill="#1B1F24">预训练不是双刃剑，<tspan x="480" dy="72">配方决定符号</tspan></text>
+    <text x="480" y="446" font-size="28" fill="#1B1F24">从 StarVLA 到 VLAct：<tspan x="480" dy="40">VLA 持续预训练的表示中心路线</tspan></text>
+    <text x="480" y="540" font-size="22" fill="#5F6772">三篇论文 + 一个代码库的系统调研</text>
+  </g>
+</svg>

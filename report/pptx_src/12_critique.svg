@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" data-pptx-page-role="content" font-family="Arial, Microsoft YaHei">
+  <rect id="bg" data-pptx-role="background" x="0" y="0" width="1280" height="720" fill="#FFFFFF"/>
+  <g id="header" data-pptx-bounds="64 24 1152 92">
+    <rect x="64" y="56" width="6" height="36" fill="#0173B2"/>
+    <text x="84" y="44" font-size="14" fill="#5F6772">05 · 对话与评价</text>
+    <text x="84" y="86" font-size="34" font-weight="bold" fill="#1B1F24">批判性评价：归因干净、组件可推翻；规模、记忆与语言留白</text>
+    <line x1="64" y1="112" x2="1216" y2="112" stroke="#D5D9DE" stroke-width="1"/>
+  </g>
+  <g id="lead" data-pptx-bounds="64 126 1152 34">
+    <text x="84" y="150" font-size="22" font-weight="bold" fill="#0173B2">做得好的是干净归因和极简组件；局限集中在规模曲线、记忆、语言维度与开销量化</text>
+  </g>
+  <g id="panel-good" data-pptx-bounds="64 176 556 460" font-size="20" fill="#1B1F24">
+    <rect x="64" y="176" width="556" height="460" fill="#F7F8FA"/>
+    <rect x="64" y="176" width="556" height="4" fill="#029E73"/>
+    <text x="84" y="216" font-size="22" font-weight="bold" fill="#029E73">做得好</text>
+    <rect x="84" y="245" width="8" height="8" fill="#029E73"/>
+    <text x="108" y="256">归因干净：头、初始化、数据、优化器、<tspan x="108" dy="28">预算全同，只换骨干</tspan></text>
+    <rect x="84" y="313" width="8" height="8" fill="#029E73"/>
+    <text x="108" y="324">组件简单到可以被推翻：<tspan x="108" dy="28">一个正则冻结、三个已有头并联、一张 20 维表</tspan></text>
+    <rect x="84" y="381" width="8" height="8" fill="#029E73"/>
+    <text x="108" y="392">把“哪个头最好”换成“如何让骨干对头不敏感”</text>
+    <rect x="84" y="421" width="8" height="8" fill="#029E73"/>
+    <text x="108" y="432">成本诚实：开源数据 + 16 GPU，<tspan x="108" dy="28">与工业系统差距明标</tspan></text>
+  </g>
+  <g id="panel-limits" data-pptx-bounds="660 176 556 460" font-size="20" fill="#1B1F24">
+    <rect x="660" y="176" width="556" height="460" fill="#F7F8FA"/>
+    <rect x="660" y="176" width="556" height="4" fill="#DE8F05"/>
+    <text x="680" y="216" font-size="22" font-weight="bold" fill="#DE8F05">局限</text>
+    <rect x="680" y="245" width="8" height="8" fill="#DE8F05"/>
+    <text x="704" y="256">只有 4B；持续预训练下的规模曲线空白</text>
+    <rect x="680" y="285" width="8" height="8" fill="#DE8F05"/>
+    <text x="704" y="296">Memory 接近零：单帧、无历史的架构假设没被挑战</text>
+    <rect x="680" y="325" width="8" height="8" fill="#DE8F05"/>
+    <text x="704" y="336">“头无关”有边界：Base/Random 下<tspan x="704" dy="28">OFT 41.5 vs GR00T 22.9 / PI 23.7</tspan></text>
+    <rect x="680" y="393" width="8" height="8" fill="#DE8F05"/>
+    <text x="704" y="404">Language 维度掉 5.5 点</text>
+    <rect x="680" y="433" width="8" height="8" fill="#DE8F05"/>
+    <text x="704" y="444">Data Scaling 对比算力不可控；<tspan x="704" dy="28">真机每任务只有 10 次 rollout</tspan></text>
+    <rect x="680" y="501" width="8" height="8" fill="#DE8F05"/>
+    <text x="704" y="512">三头共训开销未量化；20 维布局手工设计，<tspan x="704" dy="28">人形 / 灵巧手如何扩展未讨论</tspan></text>
+    <rect x="680" y="569" width="8" height="8" fill="#DE8F05"/>
+    <text x="704" y="580">同名基线不一致：RoboTwin Base OFT<tspan x="704" dy="28">61.7（VLAct）vs 50.38（StarVLA README）</tspan></text>
+  </g>
+  <g id="footer" data-pptx-role="footer" data-pptx-bounds="64 676 1152 26" font-size="14" fill="#8A929C">
+    <text x="64" y="694">来源：reports/01（VLAct 精读）、03（StarVLA-α）批判性评价小节</text>
+    <text x="1216" y="694" text-anchor="end">12 / 18</text>
+  </g>
+</svg>

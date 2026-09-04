@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" data-pptx-page-role="content" font-family="Arial, Microsoft YaHei">
+  <rect id="bg" data-pptx-role="background" x="0" y="0" width="1280" height="720" fill="#FFFFFF"/>
+  <g id="header" data-pptx-bounds="64 24 1152 92">
+    <rect x="64" y="56" width="6" height="36" fill="#0173B2"/>
+    <text x="84" y="44" font-size="14" fill="#5F6772">08 · 结论</text>
+    <text x="84" y="86" font-size="34" font-weight="bold" fill="#1B1F24">三个 takeaway</text>
+    <line x1="64" y1="112" x2="1216" y2="112" stroke="#D5D9DE" stroke-width="1"/>
+  </g>
+  <g id="lead" data-pptx-bounds="64 126 1152 34">
+    <text x="84" y="150" font-size="22" font-weight="bold" fill="#0173B2">回到开场的问题：预训练不是双刃剑，配方决定符号</text>
+  </g>
+  <g id="takeaway-1" data-pptx-bounds="64 176 1152 150" fill="#1B1F24" font-size="20">
+    <text x="64" y="246" font-size="56" font-weight="bold" fill="#BFD7E8">1</text>
+    <text x="150" y="212" font-size="24" font-weight="bold">VLM 骨干是 VLA 的一阶设计变量</text>
+    <text x="150" y="246">只换骨干权重就能拿到 <tspan font-weight="bold" fill="#0173B2">7.6～21.4</tspan> 个点；朴素动作拟合会把它变成负资产（GR1 9.8 → <tspan fill="#DE8F05" font-weight="bold">1.2</tspan>），<tspan x="150" dy="28">保护先验 + 多头 + 统一动作空间把它变成净收益（<tspan fill="#029E73" font-weight="bold">20% 数据超全量 GR00T-N1.6</tspan>）。</tspan></text>
+  </g>
+  <g id="takeaway-2" data-pptx-bounds="64 336 1152 150" fill="#1B1F24" font-size="20">
+    <line x1="64" y1="336" x2="1216" y2="336" stroke="#D5D9DE" stroke-width="1"/>
+    <text x="64" y="406" font-size="56" font-weight="bold" fill="#BFD7E8">2</text>
+    <text x="150" y="372" font-size="24" font-weight="bold">头多样性是一种廉价的正则化</text>
+    <text x="150" y="406">单头预训练造成 decoder lock-in（PI 60.5 → <tspan fill="#DE8F05" font-weight="bold">55.1</tspan>），加一个头就翻正，三头对同头也涨 <tspan fill="#029E73" font-weight="bold">1.6～4.3</tspan>。<tspan x="150" dy="28">这个原则可以推到非动作头。</tspan></text>
+  </g>
+  <g id="takeaway-3" data-pptx-bounds="64 496 1152 150" fill="#1B1F24" font-size="20">
+    <line x1="64" y1="496" x2="1216" y2="496" stroke="#D5D9DE" stroke-width="1"/>
+    <text x="64" y="566" font-size="56" font-weight="bold" fill="#BFD7E8">3</text>
+    <text x="150" y="532" font-size="24" font-weight="bold">StarVLA 让“只改一个变量”成为默认工作方式</text>
+    <text x="150" y="566">两条契约 + 13 个基准 + 79% 的 256 卡扩展效率；下一步最值钱的是诊断工具、骨干基准协议，<tspan x="150" dy="28">以及所有人都接近零的 <tspan font-weight="bold" fill="#0173B2">Memory 维度</tspan>。</tspan></text>
+  </g>
+  <g id="footer" data-pptx-role="footer" data-pptx-bounds="64 676 1152 26" font-size="14" fill="#8A929C">
+    <text x="64" y="694">来源：本报告综合 StarVLA、StarVLA-α、VLAct 三篇论文与代码库分析</text>
+    <text x="1216" y="694" text-anchor="end">17 / 18</text>
+  </g>
+</svg>

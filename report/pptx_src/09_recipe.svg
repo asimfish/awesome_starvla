@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" data-pptx-page-role="content" font-family="Arial, Microsoft YaHei">
+  <defs>
+    <marker id="arrowhead" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <polygon points="0,0 10,5 0,10" fill="#5F6772"/>
+    </marker>
+  </defs>
+  <rect id="bg" data-pptx-role="background" x="0" y="0" width="1280" height="720" fill="#FFFFFF"/>
+  <g id="header" data-pptx-bounds="64 24 1152 92">
+    <rect x="64" y="56" width="6" height="36" fill="#0173B2"/>
+    <text x="84" y="44" font-size="14" fill="#5F6772">04 · VLAct</text>
+    <text x="84" y="86" font-size="34" font-weight="bold" fill="#1B1F24">VLAct 配方：三个组件只用于持续预训练，下游只交付骨干</text>
+    <line x1="64" y1="112" x2="1216" y2="112" stroke="#D5D9DE" stroke-width="1"/>
+  </g>
+  <g id="lead" data-pptx-bounds="64 126 1152 34">
+    <text x="84" y="150" font-size="22" font-weight="bold" fill="#0173B2">配方 = 保护先验 + 多头共监督 + 部分统一动作空间；下游丢掉全部预训练头，只留骨干权重</text>
+  </g>
+  <g id="recipe-flow" data-pptx-bounds="64 176 1152 230">
+    <text x="76" y="192" font-size="16" fill="#5F6772">持续预训练（DROID + InternData-A1 + RoboCoin + MolmoAct + caption，16 GPU）</text>
+    <rect x="64" y="202" width="732" height="196" fill="none" stroke="#5F6772" stroke-width="1.5" stroke-dasharray="6,4"/>
+    <rect x="78" y="222" width="224" height="160" fill="#F3F4F6"/>
+    <rect x="316" y="222" width="224" height="160" fill="#F3F4F6"/>
+    <rect x="554" y="222" width="224" height="160" fill="#F3F4F6"/>
+    <rect x="892" y="222" width="324" height="160" fill="#E0F2EC"/>
+    <g fill="#1B1F24" font-size="16">
+      <text x="94" y="252" font-size="18" font-weight="bold">① 保护先验</text>
+      <text x="94" y="280">冻视觉编码器</text>
+      <text x="94" y="302">+ LLM 下半层</text>
+      <text x="94" y="324">caption 混训</text>
+      <text x="94" y="346">0.5·L(VLM-CE)</text>
+      <text x="332" y="252" font-size="18" font-weight="bold">② 多头共监督</text>
+      <text x="332" y="280">OFT + PI + GR00T</text>
+      <text x="332" y="302">同一 z、同一目标 a</text>
+      <text x="332" y="324">头多样性 = 正则化</text>
+      <text x="570" y="252" font-size="18" font-weight="bold">③ 部分统一动作空间</text>
+      <text x="570" y="280">20 维布局，夹爪共享</text>
+      <text x="570" y="302">非激活维 mask</text>
+      <text x="570" y="324">wrap-aware loss</text>
+      <text x="570" y="346">（周期关节角）</text>
+      <text x="908" y="252" font-size="18" font-weight="bold">④ 下游微调</text>
+      <text x="908" y="284">丢弃预训练头与 caption 流</text>
+      <text x="908" y="308">新初始化任务头，全参数解冻</text>
+      <text x="908" y="332">数据 / 优化器 / 预算与基线相同</text>
+    </g>
+    <line x1="800" y1="302" x2="884" y2="302" stroke="#5F6772" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <text x="842" y="290" font-size="16" fill="#5F6772" text-anchor="middle">只交付骨干</text>
+  </g>
+  <g id="loss-formula" data-pptx-bounds="64 428 1152 40">
+    <text x="84" y="456" font-size="22" fill="#1B1F24">L<tspan baseline-shift="sub" font-size="14">total</tspan> = L<tspan baseline-shift="sub" font-size="14">OFT</tspan> + L<tspan baseline-shift="sub" font-size="14">PI</tspan> + L<tspan baseline-shift="sub" font-size="14">GR00T</tspan> + 0.5·L<tspan baseline-shift="sub" font-size="14">VLM-CE</tspan>，每个动作头再加 L<tspan baseline-shift="sub" font-size="14">wrap</tspan></text>
+  </g>
+  <g id="ablation-strip" data-pptx-bounds="64 480 1152 76" font-size="18" fill="#5F6772">
+    <text x="64" y="500">消融（LIBERO-Plus / RoboTwin Base Clean）：冻视觉编码器 + 下半 LLM 78.9 → 82.6<tspan x="64" dy="24">robot-only → +caption 75.0 → 82.6；三头 vs 单头对同头微调 +1.6～4.3</tspan><tspan x="64" dy="24">部分统一 vs 独立头 78.5 → 80.5；wrap-aware loss 75.5 → 80.5（+5，单项消融最大）</tspan></text>
+  </g>
+  <g id="recipe-notes" data-pptx-bounds="64 556 1152 96" font-size="22" fill="#1B1F24">
+    <rect x="84" y="568" width="8" height="8" fill="#0173B2"/>
+    <text x="108" y="580">所有对比中<tspan font-weight="bold">唯一变量是骨干权重</tspan>：7.6～21.4 个点的增益归因到配方</text>
+    <rect x="84" y="604" width="8" height="8" fill="#0173B2"/>
+    <text x="108" y="616">无新模块、无本体适配器、无路由：可在 StarVLA 上直接复现</text>
+  </g>
+  <g id="footer" data-pptx-role="footer" data-pptx-bounds="64 676 1152 26" font-size="14" fill="#8A929C">
+    <text x="64" y="694">来源：VLAct（arXiv 2608.27550）方法与消融；reports/01</text>
+    <text x="1216" y="694" text-anchor="end">09 / 18</text>
+  </g>
+</svg>

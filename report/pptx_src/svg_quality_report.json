@@ -1,0 +1,1225 @@
+{
+  "schema": "ppt-master.svg-quality-report.v1",
+  "stage": "final",
+  "target": "/private/tmp/ppt-master/projects/awesome_starvla",
+  "source_fingerprint": {
+    "algorithm": "sha256",
+    "digest": "1c618b64c5409846a1e5eed10ab2034084626361783910a65e18780b21358f33",
+    "file_count": 18,
+    "files": [
+      {
+        "file": "01_cover.svg",
+        "sha256": "e67377bda6b8827dab0e8c1bb04ddfaaa41d7bc7446c3a61b610af3b8e7167f7"
+      },
+      {
+        "file": "02_opening.svg",
+        "sha256": "2bbdfb24a51bc27e5f4212b2e6ab1b8254cb3bd2876ba641029b175f20e4bf01"
+      },
+      {
+        "file": "03_papers.svg",
+        "sha256": "5999130d037e0946b6be5db3ecb117e5ee3a715719cfff6454fbbc57eec88ade"
+      },
+      {
+        "file": "04_contracts.svg",
+        "sha256": "241cf9798ea200d1e76b86efb8f36bf298143cd351004e51ed7b8e4e01612671"
+      },
+      {
+        "file": "05_heads.svg",
+        "sha256": "a8a009113e66d8b6fc16303094af0b27db0f05336fcb8dea8666b0e5e9179367"
+      },
+      {
+        "file": "06_alpha_results.svg",
+        "sha256": "26b3fd68a13dbd7b8fa3af0d40725def90432918f9249ebb71bfb047786cbd36"
+      },
+      {
+        "file": "07_double_edged.svg",
+        "sha256": "e76ba267de861e0d10036b3183b6f6d4f7b31f9f62778c703916e14f9f83fe13"
+      },
+      {
+        "file": "08_lockin.svg",
+        "sha256": "eff83ce82108ecadee43a71bac0cc1f43943b3e9e8e493a1c487ecdb12e02a5a"
+      },
+      {
+        "file": "09_recipe.svg",
+        "sha256": "376e50561be7976c5f7d54bc55970d5a9d5ccd43e8f14334214f3d4ccd2041b0"
+      },
+      {
+        "file": "10_vlact_results.svg",
+        "sha256": "63a54f131e1f14a524e98b98d9d3f2ef24767df8ca20288b5b92abd0364f54df"
+      },
+      {
+        "file": "11_dialogue.svg",
+        "sha256": "f0d64189c954a69dd29a4ed3544372c31c65565fea18aef5e7196fd2767d7a67"
+      },
+      {
+        "file": "12_critique.svg",
+        "sha256": "058abbf4a0043a12c75cbd15d87433b94f59830b579d4605f59a0d1ab427c43d"
+      },
+      {
+        "file": "13_codemap.svg",
+        "sha256": "718f9db7757984345e2e40381f4d3b9347e2bf9a964b1cfc63689f61a68b7b74"
+      },
+      {
+        "file": "14_recipe_status.svg",
+        "sha256": "1e429ffb9a7fac62053f6b740e78bbf2075ad222114593a6a3e23bf0cfb3b652"
+      },
+      {
+        "file": "15_benchmarks.svg",
+        "sha256": "3a07fb0c976867aaf58d5fa275bbdf03683e57ad1982e9e80c0a604b39b075bc"
+      },
+      {
+        "file": "16_roadmap.svg",
+        "sha256": "ed353221ecf2defe0cc867dc68c7dd97c6b55950b743df076a7c29b23f858865"
+      },
+      {
+        "file": "17_takeaways.svg",
+        "sha256": "028b731a41b948d008bb4a092cd71eed78fc4d072051d679e257b16e9134c6f1"
+      },
+      {
+        "file": "18_end.svg",
+        "sha256": "ad09d6d7a4e0ce4c7a93439b689919aee16e21f77c9de27000fc126d77bee6a0"
+      }
+    ]
+  },
+  "summary": {
+    "total": 18,
+    "passed": 18,
+    "warnings": 0,
+    "errors": 0
+  },
+  "issue_types": {},
+  "categories": {
+    "blocking": {
+      "count": 0,
+      "issues": []
+    },
+    "introduced": {
+      "count": 0,
+      "issues": []
+    },
+    "inherited": {
+      "count": 0,
+      "issues": []
+    },
+    "source-import": {
+      "count": 0,
+      "summary": {
+        "warning_count": 0,
+        "by_code": {}
+      }
+    }
+  },
+  "drift": {
+    "colors": {},
+    "fonts": {},
+    "sizes": {}
+  },
+  "carrier_receipt": {
+    "scope": "informational-not-a-quota",
+    "pages": 18,
+    "totals": {
+      "text_elements": 546,
+      "image_placements": 0,
+      "icons": 0,
+      "svg_geometry_elements": 216,
+      "preset_shapes": 6,
+      "page_frame_elements": 18,
+      "marker_uses": 7,
+      "inline_emphasis_runs": 37,
+      "gradient_uses": 0,
+      "filter_uses": 0,
+      "text_effects": 0
+    },
+    "pages_with": {
+      "images": 0,
+      "icons": 0,
+      "presets": 2,
+      "charts": 0,
+      "tables": 11,
+      "formulas": 0,
+      "inline_emphasis_runs": 12,
+      "gradient_uses": 0,
+      "filter_uses": 0,
+      "text_effects": 0
+    },
+    "geometry_elements": {
+      "circle": 0,
+      "ellipse": 0,
+      "line": 105,
+      "path": 0,
+      "polygon": 0,
+      "polyline": 0,
+      "rect": 111
+    },
+    "preset_names": {
+      "chevron": 4,
+      "leftBrace": 2
+    },
+    "native_objects": {
+      "chart": 0,
+      "formula_block": 0,
+      "formula_inline": 0,
+      "other": 0,
+      "table": 12
+    },
+    "image_page_max_frame_share_range": []
+  },
+  "project_issues": {
+    "template": [],
+    "animation": [],
+    "illustration": [],
+    "communication_trace": [],
+    "pptx_structure": []
+  },
+  "files": [
+    {
+      "file": "01_cover.svg",
+      "path": "/tmp/ppt-master/projects/awesome_starvla/svg_output/01_cover.svg",
+      "exists": true,
+      "errors": [],
+      "warnings": [],
+      "info": {
+        "viewbox": "0 0 1280 720",
+        "carrier_receipt": {
+          "text_elements": 7,
+          "images": {
+            "placements": 0,
+            "files": [],
+            "max_frame_share": 0.0
+          },
+          "icons": 0,
+          "effects": {
+            "inline_emphasis_runs": 0,
+            "gradient_uses": 0,
+            "filter_uses": 0,
+            "text_effects": 0
+          },
+          "geometry": {
+            "svg_elements": {
+              "rect": 3,
+              "circle": 0,
+              "ellipse": 0,
+              "line": 0,
+              "polyline": 0,
+              "polygon": 0,
+              "path": 0
+            },
+            "preset_shapes": 0,
+            "preset_names": {},
+            "page_frame_elements": 1,
+            "marker_uses": {
+              "start": 0,
+              "mid": 0,
+              "end": 0
+            }
+          },
+          "native_objects": {
+            "chart": 0,
+            "table": 0,
+            "formula_block": 0,
+            "formula_inline": 0,
+            "other": 0
+          }
+        },
+        "fonts": [
+          "Arial, Microsoft YaHei"
+        ],
+        "text_elements": 7,
+        "tspan_elements": 2
+      },
+      "passed": true,
+      "source_sha256": "e67377bda6b8827dab0e8c1bb04ddfaaa41d7bc7446c3a61b610af3b8e7167f7"
+    },
+    {
+      "file": "02_opening.svg",
+      "path": "/tmp/ppt-master/projects/awesome_starvla/svg_output/02_opening.svg",
+      "exists": true,
+      "errors": [],
+      "warnings": [],
+      "info": {
+        "viewbox": "0 0 1280 720",
+        "carrier_receipt": {
+          "text_elements": 30,
+          "images": {
+            "placements": 0,
+            "files": [],
+            "max_frame_share": 0.0
+          },
+          "icons": 0,
+          "effects": {
+            "inline_emphasis_runs": 4,
+            "gradient_uses": 0,
+            "filter_uses": 0,
+            "text_effects": 0
+          },
+          "geometry": {
+            "svg_elements": {
+              "rect": 2,
+              "circle": 0,
+              "ellipse": 0,
+              "line": 5,
+              "polyline": 0,
+              "polygon": 0,
+              "path": 0
+            },
+            "preset_shapes": 4,
+            "preset_names": {
+              "chevron": 4
+            },
+            "page_frame_elements": 1,
+            "marker_uses": {
+              "start": 0,
+              "mid": 0,
+              "end": 0
+            }
+          },
+          "native_objects": {
+            "chart": 0,
+            "table": 1,
+            "formula_block": 0,
+            "formula_inline": 0,
+            "other": 0
+          }
+        },
+        "fonts": [
+          "Arial, Microsoft YaHei"
+        ],
+        "text_elements": 30,
+        "tspan_elements": 5
+      },
+      "passed": true,
+      "source_sha256": "2bbdfb24a51bc27e5f4212b2e6ab1b8254cb3bd2876ba641029b175f20e4bf01"
+    },
+    {
+      "file": "03_papers.svg",
+      "path": "/tmp/ppt-master/projects/awesome_starvla/svg_output/03_papers.svg",
+      "exists": true,
+      "errors": [],
+      "warnings": [],
+      "info": {
+        "viewbox": "0 0 1280 720",
+        "carrier_receipt": {
+          "text_elements": 22,
+          "images": {
+            "placements": 0,
+            "files": [],
+            "max_frame_share": 0.0
+          },
+          "icons": 0,
+          "effects": {
+            "inline_emphasis_runs": 0,
+            "gradient_uses": 0,
+            "filter_uses": 0,
+            "text_effects": 0
+          },
+          "geometry": {
+            "svg_elements": {
+              "rect": 10,
+              "circle": 0,
+              "ellipse": 0,
+              "line": 3,
+              "polyline": 0,
+              "polygon": 0,
+              "path": 0
+            },
+            "preset_shapes": 0,
+            "preset_names": {},
+            "page_frame_elements": 1,
+            "marker_uses": {
+              "start": 0,
+              "mid": 0,
+              "end": 2
+            }
+          },
+          "native_objects": {
+            "chart": 0,
+            "table": 0,
+            "formula_block": 0,
+            "formula_inline": 0,
+            "other": 0
+          }
+        },
+        "fonts": [
+          "Arial, Microsoft YaHei"
+        ],
+        "text_elements": 22,
+        "tspan_elements": 0
+      },
+      "passed": true,
+      "source_sha256": "5999130d037e0946b6be5db3ecb117e5ee3a715719cfff6454fbbc57eec88ade"
+    },
+    {
+      "file": "04_contracts.svg",
+      "path": "/tmp/ppt-master/projects/awesome_starvla/svg_output/04_contracts.svg",
+      "exists": true,
+      "errors": [],
+      "warnings": [],
+      "info": {
+        "viewbox": "0 0 1280 720",
+        "carrier_receipt": {
+          "text_elements": 25,
+          "images": {
+            "placements": 0,
+            "files": [],
+            "max_frame_share": 0.0
+          },
+          "icons": 0,
+          "effects": {
+            "inline_emphasis_runs": 1,
+            "gradient_uses": 0,
+            "filter_uses": 0,
+            "text_effects": 0
+          },
+          "geometry": {
+            "svg_elements": {
+              "rect": 12,
+              "circle": 0,
+              "ellipse": 0,
+              "line": 5,
+              "polyline": 0,
+              "polygon": 0,
+              "path": 0
+            },
+            "preset_shapes": 2,
+            "preset_names": {
+              "leftBrace": 2
+            },
+            "page_frame_elements": 1,
+            "marker_uses": {
+              "start": 0,
+              "mid": 0,
+              "end": 4
+            }
+          },
+          "native_objects": {
+            "chart": 0,
+            "table": 0,
+            "formula_block": 0,
+            "formula_inline": 0,
+            "other": 0
+          }
+        },
+        "fonts": [
+          "Arial, Microsoft YaHei"
+        ],
+        "text_elements": 25,
+        "tspan_elements": 2
+      },
+      "passed": true,
+      "source_sha256": "241cf9798ea200d1e76b86efb8f36bf298143cd351004e51ed7b8e4e01612671"
+    },
+    {
+      "file": "05_heads.svg",
+      "path": "/tmp/ppt-master/projects/awesome_starvla/svg_output/05_heads.svg",
+      "exists": true,
+      "errors": [],
+      "warnings": [],
+      "info": {
+        "viewbox": "0 0 1280 720",
+        "carrier_receipt": {
+          "text_elements": 30,
+          "images": {
+            "placements": 0,
+            "files": [],
+            "max_frame_share": 0.0
+          },
+          "icons": 0,
+          "effects": {
+            "inline_emphasis_runs": 3,
+            "gradient_uses": 0,
+            "filter_uses": 0,
+            "text_effects": 0
+          },
+          "geometry": {
+            "svg_elements": {
+              "rect": 6,
+              "circle": 0,
+              "ellipse": 0,
+              "line": 6,
+              "polyline": 0,
+              "polygon": 0,
+              "path": 0
+            },
+            "preset_shapes": 0,
+            "preset_names": {},
+            "page_frame_elements": 1,
+            "marker_uses": {
+              "start": 0,
+              "mid": 0,
+              "end": 0
+            }
+          },
+          "native_objects": {
+            "chart": 0,
+            "table": 1,
+            "formula_block": 0,
+            "formula_inline": 0,
+            "other": 0
+          }
+        },
+        "fonts": [
+          "Arial, Microsoft YaHei"
+        ],
+        "text_elements": 30,
+        "tspan_elements": 4
+      },
+      "passed": true,
+      "source_sha256": "a8a009113e66d8b6fc16303094af0b27db0f05336fcb8dea8666b0e5e9179367"
+    },
+    {
+      "file": "06_alpha_results.svg",
+      "path": "/tmp/ppt-master/projects/awesome_starvla/svg_output/06_alpha_results.svg",
+      "exists": true,
+      "errors": [],
+      "warnings": [],
+      "info": {
+        "viewbox": "0 0 1280 720",
+        "carrier_receipt": {
+          "text_elements": 52,
+          "images": {
+            "placements": 0,
+            "files": [],
+            "max_frame_share": 0.0
+          },
+          "icons": 0,
+          "effects": {
+            "inline_emphasis_runs": 4,
+            "gradient_uses": 0,
+            "filter_uses": 0,
+            "text_effects": 0
+          },
+          "geometry": {
+            "svg_elements": {
+              "rect": 5,
+              "circle": 0,
+              "ellipse": 0,
+              "line": 8,
+              "polyline": 0,
+              "polygon": 0,
+              "path": 0
+            },
+            "preset_shapes": 0,
+            "preset_names": {},
+            "page_frame_elements": 1,
+            "marker_uses": {
+              "start": 0,
+              "mid": 0,
+              "end": 0
+            }
+          },
+          "native_objects": {
+            "chart": 0,
+            "table": 1,
+            "formula_block": 0,
+            "formula_inline": 0,
+            "other": 0
+          }
+        },
+        "fonts": [
+          "Arial, Microsoft YaHei"
+        ],
+        "text_elements": 52,
+        "tspan_elements": 6
+      },
+      "passed": true,
+      "source_sha256": "26b3fd68a13dbd7b8fa3af0d40725def90432918f9249ebb71bfb047786cbd36"
+    },
+    {
+      "file": "07_double_edged.svg",
+      "path": "/tmp/ppt-master/projects/awesome_starvla/svg_output/07_double_edged.svg",
+      "exists": true,
+      "errors": [],
+      "warnings": [],
+      "info": {
+        "viewbox": "0 0 1280 720",
+        "carrier_receipt": {
+          "text_elements": 38,
+          "images": {
+            "placements": 0,
+            "files": [],
+            "max_frame_share": 0.0
+          },
+          "icons": 0,
+          "effects": {
+            "inline_emphasis_runs": 0,
+            "gradient_uses": 0,
+            "filter_uses": 0,
+            "text_effects": 0
+          },
+          "geometry": {
+            "svg_elements": {
+              "rect": 6,
+              "circle": 0,
+              "ellipse": 0,
+              "line": 6,
+              "polyline": 0,
+              "polygon": 0,
+              "path": 0
+            },
+            "preset_shapes": 0,
+            "preset_names": {},
+            "page_frame_elements": 1,
+            "marker_uses": {
+              "start": 0,
+              "mid": 0,
+              "end": 0
+            }
+          },
+          "native_objects": {
+            "chart": 0,
+            "table": 1,
+            "formula_block": 0,
+            "formula_inline": 0,
+            "other": 0
+          }
+        },
+        "fonts": [
+          "Arial, Microsoft YaHei"
+        ],
+        "text_elements": 38,
+        "tspan_elements": 0
+      },
+      "passed": true,
+      "source_sha256": "e76ba267de861e0d10036b3183b6f6d4f7b31f9f62778c703916e14f9f83fe13"
+    },
+    {
+      "file": "08_lockin.svg",
+      "path": "/tmp/ppt-master/projects/awesome_starvla/svg_output/08_lockin.svg",
+      "exists": true,
+      "errors": [],
+      "warnings": [],
+      "info": {
+        "viewbox": "0 0 1280 720",
+        "carrier_receipt": {
+          "text_elements": 32,
+          "images": {
+            "placements": 0,
+            "files": [],
+            "max_frame_share": 0.0
+          },
+          "icons": 0,
+          "effects": {
+            "inline_emphasis_runs": 1,
+            "gradient_uses": 0,
+            "filter_uses": 0,
+            "text_effects": 0
+          },
+          "geometry": {
+            "svg_elements": {
+              "rect": 11,
+              "circle": 0,
+              "ellipse": 0,
+              "line": 6,
+              "polyline": 0,
+              "polygon": 0,
+              "path": 0
+            },
+            "preset_shapes": 0,
+            "preset_names": {},
+            "page_frame_elements": 1,
+            "marker_uses": {
+              "start": 0,
+              "mid": 0,
+              "end": 0
+            }
+          },
+          "native_objects": {
+            "chart": 0,
+            "table": 1,
+            "formula_block": 0,
+            "formula_inline": 0,
+            "other": 0
+          }
+        },
+        "fonts": [
+          "Arial, Microsoft YaHei"
+        ],
+        "text_elements": 32,
+        "tspan_elements": 2
+      },
+      "passed": true,
+      "source_sha256": "eff83ce82108ecadee43a71bac0cc1f43943b3e9e8e493a1c487ecdb12e02a5a"
+    },
+    {
+      "file": "09_recipe.svg",
+      "path": "/tmp/ppt-master/projects/awesome_starvla/svg_output/09_recipe.svg",
+      "exists": true,
+      "errors": [],
+      "warnings": [],
+      "info": {
+        "viewbox": "0 0 1280 720",
+        "carrier_receipt": {
+          "text_elements": 29,
+          "images": {
+            "placements": 0,
+            "files": [],
+            "max_frame_share": 0.0
+          },
+          "icons": 0,
+          "effects": {
+            "inline_emphasis_runs": 7,
+            "gradient_uses": 0,
+            "filter_uses": 0,
+            "text_effects": 0
+          },
+          "geometry": {
+            "svg_elements": {
+              "rect": 9,
+              "circle": 0,
+              "ellipse": 0,
+              "line": 2,
+              "polyline": 0,
+              "polygon": 0,
+              "path": 0
+            },
+            "preset_shapes": 0,
+            "preset_names": {},
+            "page_frame_elements": 1,
+            "marker_uses": {
+              "start": 0,
+              "mid": 0,
+              "end": 1
+            }
+          },
+          "native_objects": {
+            "chart": 0,
+            "table": 0,
+            "formula_block": 0,
+            "formula_inline": 0,
+            "other": 0
+          }
+        },
+        "fonts": [
+          "Arial, Microsoft YaHei"
+        ],
+        "text_elements": 29,
+        "tspan_elements": 9
+      },
+      "passed": true,
+      "source_sha256": "376e50561be7976c5f7d54bc55970d5a9d5ccd43e8f14334214f3d4ccd2041b0"
+    },
+    {
+      "file": "10_vlact_results.svg",
+      "path": "/tmp/ppt-master/projects/awesome_starvla/svg_output/10_vlact_results.svg",
+      "exists": true,
+      "errors": [],
+      "warnings": [],
+      "info": {
+        "viewbox": "0 0 1280 720",
+        "carrier_receipt": {
+          "text_elements": 63,
+          "images": {
+            "placements": 0,
+            "files": [],
+            "max_frame_share": 0.0
+          },
+          "icons": 0,
+          "effects": {
+            "inline_emphasis_runs": 3,
+            "gradient_uses": 0,
+            "filter_uses": 0,
+            "text_effects": 0
+          },
+          "geometry": {
+            "svg_elements": {
+              "rect": 5,
+              "circle": 0,
+              "ellipse": 0,
+              "line": 12,
+              "polyline": 0,
+              "polygon": 0,
+              "path": 0
+            },
+            "preset_shapes": 0,
+            "preset_names": {},
+            "page_frame_elements": 1,
+            "marker_uses": {
+              "start": 0,
+              "mid": 0,
+              "end": 0
+            }
+          },
+          "native_objects": {
+            "chart": 0,
+            "table": 1,
+            "formula_block": 0,
+            "formula_inline": 0,
+            "other": 0
+          }
+        },
+        "fonts": [
+          "Arial, Microsoft YaHei"
+        ],
+        "text_elements": 63,
+        "tspan_elements": 3
+      },
+      "passed": true,
+      "source_sha256": "63a54f131e1f14a524e98b98d9d3f2ef24767df8ca20288b5b92abd0364f54df"
+    },
+    {
+      "file": "11_dialogue.svg",
+      "path": "/tmp/ppt-master/projects/awesome_starvla/svg_output/11_dialogue.svg",
+      "exists": true,
+      "errors": [],
+      "warnings": [],
+      "info": {
+        "viewbox": "0 0 1280 720",
+        "carrier_receipt": {
+          "text_elements": 27,
+          "images": {
+            "placements": 0,
+            "files": [],
+            "max_frame_share": 0.0
+          },
+          "icons": 0,
+          "effects": {
+            "inline_emphasis_runs": 4,
+            "gradient_uses": 0,
+            "filter_uses": 0,
+            "text_effects": 0
+          },
+          "geometry": {
+            "svg_elements": {
+              "rect": 4,
+              "circle": 0,
+              "ellipse": 0,
+              "line": 8,
+              "polyline": 0,
+              "polygon": 0,
+              "path": 0
+            },
+            "preset_shapes": 0,
+            "preset_names": {},
+            "page_frame_elements": 1,
+            "marker_uses": {
+              "start": 0,
+              "mid": 0,
+              "end": 0
+            }
+          },
+          "native_objects": {
+            "chart": 0,
+            "table": 1,
+            "formula_block": 0,
+            "formula_inline": 0,
+            "other": 0
+          }
+        },
+        "fonts": [
+          "Arial, Microsoft YaHei"
+        ],
+        "text_elements": 27,
+        "tspan_elements": 7
+      },
+      "passed": true,
+      "source_sha256": "f0d64189c954a69dd29a4ed3544372c31c65565fea18aef5e7196fd2767d7a67"
+    },
+    {
+      "file": "12_critique.svg",
+      "path": "/tmp/ppt-master/projects/awesome_starvla/svg_output/12_critique.svg",
+      "exists": true,
+      "errors": [],
+      "warnings": [],
+      "info": {
+        "viewbox": "0 0 1280 720",
+        "carrier_receipt": {
+          "text_elements": 18,
+          "images": {
+            "placements": 0,
+            "files": [],
+            "max_frame_share": 0.0
+          },
+          "icons": 0,
+          "effects": {
+            "inline_emphasis_runs": 0,
+            "gradient_uses": 0,
+            "filter_uses": 0,
+            "text_effects": 0
+          },
+          "geometry": {
+            "svg_elements": {
+              "rect": 17,
+              "circle": 0,
+              "ellipse": 0,
+              "line": 1,
+              "polyline": 0,
+              "polygon": 0,
+              "path": 0
+            },
+            "preset_shapes": 0,
+            "preset_names": {},
+            "page_frame_elements": 1,
+            "marker_uses": {
+              "start": 0,
+              "mid": 0,
+              "end": 0
+            }
+          },
+          "native_objects": {
+            "chart": 0,
+            "table": 0,
+            "formula_block": 0,
+            "formula_inline": 0,
+            "other": 0
+          }
+        },
+        "fonts": [
+          "Arial, Microsoft YaHei"
+        ],
+        "text_elements": 18,
+        "tspan_elements": 7
+      },
+      "passed": true,
+      "source_sha256": "058abbf4a0043a12c75cbd15d87433b94f59830b579d4605f59a0d1ab427c43d"
+    },
+    {
+      "file": "13_codemap.svg",
+      "path": "/tmp/ppt-master/projects/awesome_starvla/svg_output/13_codemap.svg",
+      "exists": true,
+      "errors": [],
+      "warnings": [],
+      "info": {
+        "viewbox": "0 0 1280 720",
+        "carrier_receipt": {
+          "text_elements": 30,
+          "images": {
+            "placements": 0,
+            "files": [],
+            "max_frame_share": 0.0
+          },
+          "icons": 0,
+          "effects": {
+            "inline_emphasis_runs": 1,
+            "gradient_uses": 0,
+            "filter_uses": 0,
+            "text_effects": 0
+          },
+          "geometry": {
+            "svg_elements": {
+              "rect": 9,
+              "circle": 0,
+              "ellipse": 0,
+              "line": 9,
+              "polyline": 0,
+              "polygon": 0,
+              "path": 0
+            },
+            "preset_shapes": 0,
+            "preset_names": {},
+            "page_frame_elements": 1,
+            "marker_uses": {
+              "start": 0,
+              "mid": 0,
+              "end": 0
+            }
+          },
+          "native_objects": {
+            "chart": 0,
+            "table": 1,
+            "formula_block": 0,
+            "formula_inline": 0,
+            "other": 0
+          }
+        },
+        "fonts": [
+          "Arial, Microsoft YaHei"
+        ],
+        "text_elements": 30,
+        "tspan_elements": 9
+      },
+      "passed": true,
+      "source_sha256": "718f9db7757984345e2e40381f4d3b9347e2bf9a964b1cfc63689f61a68b7b74"
+    },
+    {
+      "file": "14_recipe_status.svg",
+      "path": "/tmp/ppt-master/projects/awesome_starvla/svg_output/14_recipe_status.svg",
+      "exists": true,
+      "errors": [],
+      "warnings": [],
+      "info": {
+        "viewbox": "0 0 1280 720",
+        "carrier_receipt": {
+          "text_elements": 42,
+          "images": {
+            "placements": 0,
+            "files": [],
+            "max_frame_share": 0.0
+          },
+          "icons": 0,
+          "effects": {
+            "inline_emphasis_runs": 0,
+            "gradient_uses": 0,
+            "filter_uses": 0,
+            "text_effects": 0
+          },
+          "geometry": {
+            "svg_elements": {
+              "rect": 4,
+              "circle": 0,
+              "ellipse": 0,
+              "line": 8,
+              "polyline": 0,
+              "polygon": 0,
+              "path": 0
+            },
+            "preset_shapes": 0,
+            "preset_names": {},
+            "page_frame_elements": 1,
+            "marker_uses": {
+              "start": 0,
+              "mid": 0,
+              "end": 0
+            }
+          },
+          "native_objects": {
+            "chart": 0,
+            "table": 1,
+            "formula_block": 0,
+            "formula_inline": 0,
+            "other": 0
+          }
+        },
+        "fonts": [
+          "Arial, Microsoft YaHei"
+        ],
+        "text_elements": 42,
+        "tspan_elements": 14
+      },
+      "passed": true,
+      "source_sha256": "1e429ffb9a7fac62053f6b740e78bbf2075ad222114593a6a3e23bf0cfb3b652"
+    },
+    {
+      "file": "15_benchmarks.svg",
+      "path": "/tmp/ppt-master/projects/awesome_starvla/svg_output/15_benchmarks.svg",
+      "exists": true,
+      "errors": [],
+      "warnings": [],
+      "info": {
+        "viewbox": "0 0 1280 720",
+        "carrier_receipt": {
+          "text_elements": 35,
+          "images": {
+            "placements": 0,
+            "files": [],
+            "max_frame_share": 0.0
+          },
+          "icons": 0,
+          "effects": {
+            "inline_emphasis_runs": 2,
+            "gradient_uses": 0,
+            "filter_uses": 0,
+            "text_effects": 0
+          },
+          "geometry": {
+            "svg_elements": {
+              "rect": 2,
+              "circle": 0,
+              "ellipse": 0,
+              "line": 8,
+              "polyline": 0,
+              "polygon": 0,
+              "path": 0
+            },
+            "preset_shapes": 0,
+            "preset_names": {},
+            "page_frame_elements": 1,
+            "marker_uses": {
+              "start": 0,
+              "mid": 0,
+              "end": 0
+            }
+          },
+          "native_objects": {
+            "chart": 0,
+            "table": 1,
+            "formula_block": 0,
+            "formula_inline": 0,
+            "other": 0
+          }
+        },
+        "fonts": [
+          "Arial, Microsoft YaHei"
+        ],
+        "text_elements": 35,
+        "tspan_elements": 8
+      },
+      "passed": true,
+      "source_sha256": "3a07fb0c976867aaf58d5fa275bbdf03683e57ad1982e9e80c0a604b39b075bc"
+    },
+    {
+      "file": "16_roadmap.svg",
+      "path": "/tmp/ppt-master/projects/awesome_starvla/svg_output/16_roadmap.svg",
+      "exists": true,
+      "errors": [],
+      "warnings": [],
+      "info": {
+        "viewbox": "0 0 1280 720",
+        "carrier_receipt": {
+          "text_elements": 41,
+          "images": {
+            "placements": 0,
+            "files": [],
+            "max_frame_share": 0.0
+          },
+          "icons": 0,
+          "effects": {
+            "inline_emphasis_runs": 1,
+            "gradient_uses": 0,
+            "filter_uses": 0,
+            "text_effects": 0
+          },
+          "geometry": {
+            "svg_elements": {
+              "rect": 2,
+              "circle": 0,
+              "ellipse": 0,
+              "line": 15,
+              "polyline": 0,
+              "polygon": 0,
+              "path": 0
+            },
+            "preset_shapes": 0,
+            "preset_names": {},
+            "page_frame_elements": 1,
+            "marker_uses": {
+              "start": 0,
+              "mid": 0,
+              "end": 0
+            }
+          },
+          "native_objects": {
+            "chart": 0,
+            "table": 2,
+            "formula_block": 0,
+            "formula_inline": 0,
+            "other": 0
+          }
+        },
+        "fonts": [
+          "Arial, Microsoft YaHei"
+        ],
+        "text_elements": 41,
+        "tspan_elements": 36
+      },
+      "passed": true,
+      "source_sha256": "ed353221ecf2defe0cc867dc68c7dd97c6b55950b743df076a7c29b23f858865"
+    },
+    {
+      "file": "17_takeaways.svg",
+      "path": "/tmp/ppt-master/projects/awesome_starvla/svg_output/17_takeaways.svg",
+      "exists": true,
+      "errors": [],
+      "warnings": [],
+      "info": {
+        "viewbox": "0 0 1280 720",
+        "carrier_receipt": {
+          "text_elements": 14,
+          "images": {
+            "placements": 0,
+            "files": [],
+            "max_frame_share": 0.0
+          },
+          "icons": 0,
+          "effects": {
+            "inline_emphasis_runs": 6,
+            "gradient_uses": 0,
+            "filter_uses": 0,
+            "text_effects": 0
+          },
+          "geometry": {
+            "svg_elements": {
+              "rect": 2,
+              "circle": 0,
+              "ellipse": 0,
+              "line": 3,
+              "polyline": 0,
+              "polygon": 0,
+              "path": 0
+            },
+            "preset_shapes": 0,
+            "preset_names": {},
+            "page_frame_elements": 1,
+            "marker_uses": {
+              "start": 0,
+              "mid": 0,
+              "end": 0
+            }
+          },
+          "native_objects": {
+            "chart": 0,
+            "table": 0,
+            "formula_block": 0,
+            "formula_inline": 0,
+            "other": 0
+          }
+        },
+        "fonts": [
+          "Arial, Microsoft YaHei"
+        ],
+        "text_elements": 14,
+        "tspan_elements": 9
+      },
+      "passed": true,
+      "source_sha256": "028b731a41b948d008bb4a092cd71eed78fc4d072051d679e257b16e9134c6f1"
+    },
+    {
+      "file": "18_end.svg",
+      "path": "/tmp/ppt-master/projects/awesome_starvla/svg_output/18_end.svg",
+      "exists": true,
+      "errors": [],
+      "warnings": [],
+      "info": {
+        "viewbox": "0 0 1280 720",
+        "carrier_receipt": {
+          "text_elements": 11,
+          "images": {
+            "placements": 0,
+            "files": [],
+            "max_frame_share": 0.0
+          },
+          "icons": 0,
+          "effects": {
+            "inline_emphasis_runs": 0,
+            "gradient_uses": 0,
+            "filter_uses": 0,
+            "text_effects": 0
+          },
+          "geometry": {
+            "svg_elements": {
+              "rect": 2,
+              "circle": 0,
+              "ellipse": 0,
+              "line": 0,
+              "polyline": 0,
+              "polygon": 0,
+              "path": 0
+            },
+            "preset_shapes": 0,
+            "preset_names": {},
+            "page_frame_elements": 1,
+            "marker_uses": {
+              "start": 0,
+              "mid": 0,
+              "end": 0
+            }
+          },
+          "native_objects": {
+            "chart": 0,
+            "table": 0,
+            "formula_block": 0,
+            "formula_inline": 0,
+            "other": 0
+          }
+        },
+        "fonts": [
+          "Arial, Microsoft YaHei"
+        ],
+        "text_elements": 11,
+        "tspan_elements": 5,
+        "hyperlinks": 1
+      },
+      "passed": true,
+      "source_sha256": "ad09d6d7a4e0ce4c7a93439b689919aee16e21f77c9de27000fc126d77bee6a0"
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" data-pptx-page-role="ending" font-family="Arial, Microsoft YaHei">
+  <rect id="bg" data-pptx-role="background" x="0" y="0" width="1280" height="720" fill="#FFFFFF"/>
+  <g id="end-plane" data-pptx-bounds="0 0 420 720">
+    <rect x="0" y="0" width="420" height="720" fill="#0173B2"/>
+    <text x="56" y="320" font-size="56" font-weight="bold" fill="#FFFFFF">谢谢</text>
+    <text x="56" y="372" font-size="28" fill="#FFFFFF">配方决定符号</text>
+    <text x="56" y="648" font-size="16" fill="#FFFFFF">awesome_starvla · 2026 年 9 月</text>
+  </g>
+  <g id="repo-block" data-pptx-bounds="460 200 756 190">
+    <text x="460" y="222" font-size="16" fill="#5F6772">仓库</text>
+    <text x="460" y="262" font-size="24" font-weight="bold" fill="#0173B2" text-decoration="underline"><a href="https://github.com/asimfish/awesome_starvla"><tspan>https://github.com/asimfish/awesome_starvla</tspan></a></text>
+    <text x="460" y="312" font-size="22" fill="#1B1F24">3 篇论文中英 PDF · 7 份精读报告 · 文献编目 · 本 PPT 源码</text>
+    <text x="460" y="350" font-size="18" fill="#5F6772">7 份精读报告：01 VLAct 精读 · 02 StarVLA 代码库分析 · 03 StarVLA-α<tspan x="460" dy="26">04 代码库报告 · 05 动作头与表示 · 06 基准图谱 · 07 研究路线图</tspan></text>
+  </g>
+  <g id="refs-block" data-pptx-bounds="460 420 756 200" font-size="16" fill="#5F6772">
+    <text x="460" y="444" font-size="18" font-weight="bold" fill="#1B1F24">主要文献</text>
+    <text x="460" y="474">S. Yang, C. Wang, et al. Beyond Data Scaling: Representation-Centric Continued<tspan x="460" dy="22">Pre-training for Vision-Language-Action Models. arXiv:2608.27550, 2026.</tspan></text>
+    <text x="460" y="530">J. Ye, N. Gao, S. Yang, et al. StarVLA-α: Reducing Complexity in<tspan x="460" dy="22">Vision-Language-Action Systems. arXiv:2604.11757, ECCV 2026.</tspan></text>
+    <text x="460" y="586">StarVLA Community. StarVLA: A Lego-like Codebase for Vision-Language-Action<tspan x="460" dy="22">Model Developing. arXiv:2604.05014, 2026. github.com/starVLA/starVLA</tspan></text>
+  </g>
+</svg>

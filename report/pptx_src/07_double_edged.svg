@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" data-pptx-page-role="content" font-family="Arial, Microsoft YaHei">
+  <rect id="bg" data-pptx-role="background" x="0" y="0" width="1280" height="720" fill="#FFFFFF"/>
+  <g id="header" data-pptx-bounds="64 24 1152 92">
+    <rect x="64" y="56" width="6" height="36" fill="#0173B2"/>
+    <text x="84" y="44" font-size="14" fill="#5F6772">03 · StarVLA-α</text>
+    <text x="84" y="86" font-size="34" font-weight="bold" fill="#1B1F24">常识二被推翻：现有动作预训练在 StarVLA-α 里是双刃剑</text>
+    <line x1="64" y1="112" x2="1216" y2="112" stroke="#D5D9DE" stroke-width="1"/>
+  </g>
+  <g id="lead" data-pptx-bounds="64 126 1152 34">
+    <text x="84" y="150" font-size="22" font-weight="bold" fill="#0173B2">跨域数据全面拖后腿；同域数据只在目标域低数据段有用，换到 GR1 一律掉点</text>
+  </g>
+  <g id="p07-pretrain-table" data-pptx-replace-with="table" data-pptx-bounds="64 200 1152 220" font-size="18" fill="#1B1F24" data-pptx-fallback-sha256="2c2cb71d4752b578061ac18921bb08ad9e68644c1701f684018f5e640a31b04a">
+    <metadata type="application/json">
+{"schema":"ppt-master.semantic-table.v2","name":"p07-pretrain-table","x":64,"y":200,"width":1152,"height":220,"header_rows":1,
+ "column_widths":[300,120,190,180,170,192],"row_heights":[44,44,44,44,44],
+ "style":{"font_family":"Microsoft YaHei","font_size":18,"body_text":"#1B1F24","band_row":false,"valign":"middle","padding":6},
+ "defaults":{"cell":{"align":"l","borders":{"left":{"style":"none"},"right":{"style":"none"},"top":{"style":"none"},"bottom":{"style":"solid","color":"#D5D9DE","width":1}}}},
+ "cell_styles":{
+  "head":{"bold":true,"color":"#5F6772","borders":{"left":{"style":"none"},"right":{"style":"none"},"top":{"style":"none"},"bottom":{"style":"solid","color":"#1B1F24","width":2}}},
+  "head-r":{"bold":true,"align":"r","color":"#5F6772","borders":{"left":{"style":"none"},"right":{"style":"none"},"top":{"style":"none"},"bottom":{"style":"solid","color":"#1B1F24","width":2}}},
+  "num":{"align":"r"},"num-pos":{"align":"r","color":"#029E73","bold":true},"num-neg":{"align":"r","color":"#DE8F05","bold":true}},
+ "columns":[{"text":"中间预训练","cell_style":"head"},{"text":"轨迹数","cell_style":"head-r"},{"text":"RoboTwin 50×50","cell_style":"head-r"},{"text":"+Random×500","cell_style":"head-r"},{"text":"GR1 24×10","cell_style":"head-r"},{"text":"GR1 24×1000","cell_style":"head-r"}],
+ "rows":[
+  ["无",{"text":"–","cell_style":"num"},{"text":"50.3","cell_style":"num"},{"text":"88.2","cell_style":"num"},{"text":"9.8","cell_style":"num"},{"text":"53.8","cell_style":"num"}],
+  ["+ OXE（跨域）",{"text":"232.6k","cell_style":"num"},{"text":"30.2","cell_style":"num-neg"},{"text":"83.6","cell_style":"num"},{"text":"1.2","cell_style":"num-neg"},{"text":"27.8","cell_style":"num-neg"}],
+  ["+ InternData-A1（同本体）",{"text":"630k","cell_style":"num"},{"text":"63.6","cell_style":"num-pos"},{"text":"88.6","cell_style":"num"},{"text":"2.8","cell_style":"num"},{"text":"35.4","cell_style":"num"}],
+  ["+ RoboTwin-Rand（同域）",{"text":"25k","cell_style":"num"},{"text":"79.7","cell_style":"num-pos"},{"text":"88.8","cell_style":"num"},{"text":"2.2","cell_style":"num"},{"text":"33.3","cell_style":"num"}]
+ ]}
+    </metadata>
+    <line x1="64" y1="244" x2="1216" y2="244" stroke="#1B1F24" stroke-width="2"/>
+    <line x1="64" y1="288" x2="1216" y2="288" stroke="#D5D9DE" stroke-width="1"/>
+    <line x1="64" y1="332" x2="1216" y2="332" stroke="#D5D9DE" stroke-width="1"/>
+    <line x1="64" y1="376" x2="1216" y2="376" stroke="#D5D9DE" stroke-width="1"/>
+    <line x1="64" y1="420" x2="1216" y2="420" stroke="#D5D9DE" stroke-width="1"/>
+    <g font-weight="bold" fill="#5F6772">
+      <text x="76" y="228">中间预训练</text>
+      <text x="472" y="228" text-anchor="end">轨迹数</text>
+      <text x="662" y="228" text-anchor="end">RoboTwin 50×50</text>
+      <text x="842" y="228" text-anchor="end">+Random×500</text>
+      <text x="1012" y="228" text-anchor="end">GR1 24×10</text>
+      <text x="1204" y="228" text-anchor="end">GR1 24×1000</text>
+    </g>
+    <text x="76" y="273">无</text>
+    <g text-anchor="end">
+      <text x="472" y="273">–</text><text x="662" y="273">50.3</text><text x="842" y="273">88.2</text><text x="1012" y="273">9.8</text><text x="1204" y="273">53.8</text>
+    </g>
+    <text x="76" y="317">+ OXE（跨域）</text>
+    <g text-anchor="end">
+      <text x="472" y="317">232.6k</text><text x="662" y="317" font-weight="bold" fill="#DE8F05">30.2</text><text x="842" y="317">83.6</text><text x="1012" y="317" font-weight="bold" fill="#DE8F05">1.2</text><text x="1204" y="317" font-weight="bold" fill="#DE8F05">27.8</text>
+    </g>
+    <text x="76" y="361">+ InternData-A1（同本体）</text>
+    <g text-anchor="end">
+      <text x="472" y="361">630k</text><text x="662" y="361" font-weight="bold" fill="#029E73">63.6</text><text x="842" y="361">88.6</text><text x="1012" y="361">2.8</text><text x="1204" y="361">35.4</text>
+    </g>
+    <text x="76" y="405">+ RoboTwin-Rand（同域）</text>
+    <g text-anchor="end">
+      <text x="472" y="405">25k</text><text x="662" y="405" font-weight="bold" fill="#029E73">79.7</text><text x="842" y="405">88.8</text><text x="1012" y="405">2.2</text><text x="1204" y="405">33.3</text>
+    </g>
+  </g>
+  <g id="question-band" data-pptx-bounds="64 452 1152 72">
+    <rect x="64" y="452" width="1152" height="72" fill="#FBEFD9"/>
+    <rect x="64" y="452" width="6" height="72" fill="#DE8F05"/>
+    <text x="92" y="496" font-size="22" font-weight="bold" fill="#1B1F24">这张表是 VLAct 问题定义的直接来源：是数据不对，还是训练方式不对？</text>
+  </g>
+  <g id="sword-notes" data-pptx-bounds="64 548 1152 84" font-size="22" fill="#1B1F24">
+    <rect x="84" y="560" width="8" height="8" fill="#0173B2"/>
+    <text x="108" y="572">跨域 OXE 四列全部下降；同本体 A1 与同域 Rand 只在 RoboTwin 50×50 有效（50.3 → 63.6 / 79.7）</text>
+    <rect x="84" y="596" width="8" height="8" fill="#0173B2"/>
+    <text x="108" y="608">GR1（未见人形本体）上所有预训练一律掉点：9.8 → 1.2 / 2.8 / 2.2；53.8 → 27.8 / 35.4 / 33.3</text>
+  </g>
+  <g id="footer" data-pptx-role="footer" data-pptx-bounds="64 676 1152 26" font-size="14" fill="#8A929C">
+    <text x="64" y="694">来源：StarVLA-α（arXiv 2604.11757）表 3；reports/03</text>
+    <text x="1216" y="694" text-anchor="end">07 / 18</text>
+  </g>
+</svg>

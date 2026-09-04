@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" data-pptx-page-role="content" font-family="Arial, Microsoft YaHei">
+  <rect id="bg" data-pptx-role="background" x="0" y="0" width="1280" height="720" fill="#FFFFFF"/>
+  <g id="header" data-pptx-bounds="64 24 1152 92">
+    <rect x="64" y="56" width="6" height="36" fill="#0173B2"/>
+    <text x="84" y="44" font-size="14" fill="#5F6772">06 · 代码库</text>
+    <text x="84" y="86" font-size="34" font-weight="bold" fill="#1B1F24">VLAct 配方在 StarVLA 中：两项已有、两项部分、两项缺失</text>
+    <line x1="64" y1="112" x2="1216" y2="112" stroke="#D5D9DE" stroke-width="1"/>
+  </g>
+  <g id="lead" data-pptx-bounds="64 126 1152 34">
+    <text x="84" y="150" font-size="22" font-weight="bold" fill="#0173B2">工程量集中在多头框架与动作空间 transform；唯一多 loss 先例：LangForce 双支路加权</text>
+  </g>
+  <g id="p14-status-table" data-pptx-replace-with="table" data-pptx-bounds="64 176 1152 348" font-size="16" fill="#1B1F24" data-pptx-fallback-sha256="372519766659c001a4fd4795b2e20a978479fe04c39110897345990f2870c578">
+    <metadata type="application/json">
+{"schema":"ppt-master.semantic-table.v2","name":"p14-status-table","x":64,"y":176,"width":1152,"height":348,"header_rows":1,
+ "column_widths":[36,250,70,440,356],"row_heights":[36,52,52,52,52,52,52],
+ "style":{"font_family":"Microsoft YaHei","font_size":16,"body_text":"#1B1F24","band_row":false,"valign":"middle","padding":5},
+ "defaults":{"cell":{"align":"l","borders":{"left":{"style":"none"},"right":{"style":"none"},"top":{"style":"none"},"bottom":{"style":"solid","color":"#D5D9DE","width":1}}}},
+ "cell_styles":{
+  "head":{"bold":true,"color":"#5F6772","borders":{"left":{"style":"none"},"right":{"style":"none"},"top":{"style":"none"},"bottom":{"style":"solid","color":"#1B1F24","width":2}}},
+  "idx":{"color":"#5F6772"},"partial":{"color":"#DE8F05","bold":true},"have":{"color":"#029E73","bold":true},"missing":{"color":"#DE8F05","bold":true}},
+ "columns":[{"text":"#","cell_style":"head"},{"text":"配方","cell_style":"head"},{"text":"状态","cell_style":"head"},{"text":"代码现状","cell_style":"head"},{"text":"需改动","cell_style":"head"}],
+ "rows":[
+  [{"text":"a","cell_style":"idx"},{"paragraphs":["冻视觉编码器","+ LLM 下半层"]},{"text":"部分","cell_style":"partial"},{"paragraphs":["trainer.freeze_modules 只接受精确点路径；","4B 有 36 层"]},{"paragraphs":["列 18 条路径即可；","建议加正则 / 区间语法"]}],
+  [{"text":"b","cell_style":"idx"},{"paragraphs":["caption 共训","0.5·L(VLM-CE)"]},{"text":"已有","cell_style":"have"},{"paragraphs":["train_starvla_cotrain.py + loss_scale.vlm；","已注册 sharegpt4v_coco"]},{"paragraphs":["改 yaml；","VLAct 的 caption 源需注册"]}],
+  [{"text":"c","cell_style":"idx"},{"paragraphs":["OFT + PI + GR00T","三头共监督"]},{"text":"缺失","cell_style":"missing"},{"paragraphs":["28 个框架全部单头；","训练器只读 action_loss"]},{"paragraphs":["新框架 QwenMultiHead：","一次骨干前向，三头 loss 相加"]}],
+  [{"text":"d","cell_style":"idx"},{"paragraphs":["20 维部分统一布局","+ mask"]},{"text":"部分","cell_style":"partial"},{"paragraphs":["mask 消费端：masked_l1_loss；生产端：","UMI / MiniCPM 80 维；FM 头无 mask"]},{"paragraphs":["新 transform","+ 两个 FM 头加 mask"]}],
+  [{"text":"e","cell_style":"idx"},"周期关节 wrap-aware L1",{"text":"缺失","cell_style":"missing"},"无任何模 2π 逻辑","新 loss 函数 + 数据侧 wrap"],
+  [{"text":"f","cell_style":"idx"},{"paragraphs":["丢预训练头、重初始化、","全参解冻"]},{"text":"已有","cell_style":"have"},{"paragraphs":["pretrained_checkpoint + reload_modules","+ freeze_modules: ''"]},"注意 PI 的 project_layers"]
+ ]}
+    </metadata>
+    <line x1="64" y1="212" x2="1216" y2="212" stroke="#1B1F24" stroke-width="2"/>
+    <g stroke="#D5D9DE" stroke-width="1">
+      <line x1="64" y1="264" x2="1216" y2="264"/><line x1="64" y1="316" x2="1216" y2="316"/><line x1="64" y1="368" x2="1216" y2="368"/>
+      <line x1="64" y1="420" x2="1216" y2="420"/><line x1="64" y1="472" x2="1216" y2="472"/><line x1="64" y1="524" x2="1216" y2="524"/>
+    </g>
+    <g font-weight="bold" fill="#5F6772">
+      <text x="76" y="200">#</text><text x="112" y="200">配方</text><text x="432" y="200">状态</text><text x="502" y="200">代码现状</text><text x="872" y="200">需改动</text>
+    </g>
+    <text x="76" y="243" fill="#5F6772">a</text>
+    <text x="112" y="233">冻视觉编码器<tspan x="112" dy="22">+ LLM 下半层</tspan></text>
+    <text x="432" y="243" font-weight="bold" fill="#DE8F05">部分</text>
+    <text x="502" y="233">trainer.freeze_modules 只接受精确点路径；<tspan x="502" dy="22">4B 有 36 层</tspan></text>
+    <text x="872" y="233">列 18 条路径即可；<tspan x="872" dy="22">建议加正则 / 区间语法</tspan></text>
+    <text x="76" y="295" fill="#5F6772">b</text>
+    <text x="112" y="285">caption 共训<tspan x="112" dy="22">0.5·L(VLM-CE)</tspan></text>
+    <text x="432" y="295" font-weight="bold" fill="#029E73">已有</text>
+    <text x="502" y="285">train_starvla_cotrain.py + loss_scale.vlm；<tspan x="502" dy="22">已注册 sharegpt4v_coco</tspan></text>
+    <text x="872" y="285">改 yaml；<tspan x="872" dy="22">VLAct 的 caption 源需注册</tspan></text>
+    <text x="76" y="347" fill="#5F6772">c</text>
+    <text x="112" y="337">OFT + PI + GR00T<tspan x="112" dy="22">三头共监督</tspan></text>
+    <text x="432" y="347" font-weight="bold" fill="#DE8F05">缺失</text>
+    <text x="502" y="337">28 个框架全部单头；<tspan x="502" dy="22">训练器只读 action_loss</tspan></text>
+    <text x="872" y="337">新框架 QwenMultiHead：<tspan x="872" dy="22">一次骨干前向，三头 loss 相加</tspan></text>
+    <text x="76" y="399" fill="#5F6772">d</text>
+    <text x="112" y="389">20 维部分统一布局<tspan x="112" dy="22">+ mask</tspan></text>
+    <text x="432" y="399" font-weight="bold" fill="#DE8F05">部分</text>
+    <text x="502" y="389">mask 消费端：masked_l1_loss；生产端：<tspan x="502" dy="22">UMI / MiniCPM 80 维；FM 头无 mask</tspan></text>
+    <text x="872" y="389">新 transform<tspan x="872" dy="22">+ 两个 FM 头加 mask</tspan></text>
+    <text x="76" y="451" fill="#5F6772">e</text>
+    <text x="112" y="451">周期关节 wrap-aware L1</text>
+    <text x="432" y="451" font-weight="bold" fill="#DE8F05">缺失</text>
+    <text x="502" y="451">无任何模 2π 逻辑</text>
+    <text x="872" y="451">新 loss 函数 + 数据侧 wrap</text>
+    <text x="76" y="503" fill="#5F6772">f</text>
+    <text x="112" y="493">丢预训练头、重初始化、<tspan x="112" dy="22">全参解冻</tspan></text>
+    <text x="432" y="503" font-weight="bold" fill="#029E73">已有</text>
+    <text x="502" y="493">pretrained_checkpoint + reload_modules<tspan x="502" dy="22">+ freeze_modules: ''</tspan></text>
+    <text x="872" y="503">注意 PI 的 project_layers</text>
+  </g>
+  <g id="status-notes" data-pptx-bounds="64 556 1152 80" font-size="22" fill="#1B1F24">
+    <rect x="84" y="568" width="8" height="8" fill="#0173B2"/>
+    <text x="108" y="580">“已有”两项只需改 yaml；“缺失”两项需要新框架（QwenMultiHead）与新 loss 函数</text>
+    <rect x="84" y="604" width="8" height="8" fill="#0173B2"/>
+    <text x="108" y="616">完整的 diff 级改动建议见 reports/02_starvla_codebase_analysis.md §9</text>
+  </g>
+  <g id="footer" data-pptx-role="footer" data-pptx-bounds="64 676 1152 26" font-size="14" fill="#8A929C">
+    <text x="64" y="694">来源：reports/02 §9 配方落点分析；starVLA_dev @ d81fc66</text>
+    <text x="1216" y="694" text-anchor="end">14 / 18</text>
+  </g>
+</svg>

@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" data-pptx-page-role="content" font-family="Arial, Microsoft YaHei">
+  <rect id="bg" data-pptx-role="background" x="0" y="0" width="1280" height="720" fill="#FFFFFF"/>
+  <g id="header" data-pptx-bounds="64 24 1152 92">
+    <rect x="64" y="56" width="6" height="36" fill="#0173B2"/>
+    <text x="84" y="44" font-size="14" fill="#5F6772">07 · 基准与路线图</text>
+    <text x="84" y="86" font-size="34" font-weight="bold" fill="#1B1F24">研究路线图：六类 18 个方向，先做低成本高影响的诊断与协议</text>
+    <line x1="64" y1="112" x2="1216" y2="112" stroke="#D5D9DE" stroke-width="1"/>
+  </g>
+  <g id="lead" data-pptx-bounds="64 126 1152 34">
+    <text x="84" y="150" font-size="22" font-weight="bold" fill="#0173B2">优先 A1 诊断套件、F1 骨干协议、E2 三头开销；每月只换骨干，同时报“同头”与“跨头”数字</text>
+  </g>
+  <g id="p16-roadmap-table" data-pptx-replace-with="table" data-pptx-bounds="64 176 760 450" font-size="16" fill="#1B1F24" data-pptx-fallback-sha256="3e662965274428ffdc76a332b181dc5b0470d43fa37f833c4184c6e546907935">
+    <metadata type="application/json">
+{"schema":"ppt-master.semantic-table.v2","name":"p16-roadmap-table","x":64,"y":176,"width":760,"height":444,"header_rows":1,
+ "column_widths":[120,390,250],"row_heights":[36,68,68,68,68,68,68],
+ "style":{"font_family":"Microsoft YaHei","font_size":16,"body_text":"#1B1F24","band_row":false,"valign":"middle","padding":5},
+ "defaults":{"cell":{"align":"l","borders":{"left":{"style":"none"},"right":{"style":"none"},"top":{"style":"none"},"bottom":{"style":"solid","color":"#D5D9DE","width":1}}}},
+ "cell_styles":{
+  "head":{"bold":true,"color":"#5F6772","borders":{"left":{"style":"none"},"right":{"style":"none"},"top":{"style":"none"},"bottom":{"style":"solid","color":"#1B1F24","width":2}}},
+  "cat":{"bold":true,"color":"#1B1F24"},"evidence":{"color":"#5F6772"}},
+ "columns":[{"text":"类别","cell_style":"head"},{"text":"方向","cell_style":"head"},{"text":"出发点的证据","cell_style":"head"}],
+ "rows":[
+  [{"cell_style":"cat","paragraphs":["A","表征诊断"]},{"paragraphs":["A1 骨干可复用性探针套件；","A2 自动化“哪层该冻”"]},{"cell_style":"evidence","paragraphs":["decoder lock-in","只能间接观察；","冻结只有 3 档消融"]}],
+  [{"cell_style":"cat","paragraphs":["B","预训练目标"]},{"paragraphs":["B1 头多样性推广（FAST / 未来帧 /","空间 QA 头）；B2 辅助数据调度；","B3 潜动作 vs 多头；B4 世界模型辅助头"]},{"cell_style":"evidence","paragraphs":["三头同头 +1.6～4.3；","全混合被稀释；","“广义 VLA 视角”"]}],
+  [{"cell_style":"cat","paragraphs":["C","动作空间"]},{"paragraphs":["C1 可学习的部分统一布局；","C2 几何一致参数化（SO(3)）；","C3 零样本本体迁移"]},{"cell_style":"evidence","paragraphs":["20 维手工表；","wrap loss +5；","GR1 20% 才 49.5"]}],
+  [{"cell_style":"cat","paragraphs":["D","能力短板"]},{"paragraphs":["D1 记忆与长程；D2 语言泛化；","D3 低数据下生成式头落后"]},{"cell_style":"evidence","paragraphs":["Memory 0.66；","Language −5.5；","OFT 41.5 vs GR00T 22.9"]}],
+  [{"cell_style":"cat","paragraphs":["E","系统 scaling"]},{"paragraphs":["E1 规模曲线；E2 三头开销与降本；","E3 数据 × 配方 Pareto"]},{"cell_style":"evidence","text":"只有 4B；开销未量化"}],
+  [{"cell_style":"cat","paragraphs":["F","评测方法"]},{"paragraphs":["F1 骨干基准协议；","F2 generalist × 持续预训练；","F3 真机统计功效"]},{"cell_style":"evidence","paragraphs":["只换骨干未标准化；","两条线未合并；n=10"]}]
+ ]}
+    </metadata>
+    <line x1="64" y1="212" x2="824" y2="212" stroke="#1B1F24" stroke-width="2"/>
+    <g stroke="#D5D9DE" stroke-width="1">
+      <line x1="64" y1="280" x2="824" y2="280"/><line x1="64" y1="348" x2="824" y2="348"/><line x1="64" y1="416" x2="824" y2="416"/>
+      <line x1="64" y1="484" x2="824" y2="484"/><line x1="64" y1="552" x2="824" y2="552"/><line x1="64" y1="620" x2="824" y2="620"/>
+    </g>
+    <g font-weight="bold" fill="#5F6772">
+      <text x="76" y="200">类别</text><text x="196" y="200">方向</text><text x="586" y="200">出发点的证据</text>
+    </g>
+    <text x="76" y="238" font-weight="bold">A<tspan x="76" dy="22">表征诊断</tspan></text>
+    <text x="196" y="238">A1 骨干可复用性探针套件；<tspan x="196" dy="22">A2 自动化“哪层该冻”</tspan></text>
+    <text x="586" y="230" fill="#5F6772">decoder lock-in<tspan x="586" dy="22">只能间接观察；</tspan><tspan x="586" dy="22">冻结只有 3 档消融</tspan></text>
+    <text x="76" y="306" font-weight="bold">B<tspan x="76" dy="22">预训练目标</tspan></text>
+    <text x="196" y="298">B1 头多样性推广（FAST / 未来帧 /<tspan x="196" dy="22">空间 QA 头）；B2 辅助数据调度；</tspan><tspan x="196" dy="22">B3 潜动作 vs 多头；B4 世界模型辅助头</tspan></text>
+    <text x="586" y="298" fill="#5F6772">三头同头 +1.6～4.3；<tspan x="586" dy="22">全混合被稀释；</tspan><tspan x="586" dy="22">“广义 VLA 视角”</tspan></text>
+    <text x="76" y="374" font-weight="bold">C<tspan x="76" dy="22">动作空间</tspan></text>
+    <text x="196" y="366">C1 可学习的部分统一布局；<tspan x="196" dy="22">C2 几何一致参数化（SO(3)）；</tspan><tspan x="196" dy="22">C3 零样本本体迁移</tspan></text>
+    <text x="586" y="366" fill="#5F6772">20 维手工表；<tspan x="586" dy="22">wrap loss +5；</tspan><tspan x="586" dy="22">GR1 20% 才 49.5</tspan></text>
+    <text x="76" y="442" font-weight="bold">D<tspan x="76" dy="22">能力短板</tspan></text>
+    <text x="196" y="442">D1 记忆与长程；D2 语言泛化；<tspan x="196" dy="22">D3 低数据下生成式头落后</tspan></text>
+    <text x="586" y="434" fill="#5F6772">Memory 0.66；<tspan x="586" dy="22">Language −5.5；</tspan><tspan x="586" dy="22">OFT 41.5 vs GR00T 22.9</tspan></text>
+    <text x="76" y="510" font-weight="bold">E<tspan x="76" dy="22">系统 scaling</tspan></text>
+    <text x="196" y="510">E1 规模曲线；E2 三头开销与降本；<tspan x="196" dy="22">E3 数据 × 配方 Pareto</tspan></text>
+    <text x="586" y="522" fill="#5F6772">只有 4B；开销未量化</text>
+    <text x="76" y="578" font-weight="bold">F<tspan x="76" dy="22">评测方法</tspan></text>
+    <text x="196" y="570">F1 骨干基准协议；<tspan x="196" dy="22">F2 generalist × 持续预训练；</tspan><tspan x="196" dy="22">F3 真机统计功效</tspan></text>
+    <text x="586" y="578" fill="#5F6772">只换骨干未标准化；<tspan x="586" dy="22">两条线未合并；n=10</tspan></text>
+  </g>
+  <g id="p16-plan-table" data-pptx-replace-with="table" data-pptx-bounds="864 176 352 400" font-size="16" fill="#1B1F24" data-pptx-fallback-sha256="f8808fbead51cc67605db285cbbcc9a1746df5639e1cc7ec768213f8f969bbd6">
+    <metadata type="application/json">
+{"schema":"ppt-master.semantic-table.v2","name":"p16-plan-table","x":864,"y":176,"width":352,"height":396,"header_rows":1,
+ "column_widths":[40,312],"row_heights":[36,52,68,52,52,68,68],
+ "style":{"font_family":"Microsoft YaHei","font_size":16,"body_text":"#1B1F24","band_row":false,"valign":"middle","padding":5},
+ "defaults":{"cell":{"align":"l","borders":{"left":{"style":"none"},"right":{"style":"none"},"top":{"style":"none"},"bottom":{"style":"solid","color":"#D5D9DE","width":1}}}},
+ "cell_styles":{
+  "head":{"bold":true,"color":"#5F6772","borders":{"left":{"style":"none"},"right":{"style":"none"},"top":{"style":"none"},"bottom":{"style":"solid","color":"#1B1F24","width":2}}},
+  "month":{"bold":true,"color":"#0173B2"}},
+ "columns":[{"text":"月","cell_style":"head"},{"text":"目标与交付（16 GPU）","cell_style":"head"}],
+ "rows":[
+  [{"text":"1","cell_style":"month"},{"paragraphs":["复现 VLAct；探针 +","骨干基准脚本；三头开销表"]}],
+  [{"text":"2","cell_style":"month"},{"paragraphs":["A2 自动冻结；","B1 头组合因子实验","→ 跨头迁移矩阵"]}],
+  [{"text":"3","cell_style":"month"},{"paragraphs":["D1 记忆三路线小规模验证；","D3 步数曲线"]}],
+  [{"text":"4","cell_style":"month"},{"paragraphs":["C1 可学习布局，","加 GR1 做三本体预训练"]}],
+  [{"text":"5","cell_style":"month"},{"paragraphs":["B2 调度器；","B4 特征预测辅助头","（DOMINO / Random）"]}],
+  [{"text":"6","cell_style":"month"},{"paragraphs":["整合最优组合，全基准评测 +","RoboDojo 提交，成文并向","StarVLA 提 PR"]}]
+ ]}
+    </metadata>
+    <line x1="864" y1="212" x2="1216" y2="212" stroke="#1B1F24" stroke-width="2"/>
+    <g stroke="#D5D9DE" stroke-width="1">
+      <line x1="864" y1="264" x2="1216" y2="264"/><line x1="864" y1="332" x2="1216" y2="332"/><line x1="864" y1="384" x2="1216" y2="384"/>
+      <line x1="864" y1="436" x2="1216" y2="436"/><line x1="864" y1="504" x2="1216" y2="504"/><line x1="864" y1="572" x2="1216" y2="572"/>
+    </g>
+    <g font-weight="bold" fill="#5F6772">
+      <text x="876" y="200">月</text><text x="916" y="200">目标与交付（16 GPU）</text>
+    </g>
+    <text x="876" y="244" font-weight="bold" fill="#0173B2">1</text>
+    <text x="916" y="233">复现 VLAct；探针 +<tspan x="916" dy="22">骨干基准脚本；三头开销表</tspan></text>
+    <text x="876" y="304" font-weight="bold" fill="#0173B2">2</text>
+    <text x="916" y="282">A2 自动冻结；<tspan x="916" dy="22">B1 头组合因子实验</tspan><tspan x="916" dy="22">→ 跨头迁移矩阵</tspan></text>
+    <text x="876" y="364" font-weight="bold" fill="#0173B2">3</text>
+    <text x="916" y="353">D1 记忆三路线小规模验证；<tspan x="916" dy="22">D3 步数曲线</tspan></text>
+    <text x="876" y="416" font-weight="bold" fill="#0173B2">4</text>
+    <text x="916" y="405">C1 可学习布局，<tspan x="916" dy="22">加 GR1 做三本体预训练</tspan></text>
+    <text x="876" y="476" font-weight="bold" fill="#0173B2">5</text>
+    <text x="916" y="454">B2 调度器；<tspan x="916" dy="22">B4 特征预测辅助头</tspan><tspan x="916" dy="22">（DOMINO / Random）</tspan></text>
+    <text x="876" y="544" font-weight="bold" fill="#0173B2">6</text>
+    <text x="916" y="522">整合最优组合，全基准评测 +<tspan x="916" dy="22">RoboDojo 提交，成文并向</tspan><tspan x="916" dy="22">StarVLA 提 PR</tspan></text>
+  </g>
+  <g id="plan-note" data-pptx-bounds="864 580 352 76" font-size="18" fill="#5F6772">
+    <text x="864" y="600">高影响 / 低成本：<tspan font-weight="bold" fill="#0173B2">A1、F1、E2</tspan><tspan x="864" dy="24">高影响 / 中成本：B1、D1、C1</tspan><tspan x="864" dy="24">高成本：B4、E1（很高）</tspan></text>
+  </g>
+  <g id="footer" data-pptx-role="footer" data-pptx-bounds="64 676 1152 26" font-size="14" fill="#8A929C">
+    <text x="64" y="694">来源：reports/07 研究路线图（做法、代码落点、评测方案与风险）</text>
+    <text x="1216" y="694" text-anchor="end">16 / 18</text>
+  </g>
+</svg>
