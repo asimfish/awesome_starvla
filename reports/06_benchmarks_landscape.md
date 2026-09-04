@@ -251,7 +251,7 @@ VLAct 论文在 LIBERO-Plus、VLA-Arena、RoboTwin 2.0、DOMINO、RoboCasa-GR1�
 
 ### 5.4 目前没有好基准的维度
 
-- **Memory（非马尔可夫决策）**：只有 RoboDojo 的 6 个 Memory 任务，除 DM0.5（47.74）外几乎全部低于 15%，VLAct 0.56% SR【P Tab.3】；没有基准能控制"需要记住多久之前的信息"这一变量，也没有为 history-length 消融设计的协议。RoboDojo 论文引用的 RMBench 专注该维度，但 StarVLA 未接入【W: 2607.04434 §3】。
+- **Memory（非马尔可夫决策）**：只有 RoboDojo 的 6 个 Memory 任务，除 DM0.5（47.74）外几乎全部低于 15%，VLAct 0.56% SR【P Tab.3】；没有基准能控制"需要记住多久之前的信息"这一变量，也没有为 history-length 消融设计的协议。RoboDojo 论文引用的 RMBench 专注该维度，但 StarVLA 未接入【W: 2607.04434 §3】。 **补注（2026-09）**：StarVLA 生态内现已有 [RoboTwin-MeM](09_eventvla.md)（EventVLA 提出，建在 RoboTwin 2.0 上的 8 个双臂任务，每个任务以"必须记住的关键帧数 n=1–5"参数化，每回合 430–1544 步）与其复现的 RMBench；在 RoboTwin-MeM 上无记忆的 QwenOFT 为 3.8%，EventVLA 为 75.2%，是目前唯一能把"要记多少"当自变量的评测。
 - **Long-horizon**：CALVIN 链已接近饱和；VLA-Arena long_horizon 在 L1 即崩到 0.03【R: eval_results.png】；RoboDojo Long-Horizon 榜首 SR 也只有 32.25%【P Tab.3】；BEHAVIOR 的 Q-score 上限 0.26 且评测极慢【W】。缺一个"中等长度、可快速评测、有分步计分"的基准；VLAct 真机的按步计分【P J.3】是这种协议的雏形，但只有 2 个任务。
 - **跨本体零样本**：所有现有基准都要求在目标本体上微调（RoboCasa-GR1、RoboDojo 均如此）；RoboTwin 2.0 与 DOMINO 各有 5 种本体的数据【W】，但榜单固定 AgileX，没有"训 A 本体、测 B 本体"的官方 split。
 - **动态场景**：只有 DOMINO；且 StarVLA 与 VLAct 报告的都是不带历史的单帧策略【R: DOMINO/deploy_policy.yml `history_k: 0`】。

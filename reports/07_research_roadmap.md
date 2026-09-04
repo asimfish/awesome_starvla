@@ -84,9 +84,9 @@
 
 **D1 · 记忆与长程。**
 问题：RoboDojo Memory 维度 0.66 / 0.56，榜首 DM0.5 47.74 / 47.44。StarVLA-α 表 4 显示简单堆两帧历史反而降分。
-做法：三条路线并行小规模验证：(i) 压缩历史 token（把过去 k 帧的 VLM 特征池化成少量 memory token 拼进上下文）；(ii) 双系统里让 System 2 维护显式状态（语言化的任务进度），System 1 只看当前帧；(iii) 在 GR00T 头里加入过去动作块作为条件。
+做法：四条路线并行小规模验证：(i) 压缩历史 token（把过去 k 帧的 VLM 特征池化成少量 memory token 拼进上下文）；(ii) 双系统里让 System 2 维护显式状态（语言化的任务进度），System 1 只看当前帧；(iii) 在 GR00T 头里加入过去动作块作为条件；(iv) **稀疏事件记忆**——[EventVLA](09_eventvla.md) 已在 StarVLA-OFT 上验证：初始帧 + 最近 K 帧的规则锚点，加一个与动作头并联的关键帧预测头（KEM），命中就把原图写进有界 FIFO 缓冲；RoboTwin-MeM 上 QwenOFT 3.8 → 75.2。它的消融表明"存原图让 VLM 重看"优于存特征，这应作为 (i) 的对照。
 落点：`QwenGR00T.py` 的条件输入；dataloader 需支持返回历史帧（`umi_datasets.py` / `lerobot_datasets.py` 的 frame 索引逻辑）。
-评测：RoboDojo Memory 与 Long-Horizon 子集；VLAct 真机 scoop beans 这类多阶段任务。
+评测：**RoboTwin-MeM**（8 个双臂任务，需记忆的关键帧数 n=1–5 可控，见 [09](09_eventvla.md) §3）与 RMBench 作为主指标；RoboDojo Memory 与 Long-Horizon 子集作外部核验；VLAct 真机 scoop beans 这类多阶段任务。首个具体实验：用 VLAct 骨干替换 EventVLA 的 Qwen3-VL 初始化，看两者是否叠加。
 
 **D2 · 语言泛化。**
 问题：LIBERO-Plus Language 维度 VLAct 81.5 低于同骨干基线 87.0，是唯一掉分的维度。

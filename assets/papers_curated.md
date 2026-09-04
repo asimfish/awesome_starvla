@@ -241,7 +241,7 @@
 
     > 1.2B 参数的扩散 Transformer，提出物理可解释的统一动作空间以吸收 46 个数据集、100 万+ episode 的异构机器人数据，再在 6 千+ 条 ALOHA 双臂轨迹上微调，零样本泛化到未见物体与场景。其「统一动作空间」是 VLAct 部分统一跨本体动作布局的先例之一。
 
-24. **EventVLA: Event-Driven Visual Evidence Memory for Long-Horizon Vision-Language-Action Policies.** arXiv, 2026. [paper](https://arxiv.org/abs/2606.20092), [code](https://github.com/InternRobotics/EventVLA)
+24. ⭐ **EventVLA: Event-Driven Visual Evidence Memory for Long-Horizon Vision-Language-Action Policies.** arXiv, 2026. [paper](https://arxiv.org/abs/2606.20092), [PDF](papers/en/2606.20092_EventVLA.pdf), [PDF-zh](papers/zh/2606.20092_EventVLA_zh.pdf), [解读](reports/09_eventvla.md), [code](code/EventVLA), [code](https://github.com/InternRobotics/EventVLA)
 
     *Ganlin Yang, Zhangzheng Tu, Yuqiang Yang, et al., Tai Wang*
 
