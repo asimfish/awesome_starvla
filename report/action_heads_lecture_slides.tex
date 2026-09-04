@@ -1,0 +1,450 @@
+\documentclass[aspectratio=169,10pt]{beamer}
+\usetheme{Madrid}
+\usecolortheme{default}
+\usepackage[fontset=fandol]{ctex}
+\usepackage{amsmath,amssymb,booktabs,mathtools,graphicx,hyperref,tikz,array}
+\usetikzlibrary{arrows.meta,positioning,decorations.pathreplacing,fit}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}[frame number]
+\setbeamerfont{frametitle}{size=\large}
+\definecolor{positive}{HTML}{0173B2}
+\definecolor{negative}{HTML}{DE8F05}
+\definecolor{emphasis}{HTML}{029E73}
+\definecolor{neutral}{gray}{0.55}
+\definecolor{cbPurple}{HTML}{CC78BC}
+\newcommand{\pos}[1]{\textcolor{positive}{#1}}
+\newcommand{\con}[1]{\textcolor{negative}{#1}}
+\newcommand{\HL}[1]{\textcolor{emphasis}{#1}}
+\newcommand{\mute}[1]{\textcolor{neutral}{#1}}
+\tikzset{
+  box/.style={draw, rounded corners, minimum height=0.8cm, font=\small, align=center, fill=positive!10, text width=2.3cm},
+  headbox/.style={draw, rounded corners, minimum height=0.7cm, font=\small, align=center, fill=emphasis!12, text width=1.9cm},
+  arr/.style={-{Stealth}, thick},
+}
+
+\title[awesome\_starvla]{从 StarVLA 到 VLAct：VLA 持续预训练的表示中心路线}
+\subtitle{三篇论文 + 一个代码库的系统调研}
+\author{awesome\_starvla 调研汇报}
+\institute{github.com/asimfish/awesome\_starvla}
+\date{2026 年 9 月}
+\title[动作头讲解]{四种动作头到底是什么：FAST / OFT / PI / GR00T}
+\subtitle{从"VLM 输出 token"到"机器人要连续高频动作块"的四条路线}
+\author{awesome\_starvla 讲解模块 · 配套讲稿 reports/08}
+\institute{github.com/asimfish/awesome\_starvla}
+\date{2026 年 9 月}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+% ---------------------------------------------------------------- 2
+\begin{frame}{问题：VLM 会输出 token，机器人要的是连续、高频、多维的动作块}
+  \textbf{VLA = 看懂场景听懂指令的 VLM + 把表征变成控制量的动作头。} 动作头面对三个难点：
+  \begin{itemize}
+    \item \textbf{连续}：关节角、末端位姿、夹爪都是实数，VLM 原生输出是离散 token
+    \item \textbf{高频且成块}：一次输出未来 $H$ 步（8$\sim$50）$\times$ $D$ 维（7$\sim$14+）个实数，10$\sim$50 Hz
+    \item \textbf{多模态分布}：同一状态多种合理动作，点估计会取平均
+  \end{itemize}
+  \vspace{4pt}
+  \begin{center}\small
+  \begin{tabular}{p{1.4cm}p{11.6cm}}
+    \toprule
+    路线 & 一句话 \\
+    \midrule
+    FAST & 不改 VLM，把动作块压缩成一串离散 token，像生成文字一样生成动作 \\
+    OFT & 在 VLM 末尾拼占位 token，小 MLP 把隐状态直接回归成连续动作，一次前向出整块 \\
+    PI（$\pi_0$） & 给 VLM 配独立权重的"动作专家"，用 flow matching 从噪声逐步生成动作块 \\
+    GR00T & 同样 flow matching，但放进可独立高频运行的 DiT"快系统"，VLM 作"慢系统"只给条件 \\
+    \bottomrule
+  \end{tabular}
+  \end{center}
+\end{frame}
+
+% ---------------------------------------------------------------- 3
+\begin{frame}{共同记号}
+  \begin{center}\small
+  \begin{tabular}{p{4.2cm}p{8.8cm}}
+    \toprule
+    记号 & 含义 \\
+    \midrule
+    $o_t$ & 观测：多视角 RGB + 语言指令（部分头含本体状态 $s_t$） \\
+    $A_t=(a_t,\dots,a_{t+H-1})$，$a\in\mathbb{R}^D$ & 动作块，$H$ 为块长，$D$ 为动作维度 \\
+    $H_t$ / $z$ & VLM 隐状态序列 / 交给动作头的潜表征 \\
+    $\tau\in[0,1]$ & flow matching 的"时间"，与机器人时刻 $t$ 无关 \\
+    $\epsilon\sim\mathcal N(0,I)$ & 与 $A_t$ 同形状的高斯噪声 \\
+    \bottomrule
+  \end{tabular}
+  \end{center}
+  \vspace{6pt}
+  四个头的共同任务：$\;(o_t)\;\xrightarrow{\ \text{VLM}\ }\;H_t\;\xrightarrow{\ \text{动作头}\ }\;A_t$。区别只在最后一个箭头。
+  \vspace{4pt}
+  \begin{itemize}
+    \item 每个头讲四件事：想解决什么 · 核心机制 · 训练与推理 · 在 StarVLA 代码里长什么样
+    \item 材料：四篇原论文 + 中译 PDF（FAST / OFT / GR00T N1 已入库，$\pi_0$ 因许可只放链接）
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------- 4
+\section{FAST}
+\begin{frame}{FAST：为什么"每步每维分箱"在高频数据上失效}
+  \begin{columns}[T]
+    \column{0.52\textwidth}
+    \textbf{朴素做法}（RT-2 / OpenVLA）：每个时刻、每个维度 256 个箱，一箱一 token。7 维 $\times$ 50 步 = 350 个 token。
+    \vspace{4pt}
+    \textbf{玩具实验的结论}：同一条平滑曲线，采样频率越高，自回归模型的预测误差越大，最终退化为\con{复制上一个 token}。
+    \vspace{4pt}
+    \textbf{原因}：自回归的学习信号 = 给定前文后下一个 token 的\textbf{边际信息}。信号平滑时，相邻两步差别随频率升高而趋近零，token 序列高度冗余，模型学不到东西。
+    \column{0.44\textwidth}
+    \begin{exampleblock}{直觉：JPEG}
+      像素在空间上平滑 $\Rightarrow$ DCT 后能量集中在低频 $\Rightarrow$ 丢掉小系数就是压缩。\\[3pt]
+      动作在\textbf{时间}上平滑 $\Rightarrow$ 对每个维度的时间序列做同样的事。
+    \end{exampleblock}
+    \vspace{4pt}
+    \small Pertsch et al., arXiv 2501.09747（Physical Intelligence，2025-01）
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------- 5
+\begin{frame}{FAST：五步流水线，唯一要训练的是 BPE}
+  \begin{center}
+  \begin{tikzpicture}[node distance=0.35cm]
+    \node[box, text width=1.9cm] (n1) {\textbf{1 归一化}\\ \scriptsize 1\%/99\% 分位数 $\to[-1,1]$};
+    \node[box, text width=1.9cm, right=0.35cm of n1] (n2) {\textbf{2 逐维 DCT}\\ \scriptsize $D\times H$ 系数矩阵};
+    \node[box, text width=1.9cm, right=0.35cm of n2] (n3) {\textbf{3 缩放取整}\\ \scriptsize $\mathrm{round}(\gamma C)$，大部分为 0};
+    \node[box, text width=1.9cm, right=0.35cm of n3] (n4) {\textbf{4 展平}\\ \scriptsize 低频在前，维度交错};
+    \node[box, text width=1.9cm, right=0.35cm of n4, fill=emphasis!12] (n5) {\textbf{5 BPE}\\ \scriptsize 词表 1024，合并零串};
+    \draw[arr] (n1)--(n2); \draw[arr] (n2)--(n3); \draw[arr] (n3)--(n4); \draw[arr] (n4)--(n5);
+  \end{tikzpicture}
+  \end{center}
+  \[
+    \mathcal{L}_{\text{FAST}} = -\sum_{m=1}^{M}\log p_\theta\big(z_m \mid H_t, z_{<m}\big),\qquad z_{1:M}=\mathrm{Tok}_{\text{FAST}}(A_t)
+  \]
+  \begin{columns}[T]
+    \column{0.5\textwidth}
+    \begin{itemize}
+      \item 1 秒动作块 $\approx$ \HL{30 个 token/臂}，覆写 VLM 词表中最少用的 token
+      \item 架构、训练目标完全不变：next-token 交叉熵
+      \item FAST+：约 100 万条真实轨迹训练的通用 tokenizer
+    \end{itemize}
+    \column{0.46\textwidth}
+    \begin{itemize}
+      \item \pos{训练 GPU 小时比 diffusion 版 $\pi_0$ 少约 5$\times$}；DROID 15 Hz 首个零样本评测
+      \item \con{推理慢}：几十个 token 自回归解码；可能解出非法序列需兜底
+      \item StarVLA：\texttt{QwenFast}，2048 个 action token 占词表区间，\texttt{generate()} 后解码
+    \end{itemize}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------- 6
+\section{OFT}
+\begin{frame}{OFT：把三件显而易见的事一起做对}
+  \textbf{起点}：OpenVLA（7B）每步 7 个 token 串行解码，3$\sim$5 Hz；ALOHA 需要 25 Hz。作者系统比较生成方式 / 动作表示 / 学习目标三组选择。
+  \vspace{4pt}
+  \begin{center}
+  \begin{tikzpicture}[node distance=0.4cm]
+    \node[box, text width=2.6cm, fill=neutral!15] (in) {图像 + 指令 token};
+    \node[box, text width=2.8cm, right=0.5cm of in] (emp) {$K$ 组\textbf{空动作嵌入}\\ \scriptsize 占位 token};
+    \node[box, text width=2.9cm, right=0.5cm of emp] (dec) {解码器\\ \scriptsize 因果掩码 $\to$ \textbf{双向注意力}\\ 一次前向};
+    \node[box, text width=2.6cm, right=0.5cm of dec, fill=emphasis!12] (mlp) {MLP 动作头\\ \scriptsize 连续动作，L1 回归};
+    \draw[arr] (in)--(emp); \draw[arr] (emp)--(dec); \draw[arr] (dec)--(mlp);
+  \end{tikzpicture}
+  \end{center}
+  \[
+    \hat a_{t+k}=g_\phi\big(h^{\text{act}}_{t,k}\big),\qquad
+    \mathcal{L}_{\text{OFT}}=\frac{1}{Kd_a}\sum_{k=0}^{K-1}\big\|\hat a_{t+k}-a_{t+k}\big\|_1
+  \]
+  \begin{itemize}
+    \item \textbf{并行解码}：$K\times D$ 次串行前向 $\to$ 1 次；\textbf{动作块}：多放 $K$ 组占位，吞吐 $\times K$、延迟几乎不变
+    \item \textbf{连续 + L1}：不再 softmax 选箱；作者试过 diffusion 目标，成功率相当而 L1 简单得多
+    \item \textbf{FiLM（OFT+）}：多视角下策略忽略语言 $\Rightarrow$ 用语言嵌入对视觉特征做缩放/偏置
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------- 7
+\begin{frame}{OFT：结果与在 StarVLA 中的实现}
+  \begin{columns}[T]
+    \column{0.48\textwidth}
+    \textbf{结果}（Kim, Finn, Liang，arXiv 2502.19645）
+    \begin{center}\footnotesize
+    \begin{tabular}{lr}
+      \toprule
+      LIBERO 四套件平均（原版 OpenVLA 76.5） & \HL{97.1} \\
+      动作生成吞吐 & \HL{26$\times$} \\
+      ALOHA 25 步块吞吐 & 43$\times$ \\
+      \bottomrule
+    \end{tabular}
+    \end{center}
+    \begin{itemize}
+      \item 真机 ALOHA 双臂：超过默认配方微调的 $\pi_0$、RDT-1B，以及从零训练的 ACT、Diffusion Policy
+      \item LIBERO 用 $K=8$，ALOHA 用 $K=25$（25 Hz 下的一秒）
+    \end{itemize}
+    \column{0.48\textwidth}
+    \textbf{StarVLA：\texttt{QwenOFT.py}}
+    \begin{itemize}
+      \item 指令末尾拼"预测接下来 $N$ 个动作"+ $N$ 个 🔍 占位字符
+      \item 取最后一层隐状态中这 $N$ 个位置 $\to$ 两层残差 MLP（$H\to2H\to D$）
+      \item 带 mask 的 L1：$(|\hat a-a|\cdot m).\mathrm{sum}()/m.\mathrm{sum}()$
+      \item 单次前向；StarVLA-$\alpha$ 与 VLAct 的默认头
+    \end{itemize}
+    \begin{alertblock}{边界}
+      输出是点估计：多解任务会取平均。但在数据充足或低数据 + 强扰动下都不输生成式头（RoboTwin Base/Random：OFT 41.5 vs GR00T 22.9）。
+    \end{alertblock}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------- 8
+\section{PI}
+\begin{frame}{flow matching 的最小版本：把一团噪声"搬"到一段轨迹}
+  在真实动作块 $A$ 与噪声 $\epsilon$ 之间画一条直线，用 $\tau$ 标记位置：
+  \[
+    A^{\tau}=\tau A+(1-\tau)\,\epsilon,\qquad
+    u = A-\epsilon\ \ (\text{沿直线每单位 } \tau \text{ 的位移，是常数})
+  \]
+  训练网络 $v_\theta$ 预测这个位移（速度场），推理从噪声出发沿场走 $N$ 步：
+  \[
+    \mathcal{L}=\mathbb{E}_{A,\epsilon,\tau}\big\|v_\theta(A^{\tau},\tau;o_t)-(A-\epsilon)\big\|_2^2,\qquad
+    A^{\tau+\delta}=A^{\tau}+\delta\,v_\theta(A^{\tau},\tau;o_t)
+  \]
+  \begin{columns}[T]
+    \column{0.5\textwidth}
+    \textbf{两个实践细节}
+    \begin{itemize}
+      \item $\tau$ 不均匀采样，从偏向小 $\tau$（更接近噪声）的 Beta 分布采：多练"从很糟的起点纠正"
+      \item 整个块一起去噪，块内双向注意力，$H$ 步动作相互协调
+    \end{itemize}
+    \column{0.46\textwidth}
+    \textbf{与 diffusion 的关系}
+    \begin{itemize}
+      \item 同一族：diffusion 预测噪声，flow matching 预测位移
+      \item 直线路径，公式与采样更简单、步数更少（$\pi_0$ 10 步，StarVLA 4 步）
+      \item StarVLA 里 PI 与 GR00T 两个头共用这一目标
+    \end{itemize}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------- 9
+\begin{frame}{$\pi_0$：独立权重的动作专家 + 1 万小时预训练}
+  \begin{columns}[T]
+    \column{0.5\textwidth}
+    \textbf{动作专家（action expert）}
+    \begin{itemize}
+      \item 与 VLM 走同一个 transformer 的注意力，但\textbf{独立一套权重}，只处理状态与动作 token
+      \item 相当于两成员的 MoE：按 token 类型路由权重；动作 token 的统计性质与语言差异太大
+      \item PaliGemma 3B + 从零初始化的约 3 亿参数 = 3.3B
+      \item $H=50$，最高 50 Hz；推理 10 步前向欧拉
+    \end{itemize}
+    \column{0.46\textwidth}
+    \textbf{训练配方}
+    \begin{itemize}
+      \item 预训练：约 1 万小时自有灵巧操作数据（7 种本体、68 任务）+ OXE
+      \item "广而杂"的预训练教纠错，"精而顺"的后训练教流畅，缺一不可
+    \end{itemize}
+    \textbf{StarVLA：\texttt{QwenPI\_v3.py}}
+    \begin{itemize}
+      \item Qwen3-VL 最后 36 层隐状态各经 LayerNorm+Linear $\to$ 1024 维，逐层 cross-attn 到 36 层 DiT
+      \item 状态量化 256 桶写进文本；Beta(1.5,1) 变换采样 $\tau$；4 步欧拉
+      \item 4.44B 骨干 + 5.39 亿 DiT + 0.95 亿投影
+    \end{itemize}
+  \end{columns}
+  \vspace{2pt}
+  \small Black et al., arXiv 2410.24164（Physical Intelligence，2024-10）；VLAct 表 8：OFT 单头预训练让 PI 微调 60.5 $\to$ \con{55.1}
+\end{frame}
+
+% ---------------------------------------------------------------- 10
+\section{GR00T}
+\begin{frame}{GR00T N1：双系统里的 flow matching}
+  \begin{center}
+  \begin{tikzpicture}[node distance=0.4cm]
+    \node[box, text width=3.3cm] (s2) {\textbf{System 2：Eagle-2 VLM}\\ \scriptsize SmolLM2 + SigLIP-2，1.34B\\ 取\textbf{第 12 层}隐状态，$\approx$10 Hz};
+    \node[box, text width=3.6cm, right=1.3cm of s2, fill=emphasis!12] (s1) {\textbf{System 1：DiT}\\ \scriptsize adaLN 注入 $\tau$；交替 self-attn（噪声动作 + 状态）/ cross-attn（读 VLM token）\\ $\approx$120 Hz，块长 16，4 步去噪};
+    \node[box, text width=2.2cm, below=0.5cm of s1, fill=neutral!15] (enc) {\scriptsize 本体特定 MLP\\ 状态编码器 / 动作解码器};
+    \draw[arr] (s2) -- node[above, font=\scriptsize] {cross-attention} (s1);
+    \draw[arr] (enc) -- (s1);
+  \end{tikzpicture}
+  \end{center}
+  \[
+    \mathcal{L}_{\text{GR00T}}=\mathbb{E}\big\|v_\theta(A^{\tau},\tau;\,H_t,\,s_t,\,e)-(A-\epsilon)\big\|_2^2
+    \qquad(\text{比 } \pi_0 \text{ 多了状态 } s_t \text{ 与本体标识 } e)
+  \]
+  \begin{itemize}
+    \item 总参数 2.2B；L40 上一块 16 步动作 63.9 ms；两系统端到端联合训练，推理可异步
+    \item \textbf{数据金字塔}：网页 / 人类视频 $\to$ 合成神经轨迹与仿真 $\to$ 真机；无动作标签的视频用 VQ-VAE 学\textbf{潜动作}，当作一种额外本体（LAPA）用同一 loss 训练
+  \end{itemize}
+  \vspace{2pt}
+  \small Bjorck et al., arXiv 2503.14734（NVIDIA，2025-03）
+\end{frame}
+
+% ---------------------------------------------------------------- 11
+\begin{frame}{$\pi_0$ 与 GR00T 的差别，以及 StarVLA 的复刻}
+  \begin{center}\small
+  \begin{tabular}{p{2.6cm}p{4.6cm}p{5.4cm}}
+    \toprule
+     & $\pi_0$ 的动作专家 & GR00T 的 System 1 \\
+    \midrule
+    与 VLM 的耦合 & 同一注意力、独立权重（MoE 式） & 独立 DiT，cross-attention 读 VLM 特征 \\
+    取哪层特征 & 与 VLM 逐层交互 & 单层（论文第 12 层；StarVLA 用末层） \\
+    运行频率 & 与 VLM 同步 & 可异步，System 1 远快于 System 2 \\
+    状态与本体 & 状态 token 进专家 & 状态 + 本体标识经本体特定 MLP 进 DiT \\
+    块长 / 步数 & $H=50$，10 步 & $H=16$，4 步 \\
+    跨本体 & 统一填充动作空间 & 每本体一对编解码 MLP \\
+    \bottomrule
+  \end{tabular}
+  \end{center}
+  \vspace{4pt}
+  \textbf{StarVLA：\texttt{QwenGR00T.py}}——Qwen3-VL 最后一层隐状态作 cross-attn 的 K/V；DiT-B（768 维、12 头）16 层交替 self/cross；状态经 MLP 编码后拼在序列最前；4 步欧拉；每样本重复 8 次噪声（\texttt{repeated\_diffusion\_steps=8}）。VLAct 多头版以 \texttt{state\_dim: 0} 构建、状态改走文本，便于混合本体 batch。
+  \vspace{4pt}
+  \begin{itemize}
+    \item "取第 12 层而非末层"与 VLAct"冻结下半层保护低层视觉表征"是同一件事的两面
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------- 12
+\section{对比与选型}
+\begin{frame}{横向对比：五个维度一眼分清四个头}
+  \begin{center}\footnotesize\setlength{\tabcolsep}{4pt}
+  \begin{tabular}{p{2.3cm}p{2.5cm}p{2.5cm}p{2.9cm}p{2.9cm}}
+    \toprule
+    维度 & FAST & OFT & PI（$\pi_0$） & GR00T \\
+    \midrule
+    与 VLM 的接口 & 复用词表，动作 = token & 占位 token 隐状态 $\to$ MLP & 独立权重的动作专家 & 独立 DiT，cross-attn 读 VLM \\
+    动作表示 & 离散（DCT + BPE） & 连续，点估计 & 连续，分布 & 连续，分布 \\
+    训练目标 & next-token 交叉熵 & L1 & flow matching MSE & flow matching MSE + 状态 / 本体条件 \\
+    推理 & 自回归几十个 token & 一次前向 & $N$ 步欧拉（10 / 4） & $N$ 步欧拉（4） \\
+    新增参数 & 0 & 一个小 MLP & $\approx$3 亿（$\pi_0$） & DiT-B 16 层 + 本体 MLP \\
+    多模态动作分布 & 可以 & \con{不能} & 可以 & 可以 \\
+    跨本体 & 统一 tokenizer & 零填充 / mask & 统一填充 & 本体特定 MLP \\
+    StarVLA 类 & \texttt{QwenFast} & \texttt{QwenOFT} & \texttt{QwenPI\_v3} & \texttt{QwenGR00T} \\
+    \bottomrule
+  \end{tabular}
+  \end{center}
+\end{frame}
+
+% ---------------------------------------------------------------- 13
+\begin{frame}{同一骨干、同一数据下的数字，以及两条边界}
+  \begin{center}\small
+  \begin{tabular}{lrrrr}
+    \toprule
+    StarVLA-$\alpha$ 表 2（Qwen3-VL-4B） & LIBERO avg & WidowX & RoboTwin clean$^*$ & RoboCasa-GR1 \\
+    \midrule
+    FAST & 97.8 & \con{35.6} & \con{72.5} & 45.0 \\
+    OFT（MLP） & 98.8 & 64.6 & 88.2 & \HL{53.8} \\
+    PI & 98.1 & 65.9 & 88.1 & 48.9 \\
+    GR00T & 98.7 & 65.3 & 88.0 & 52.8 \\
+    \bottomrule
+  \end{tabular}
+  \end{center}
+  \vspace{4pt}
+  \begin{itemize}
+    \item 离散头明显落后（WidowX $-29$、RoboTwin $-16$）；三种连续头在数据充足时相当
+  \end{itemize}
+  \begin{alertblock}{VLAct 补的两条边界}
+    \begin{itemize}
+      \item 低数据 + 强扰动：回归头领先生成式头 18 点（RoboTwin Base/Random：OFT 41.5 vs GR00T 22.9 / PI 23.7）
+      \item decoder lock-in：单头预训练的骨干换头微调反而低于从零（PI 60.5 $\to$ 55.1）；至少两个连续头共监督才得到对头不敏感的骨干（$+$GR00T 头后 63.1）
+    \end{itemize}
+  \end{alertblock}
+\end{frame}
+
+% ---------------------------------------------------------------- 14
+\begin{frame}{选型：先问四个问题}
+  \begin{center}\small
+  \begin{tabular}{p{5.6cm}p{2.2cm}p{5.2cm}}
+    \toprule
+    你的情况 & 选 & 理由 \\
+    \midrule
+    单臂、几百条示教、求简单 & OFT & 实现最小、推理最快、成功率不输 \\
+    任务有明显多解（从哪一侧抓） & PI / GR00T & 回归头输出条件均值，会落在两解之间 \\
+    只能复用现成 VLM，不加任何模块 & FAST & 唯一不改架构，接受推理慢与 15$\sim$30 点代价 \\
+    多本体、要状态输入、运动模块独立部署 & GR00T & 状态与本体标识进 System 1，DiT 可独立更新加速 \\
+    做持续预训练、交付骨干给别人 & $\ge$2 个连续头共监督 & VLAct 表 8：单头 $-5.4$，双头 $+2.6$ \\
+    关节角控制 & 任何头 + wrap-aware loss & VLAct 表 10：$+5$ 点，零成本 \\
+    \bottomrule
+  \end{tabular}
+  \end{center}
+  \vspace{6pt}
+  \textbf{常见问题}：flow matching 与 diffusion 是同一族（预测位移 vs 预测噪声，直线路径更简单、步数更少）；GR00T 取 VLM 第 12 层是因为中间层保留更多空间细节。
+\end{frame}
+
+% ---------------------------------------------------------------- 15
+\begin{frame}{三个 takeaway 与阅读顺序}
+  \begin{enumerate}
+    \item \textbf{四个头是同一个箭头 $H_t \to A_t$ 的四种写法}：token 化、回归、生成、分离的生成。接口不同，任务相同。
+    \item \textbf{连续 $\gg$ 离散，连续头之间在数据充足时相当}；边界在低数据强扰动（回归领先）和骨干可复用性（需多头）。
+    \item \textbf{头的选择会反过来塑造骨干}：单头预训练造成 decoder lock-in，这是 VLAct 多头共监督的出发点。
+  \end{enumerate}
+  \vspace{6pt}
+  \textbf{阅读顺序}（中译 PDF 在 \texttt{papers/zh/}）
+  \begin{enumerate}
+    \item OpenVLA-OFT §IV：三组设计决策的对照实验最直观
+    \item FAST §IV–V：玩具实验 + 算法 1
+    \item $\pi_0$ §IV 与附录 B：只看公式与图 3（arXiv 非独占许可，仓库只放链接）
+    \item GR00T N1 §2 与 §3.1：模型、数据金字塔、潜动作
+    \item 回到 StarVLA 四个框架文件对照代码（\texttt{reports/02} 第 4 章）
+  \end{enumerate}
+\end{frame}
+
+% ---------------------------------------------------------------- 16
+\begin{frame}{References}
+  \small
+  \begin{thebibliography}{9}
+    \bibitem{fast} K. Pertsch et al. \emph{FAST: Efficient Action Tokenization for Vision-Language-Action Models.} arXiv:2501.09747, 2025.
+    \bibitem{oft} M. J. Kim, C. Finn, P. Liang. \emph{Fine-Tuning Vision-Language-Action Models: Optimizing Speed and Success.} arXiv:2502.19645, 2025.
+    \bibitem{pi0} K. Black et al. \emph{$\pi_0$: A Vision-Language-Action Flow Model for General Robot Control.} arXiv:2410.24164, 2024.
+    \bibitem{groot} J. Bjorck et al. \emph{GR00T N1: An Open Foundation Model for Generalist Humanoid Robots.} arXiv:2503.14734, 2025.
+    \bibitem{fm} Y. Lipman et al. \emph{Flow Matching for Generative Modeling.} arXiv:2210.02747, 2022.
+    \bibitem{openvla} M. J. Kim et al. \emph{OpenVLA: An Open-Source Vision-Language-Action Model.} arXiv:2406.09246, 2024.
+    \bibitem{alpha} J. Ye et al. \emph{StarVLA-$\alpha$: Reducing Complexity in Vision-Language-Action Systems.} arXiv:2604.11757, 2026.
+    \bibitem{vlact} S. Yang et al. \emph{Beyond Data Scaling: Representation-Centric Continued Pre-training for VLA Models.} arXiv:2608.27550, 2026.
+  \end{thebibliography}
+\end{frame}
+
+\begin{frame}
+  \begin{center}
+    {\Large 谢谢}\\[10pt]
+    \normalsize 讲稿全文：\texttt{reports/08\_action\_heads\_lecture.md}\\[4pt]
+    \small 仓库：\url{https://github.com/asimfish/awesome_starvla}
+  \end{center}
+\end{frame}
+
+\appendix
+\begin{frame}{Backup Slides}
+  \begin{center}\Large 备份页\end{center}
+\end{frame}
+
+\begin{frame}{Backup：公式速查卡}
+  \begin{center}\small
+  \begin{tabular}{p{1.3cm}p{6.2cm}p{5.2cm}}
+    \toprule
+    头 & 前向 & 损失 \\
+    \midrule
+    FAST & $z_{1:M}=\mathrm{BPE}(\mathrm{round}(\gamma\,\mathrm{DCT}(\mathrm{norm}(A))))$ & $-\sum_m\log p_\theta(z_m\mid H_t,z_{<m})$ \\
+    OFT & $\hat a_{t+k}=g_\phi(h^{\text{act}}_{t,k})$ & $\frac{1}{Kd_a}\sum_k\|\hat a_{t+k}-a_{t+k}\|_1$ \\
+    PI & $A^\tau=\tau A+(1-\tau)\epsilon$；推理 $A\leftarrow A+\delta\,v_\theta$ & $\mathbb{E}\|v_\theta(A^\tau,\tau;o_t)-(A-\epsilon)\|_2^2$ \\
+    GR00T & 同 PI，条件多 $s_t,e$；本体 MLP 编解码 & $\mathbb{E}\|v_\theta(A^\tau,\tau;H_t,s_t,e)-(A-\epsilon)\|_2^2$ \\
+    \bottomrule
+  \end{tabular}
+  \end{center}
+  \vspace{6pt}
+  $\pi_0$ 原文写 $\tau A+(1-\tau)\epsilon$，VLAct 写 $(1-\tau)\epsilon+\tau A$，是同一条直线。
+\end{frame}
+
+\begin{frame}{Backup：StarVLA 中四个头的实现细节}
+  \begin{center}\footnotesize
+  \begin{tabular}{p{1.6cm}p{11.2cm}}
+    \toprule
+    类 & 实现 \\
+    \midrule
+    \texttt{QwenFast} & 动作 $\to$ \texttt{physical-intelligence/fast} tokenizer $\to$ \texttt{<robot\_action\_k>} 字串进 assistant 回合；loss = VLM next-token CE；\texttt{generate()} 后按 2048 个 action token 的 id 区间抽出解码 \\
+    \texttt{QwenOFT} & 指令尾拼 $N$ 个 🔍 占位；取 \texttt{hidden\_states[-1]} 对应位置 $\to$ \texttt{MLPResNet}（2 块，$H\to2H\to D$）；masked L1 \\
+    \texttt{QwenPI\_v3} & 最后 36 层各经 LayerNorm+Linear（2560$\to$1024）逐层 cross-attn 到 36 层 DiT（全 cross）；状态量化 256 桶写进文本；$\tau=(0.999-\mathrm{Beta}(1.5,1))/0.999$；4 步欧拉 \\
+    \texttt{QwenGR00T} & \texttt{hidden\_states[-1]} 作 cross-attn K/V；DiT-B 16 层交错 self/cross；状态 MLP 编码后前置；同一 flow-matching MSE；4 步欧拉；\texttt{repeated\_diffusion\_steps=8} \\
+    \bottomrule
+  \end{tabular}
+  \end{center}
+  \vspace{4pt}
+  训练精度：VLM \texttt{autocast(bf16)}，动作头 \texttt{autocast(float32)}。四个类都继承 \texttt{baseframework}，只在"如何从隐状态取动作"上不同。
+\end{frame}
+
+\end{document}

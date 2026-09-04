@@ -2,10 +2,10 @@
 
 [![Awesome](https://awesome.re/badge.svg)](https://awesome.re)
 ![papers](https://img.shields.io/badge/papers-120-blue)
-![reports](https://img.shields.io/badge/reports-7-red)
-![zh-PDF](https://img.shields.io/badge/zh--PDF-3-green)
+![reports](https://img.shields.io/badge/reports-8-red)
+![zh-PDF](https://img.shields.io/badge/zh--PDF-6-green)
 ![slides](https://img.shields.io/badge/slides-29p_beamer_%2B_18p_pptx-orange)
-![full report](https://img.shields.io/badge/full_report-44p-8a2be2)
+![full report](https://img.shields.io/badge/full_report-50p-8a2be2)
 ![code](https://img.shields.io/badge/vlact__ext-61_tests_passed-brightgreen)
 ![license](https://img.shields.io/badge/license-CC_BY_4.0-8a2be2)
 
@@ -19,9 +19,9 @@
 
 围绕 **StarVLA 代码库生态**与 **VLA（Vision-Language-Action）持续预训练 / 动作头 / 跨本体表示学习**的论文与资源列表 + 系统性调研仓库（2026-09 完成）。核心对象是三篇同一团队、同一骨干（Qwen3-VL-4B）、同一代码库的工作：[StarVLA 技术报告](https://arxiv.org/abs/2604.05014)（基础设施）、[StarVLA-α](https://arxiv.org/abs/2604.11757)（去混杂的对照基线）、[VLAct](https://arxiv.org/abs/2608.27550)（表示中心的持续预训练配方）。与一般 awesome 列表不同，本仓库同时提供：
 
-- **7 份中文深度报告**（`reports/`）：VLAct 精读、StarVLA 代码库逐文件解析（含 VLAct 配方在代码中"已有 / 部分 / 缺失"的对照与 diff 级改动建议）、StarVLA-α 与技术报告解读、动作头综合对比、13 个基准的评测生态、研究路线图（6 类 18 个方向 + 六个月执行计划）
-- **3 篇论文英文原版 + 保版式中文翻译 PDF**（`papers/`，翻译由 [super_translate](https://github.com/asimfish/super_translate) 生成；三篇论文均为 CC BY 4.0）
-- **29 页 Beamer 幻灯片**（`report/awesome_starvla_slides.pdf`，XeLaTeX 源码同目录）+ **18 页原生可编辑 PPTX**（`report/awesome_starvla_slides.pptx`，由 [ppt-master](https://github.com/hugohe3/ppt-master) Quick Generate 生成，全部为原生形状与表格）+ **44 页合订全文报告**（`report/awesome_starvla_full_report.pdf`，7 份报告 + 两张总览图）
+- **8 份中文深度报告**（`reports/`）：VLAct 精读、StarVLA 代码库逐文件解析（含 VLAct 配方在代码中"已有 / 部分 / 缺失"的对照与 diff 级改动建议）、StarVLA-α 与技术报告解读、动作头综合对比、13 个基准的评测生态、研究路线图（6 类 18 个方向 + 六个月执行计划）、**四种动作头（FAST / OFT / PI / GR00T）的 60 分钟讲稿**（配 20 页讲解幻灯片）
+- **6 篇论文英文原版 + 保版式中文翻译 PDF**（`papers/`，翻译由 [super_translate](https://github.com/asimfish/super_translate) 生成）：StarVLA 三篇 + 四个动作头的源论文中的 FAST、OpenVLA-OFT、GR00T N1（六篇均为 CC BY 4.0；π0 为 arXiv 非独占许可，仓库只放链接）
+- **29 页 Beamer 幻灯片**（`report/awesome_starvla_slides.pdf`，XeLaTeX 源码同目录）+ **18 页原生可编辑 PPTX**（`report/awesome_starvla_slides.pptx`，由 [ppt-master](https://github.com/hugohe3/ppt-master) Quick Generate 生成，全部为原生形状与表格）+ **44 页合订全文报告**（`report/awesome_starvla_full_report.pdf`，8 份报告 + 两张总览图）
 - **120 篇文献编目**（第 4 节，113 条 arXiv 链接经 arXiv API 逐条核验标题，其余 7 条为无 arXiv 的官方技术博客 / 模型卡 / 数据集页）
 - **VLAct 缺失组件的 StarVLA 扩展代码**（`code/vlact_ext/`，约 1,600 行）：多头共监督框架 `QwenMultiHead`、wrap-aware L1、20 维部分统一动作布局 transform、正则 / 区间冻结规则，附 61 个 CPU 单元测试与完整的 VLAct 预训练示例 yaml；不改 StarVLA 任何已有文件即可拷入使用
 
@@ -79,8 +79,9 @@ StarVLA 团队或直接基于 StarVLA 代码库构建的工作以 ⭐ 标记。
 | 时间预算 | 路线 |
 |---|---|
 | 15 分钟 | [`report/awesome_starvla_slides.pdf`](report/awesome_starvla_slides.pdf)（29 页 Beamer，含 4 页备份）或 [`report/awesome_starvla_slides.pptx`](report/awesome_starvla_slides.pptx)（18 页精简版，PowerPoint 可编辑） |
-| 通读 | [`report/awesome_starvla_full_report.pdf`](report/awesome_starvla_full_report.pdf)（44 页 A4，7 份报告合订 + 图 1 时间线 / 图 2 设计空间）· [HTML 版](report/awesome_starvla_full_report.html) |
+| 通读 | [`report/awesome_starvla_full_report.pdf`](report/awesome_starvla_full_report.pdf)（50 页 A4，8 份报告合订 + 图 1 时间线 / 图 2 设计空间）· [HTML 版](report/awesome_starvla_full_report.html) |
 | 1 小时 | [01 · VLAct 精读](reports/01_vlact_deep_dive.md) → [05 · 动作头与动作表示](reports/05_action_heads_and_representation.md) → [07 · 研究路线图](reports/07_research_roadmap.md) |
+| 搞懂四个动作头 | [08 · 讲稿：FAST / OFT / PI / GR00T](reports/08_action_heads_lecture.md)（60 分钟组会讲稿，含直觉、公式、训练/推理、StarVLA 实现、选型问答）+ [讲解幻灯片](report/action_heads_lecture_slides.pdf)（20 页）+ 四篇源论文中译（`papers/zh/`） |
 | 准备上手代码 | [02 · StarVLA 代码库解析](reports/02_starvla_codebase_analysis.md)（第 9 章是 VLAct 配方在代码中的落点，第 11 章是最短上手命令序列） → [06 · 基准生态](reports/06_benchmarks_landscape.md)（第 5 章是基准选择建议） → [`code/vlact_ext/README.md`](code/vlact_ext/README.md)（怎么把多头 / wrap loss / 统一布局拷进 StarVLA） |
 | 系统研读 | 按 04 → 03 → 01 → 02 → 05 → 06 → 07 的顺序读 `reports/`，配 `papers/zh/` 中文 PDF 对照原文 |
 
@@ -97,6 +98,17 @@ _Senqiao Yang, Chengyao Wang, Yuxin Chen, et al., Hengshuang Zhao, Bei Yu, Jiaya
 4. ⭐ **StarVLA 代码库（GitHub）.** [starVLA/starVLA](https://github.com/starVLA/starVLA)，MIT，[代码解析](reports/02_starvla_codebase_analysis.md)
 — 261 个 Python 文件 / 57.6k 行；28 个注册框架（VLM4A 20、WM4A 6、VM4A 2）；11 个动作头文件；13 个仿真基准 + 5 个真机示例；7 个测试文件、无 CI。
 
+四种动作头的源论文（配 [08 · 讲稿](reports/08_action_heads_lecture.md) 与 [讲解幻灯片](report/action_heads_lecture_slides.pdf) 阅读）：
+
+5. **FAST: Efficient Action Tokenization for Vision-Language-Action Models.** arXiv, 2025\. [paper](https://arxiv.org/abs/2501.09747), [PDF](papers/en/2501.09747_FAST.pdf), [PDF-zh](papers/zh/2501.09747_FAST_zh.pdf)
+_Karl Pertsch et al._（Physical Intelligence）— 分位数归一化 → 逐维 DCT → 缩放取整 → 低频优先展平 → BPE（词表 1024），1 秒动作块约 30 个 token/臂；朴素分箱在高频下每个 token 的边际信息趋零；训练 GPU 小时比 diffusion 版 π0 少约 5×，推理为自回归解码。
+6. **Fine-Tuning Vision-Language-Action Models: Optimizing Speed and Success (OpenVLA-OFT).** arXiv, 2025\. [paper](https://arxiv.org/abs/2502.19645), [PDF](papers/en/2502.19645_OpenVLA_OFT.pdf), [PDF-zh](papers/zh/2502.19645_OpenVLA_OFT_zh.pdf)
+_Moo Jin Kim, Chelsea Finn, Percy Liang_（Stanford）— 空动作嵌入 + 双向注意力实现并行解码，动作块使吞吐 ×K，MLP 直出连续动作 + L1 回归；LIBERO 76.5 → 97.1，吞吐 26×（ALOHA 25 步块 43×）；FiLM 解决多视角下忽略语言。
+7. **π0: A Vision-Language-Action Flow Model for General Robot Control.** arXiv, 2024\. [paper](https://arxiv.org/abs/2410.24164)（arXiv 非独占许可，PDF 不随仓库分发）
+_Kevin Black et al._（Physical Intelligence）— PaliGemma 3B + 从零初始化的约 3 亿参数动作专家（独立权重、MoE 式路由），flow matching 目标 $\|v_\theta - (A-\epsilon)\|^2$，τ 从偏向噪声端的 Beta 分布采样，推理 10 步欧拉；H=50、最高 50 Hz；约 1 万小时自有数据 + OXE，7 种本体 68 任务。
+8. **GR00T N1: An Open Foundation Model for Generalist Humanoid Robots.** arXiv, 2025\. [paper](https://arxiv.org/abs/2503.14734), [PDF](papers/en/2503.14734_GR00T_N1.pdf), [PDF-zh](papers/zh/2503.14734_GR00T_N1_zh.pdf)
+_Johan Bjorck et al._（NVIDIA）— 双系统：Eagle-2 VLM（第 12 层特征，≈10 Hz）作 System 2，adaLN DiT（交替 self / cross-attention，≈120 Hz，块长 16，4 步去噪）作 System 1；本体特定 MLP 编解码状态与动作；数据金字塔 + VQ-VAE 潜动作把无标签视频纳入训练；2.2B 参数。
+
 ## [3. Reports](#content)
 
 | # | 报告 | 内容 | 行数 |
@@ -108,6 +120,7 @@ _Senqiao Yang, Chengyao Wang, Yuxin Chen, et al., Hengshuang Zhao, Bei Yu, Jiaya
 | 05 | [动作头与动作表示](reports/05_action_heads_and_representation.md) | 四种头的形式化、三篇论文全部对照数字、动作空间设计证据、选型指南 | ~120 |
 | 06 | [基准生态](reports/06_benchmarks_landscape.md) | 13 个仿真基准 + 5 个真机流程逐个拆解（协议、数字、入口脚本、已知问题）、评测公平性、真机协议、**面向持续预训练研究的基准选择建议**、没有好基准的维度 | ~310 |
 | 07 | [研究路线图](reports/07_research_roadmap.md) | 三篇论文留下的地图、6 类 18 个方向（问题 / 证据 / 做法 / 代码落点 / 评测 / 风险）、优先级矩阵、六个月执行计划、风险与对策 | ~180 |
+| 08 | [讲稿：四种动作头](reports/08_action_heads_lecture.md) | FAST（DCT + BPE 时间序列压缩）、OFT（并行解码 + L1 回归）、PI（flow matching 动作专家）、GR00T（双系统 DiT）各一节：要解决的问题、核心机制、训练与推理、论文结果、StarVLA 实现；横向对比、选型问答、阅读顺序、公式速查 | ~300 |
 
 ## [4. Papers](#content)
 
@@ -213,13 +226,13 @@ _Senqiao Yang, Chengyao Wang, Yuxin Chen, et al., Hengshuang Zhao, Bei Yu, Jiaya
 
     > 基于 Prismatic-7B（Llama 2 + DINOv2/SigLIP 双视觉编码器）在 97 万条 OXE 轨迹上训练的开源 7B VLA，29 个任务上比 55B 的 RT-2-X 高 16.5 个百分点，并支持 LoRA 与量化微调；后续 OpenVLA-OFT、ECoT、RIPT-VLA 等大量工作的底座。
 
-4. **Fine-Tuning Vision-Language-Action Models: Optimizing Speed and Success (OpenVLA-OFT).** RSS, 2025. [paper](https://arxiv.org/abs/2502.19645), [code](https://github.com/moojink/openvla-oft), [project](https://openvla-oft.github.io)
+4. **Fine-Tuning Vision-Language-Action Models: Optimizing Speed and Success (OpenVLA-OFT).** RSS, 2025. [paper](https://arxiv.org/abs/2502.19645), [PDF](papers/en/2502.19645_OpenVLA_OFT.pdf), [PDF-zh](papers/zh/2502.19645_OpenVLA_OFT_zh.pdf), [讲稿](reports/08_action_heads_lecture.md), [code](https://github.com/moojink/openvla-oft), [project](https://openvla-oft.github.io)
 
     *Moo Jin Kim, Chelsea Finn, Percy Liang*
 
     > 系统比较微调设计后提出 OFT 配方：并行解码 + 动作分块 + 连续动作 L1 回归 + FiLM 语言注入，把 OpenVLA 在 LIBERO 四套件的平均成功率从 76.5% 提到 97.1%，动作生成吞吐提升 26×，并在 ALOHA 双臂真机验证。StarVLA-OFT 与 VLAct 默认下游头均是这一「并行回归」头。
 
-5. **π0: A Vision-Language-Action Flow Model for General Robot Control.** RSS, 2025. [paper](https://arxiv.org/abs/2410.24164), [code](https://github.com/Physical-Intelligence/openpi), [project](https://www.physicalintelligence.company/blog/pi0)
+5. **π0: A Vision-Language-Action Flow Model for General Robot Control.** RSS, 2025. [paper](https://arxiv.org/abs/2410.24164), [讲稿](reports/08_action_heads_lecture.md), [code](https://github.com/Physical-Intelligence/openpi), [project](https://www.physicalintelligence.company/blog/pi0)
 
     *Kevin Black, Noah Brown, Danny Driess, et al., Ury Zhilinsky*
 
@@ -231,7 +244,7 @@ _Senqiao Yang, Chengyao Wang, Yuxin Chen, et al., Hengshuang Zhao, Bei Yu, Jiaya
 
     > 用多机器人、多环境、网页多模态、子任务预测等异构数据共训练，先以离散 token 预训练再以 flow matching 微调，使移动操作机器人能在完全未见的家庭中完成清洁等长时程任务。VLAct 在 VLA-Arena 上比 π0.5 高 10.5 分，RoboCasa-GR1 上 54.0% vs 37.0%，是全文最主要的对比基线之一。
 
-7. **GR00T N1: An Open Foundation Model for Generalist Humanoid Robots.** arXiv, 2025. [paper](https://arxiv.org/abs/2503.14734), [code](https://github.com/NVIDIA/Isaac-GR00T), [project](https://developer.nvidia.com/isaac/gr00t)
+7. **GR00T N1: An Open Foundation Model for Generalist Humanoid Robots.** arXiv, 2025. [paper](https://arxiv.org/abs/2503.14734), [PDF](papers/en/2503.14734_GR00T_N1.pdf), [PDF-zh](papers/zh/2503.14734_GR00T_N1_zh.pdf), [讲稿](reports/08_action_heads_lecture.md), [code](https://github.com/NVIDIA/Isaac-GR00T), [project](https://developer.nvidia.com/isaac/gr00t)
 
     *NVIDIA (Johan Bjorck, Fernando Castañeda, Nikita Cherniadev, et al., Yuke Zhu)*
 
@@ -347,7 +360,7 @@ _Senqiao Yang, Chengyao Wang, Yuxin Chen, et al., Hengshuang Zhao, Bei Yu, Jiaya
 
 ### [Action Heads & Action Representation](#content)
 
-1. **FAST: Efficient Action Tokenization for Vision-Language-Action Models.** RSS, 2025. [paper](https://arxiv.org/abs/2501.09747), [code](https://github.com/Physical-Intelligence/openpi), [project](https://www.physicalintelligence.company/research/fast)
+1. **FAST: Efficient Action Tokenization for Vision-Language-Action Models.** RSS, 2025. [paper](https://arxiv.org/abs/2501.09747), [PDF](papers/en/2501.09747_FAST.pdf), [PDF-zh](papers/zh/2501.09747_FAST_zh.pdf), [讲稿](reports/08_action_heads_lecture.md), [code](https://github.com/Physical-Intelligence/openpi), [project](https://www.physicalintelligence.company/research/fast)
 
     *Karl Pertsch, Kyle Stachowicz, Brian Ichter, et al., Sergey Levine*
 
@@ -928,13 +941,14 @@ awesome_starvla/
 ├── CONTRIBUTING.md                 # 条目格式、核验要求、报告写作规范
 ├── LICENSE                         # CC BY 4.0（报告、README、幻灯片）
 ├── papers/
-│   ├── en/                         # 三篇论文英文原版 PDF（arXiv，CC BY 4.0）
+│   ├── en/                         # 六篇论文英文原版 PDF（arXiv，均 CC BY 4.0）
 │   └── zh/                         # 保版式中文翻译 PDF + 翻译缓存 + QA 报告
-├── reports/                        # 7 份中文深度报告（01–07）
+├── reports/                        # 8 份中文深度报告（01–08）
 ├── report/
 │   ├── awesome_starvla_slides.tex  # Beamer 源码（XeLaTeX + ctex，16:9）
 │   ├── awesome_starvla_slides.pdf  # 29 页
 │   ├── awesome_starvla_slides.pptx # 18 页原生 PPTX（ppt-master 生成）
+│   ├── action_heads_lecture_slides.tex / .pdf   # 四种动作头讲解幻灯片（20 页，配 reports/08）
 │   ├── pptx_src/                   # PPTX 的 SVG 源页 + 质量报告 + 导出报告
 │   ├── awesome_starvla_full_report.html / .pdf   # 44 页合订全文报告
 ├── code/
@@ -955,7 +969,7 @@ awesome_starvla/
 
 ## [9. Translation & Build Pipeline](#content)
 
-- **翻译**：[super_translate](https://github.com/asimfish/super_translate) `paper-translate` skill，DeepSeek 后端，`--preserve-graphics-text`（图表内文字与公式原样保留），译后 `inspect` 视觉 QA。三篇的 QA 报告随 PDF 存放在 `papers/zh/*.inspect.json`。已知瑕疵：VLAct 中文版 p29 公式内指示函数文字保留英文、p30 一行字号偏小；StarVLA-α 中文版 p16 附录目录 9 条保留英文（带 hyperref 引用被判为保护区）；StarVLA 报告中文版 p15 一处字号偏小。正文均已翻译。
+- **翻译**：[super_translate](https://github.com/asimfish/super_translate) `paper-translate` skill，DeepSeek 后端，`--preserve-graphics-text`（图表内文字与公式原样保留），译后 `inspect` 视觉 QA。三篇的 QA 报告随 PDF 存放在 `papers/zh/*.inspect.json`。已知瑕疵：VLAct 中文版 p29 公式内指示函数文字保留英文、p30 一行字号偏小；StarVLA-α 中文版 p16 附录目录 9 条保留英文（带 hyperref 引用被判为保护区）；StarVLA 报告中文版 p15 一处字号偏小；GR00T N1 中文版 p22 / p25 五处图表内保留文字的渲染墨迹密度与原文略有差异（非漏译）；FAST 与 OpenVLA-OFT 中文版 QA 零问题。正文均已翻译。
 - **合订报告与图**：`python3 scripts/make_figures.py && python3 scripts/build_full_report.py --pdf`（需要 pandoc 与 Google Chrome；公式由 MathJax 渲染，报告源文件统一用 `$...$` / `$$...$$` 定界以兼容 GitHub）。
 - **PPTX**：用 [ppt-master](https://github.com/hugohe3/ppt-master) v6.2 的 Quick Generate 档从 Beamer 内容重排为 18 页，SVG 源页在 `report/pptx_src/`，可用其 `svg_to_pptx.py --quick-generate --native-charts-and-tables` 重新导出。字体为 Microsoft YaHei / Arial，文本框 `wrap=none`；用 LibreOffice 预览时缺少 YaHei 会出现假性折行，PowerPoint 中正常（已按真实字体度量核对：无任何一行超出页面右边距）。
 - **幻灯片**：`bash scripts/build_slides.sh`，需要 XeLaTeX 与 Fandol 字体（MiKTeX / TeX Live 均可）。遵循 [beamer-skill](https://github.com/Noi1r/beamer-skill) 规范：16:9、10pt、无 overlay、每页 ≤2 个彩色框、参考文献页 + 备份页。
@@ -965,7 +979,7 @@ awesome_starvla/
 ## [10. License & Credits](#content)
 
 - 本仓库的报告、README、幻灯片与编目文字以 [CC BY 4.0](LICENSE) 发布；`scripts/` 下的脚本以 MIT 发布。
-- `papers/en/` 三篇论文均由作者以 CC BY 4.0 授权发布于 arXiv（[2604.05014](https://arxiv.org/abs/2604.05014)、[2604.11757](https://arxiv.org/abs/2604.11757)、[2608.27550](https://arxiv.org/abs/2608.27550)）；`papers/zh/` 是它们的翻译衍生作品，同样遵循 CC BY 4.0 并保留原作者署名。版权归原作者所有。
+- `papers/en/` 六篇论文均由作者以 CC BY 4.0 授权发布于 arXiv（[2604.05014](https://arxiv.org/abs/2604.05014)、[2604.11757](https://arxiv.org/abs/2604.11757)、[2608.27550](https://arxiv.org/abs/2608.27550)、[2501.09747](https://arxiv.org/abs/2501.09747)、[2502.19645](https://arxiv.org/abs/2502.19645)、[2503.14734](https://arxiv.org/abs/2503.14734)）；`papers/zh/` 是它们的翻译衍生作品，同样遵循 CC BY 4.0 并保留原作者署名。版权归原作者所有。π0（[2410.24164](https://arxiv.org/abs/2410.24164)）为 arXiv 非独占许可，本仓库不分发其 PDF 或译文，只提供链接。
 - StarVLA 代码库本身以 MIT 发布于 [starVLA/starVLA](https://github.com/starVLA/starVLA)，本仓库只分析、不分发其代码。
 - 报告中的所有数字均注明来源（论文表号 / 页码、代码文件与行号、官方网址）。如发现错误，请开 issue。
 - 引用本仓库：

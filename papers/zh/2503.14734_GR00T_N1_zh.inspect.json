@@ -1,0 +1,35 @@
+{
+  "issue_count": 5,
+  "issues": [
+    {
+      "page": 22,
+      "code": "preserved_ink_mismatch",
+      "severity": "error",
+      "message": "Page 22: preserved region at x=169, y=317 (140x11pt) renders with ink coverage 0.79 vs original"
+    },
+    {
+      "page": 22,
+      "code": "preserved_ink_mismatch",
+      "severity": "error",
+      "message": "Page 22: preserved region at x=172, y=381 (184x11pt) renders with ink coverage 0.77 vs original"
+    },
+    {
+      "page": 25,
+      "code": "preserved_ink_mismatch",
+      "severity": "error",
+      "message": "Page 25: preserved region at x=209, y=152 (299x10pt) renders with ink coverage 0.85 vs original"
+    },
+    {
+      "page": 25,
+      "code": "preserved_ink_mismatch",
+      "severity": "error",
+      "message": "Page 25: preserved region at x=230, y=211 (272x10pt) renders with ink coverage 0.88 vs original"
+    },
+    {
+      "page": 25,
+      "code": "preserved_ink_mismatch",
+      "severity": "error",
+      "message": "Page 25: preserved region at x=242, y=601 (272x10pt) renders with ink coverage 0.84 vs original"
+    }
+  ]
+}

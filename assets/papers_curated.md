@@ -121,13 +121,13 @@
 
     > 基于 Prismatic-7B（Llama 2 + DINOv2/SigLIP 双视觉编码器）在 97 万条 OXE 轨迹上训练的开源 7B VLA，29 个任务上比 55B 的 RT-2-X 高 16.5 个百分点，并支持 LoRA 与量化微调；后续 OpenVLA-OFT、ECoT、RIPT-VLA 等大量工作的底座。
 
-4. **Fine-Tuning Vision-Language-Action Models: Optimizing Speed and Success (OpenVLA-OFT).** RSS, 2025. [paper](https://arxiv.org/abs/2502.19645), [code](https://github.com/moojink/openvla-oft), [project](https://openvla-oft.github.io)
+4. **Fine-Tuning Vision-Language-Action Models: Optimizing Speed and Success (OpenVLA-OFT).** RSS, 2025. [paper](https://arxiv.org/abs/2502.19645), [PDF](papers/en/2502.19645_OpenVLA_OFT.pdf), [PDF-zh](papers/zh/2502.19645_OpenVLA_OFT_zh.pdf), [讲稿](reports/08_action_heads_lecture.md), [code](https://github.com/moojink/openvla-oft), [project](https://openvla-oft.github.io)
 
     *Moo Jin Kim, Chelsea Finn, Percy Liang*
 
     > 系统比较微调设计后提出 OFT 配方：并行解码 + 动作分块 + 连续动作 L1 回归 + FiLM 语言注入，把 OpenVLA 在 LIBERO 四套件的平均成功率从 76.5% 提到 97.1%，动作生成吞吐提升 26×，并在 ALOHA 双臂真机验证。StarVLA-OFT 与 VLAct 默认下游头均是这一「并行回归」头。
 
-5. **π0: A Vision-Language-Action Flow Model for General Robot Control.** RSS, 2025. [paper](https://arxiv.org/abs/2410.24164), [code](https://github.com/Physical-Intelligence/openpi), [project](https://www.physicalintelligence.company/blog/pi0)
+5. **π0: A Vision-Language-Action Flow Model for General Robot Control.** RSS, 2025. [paper](https://arxiv.org/abs/2410.24164), [讲稿](reports/08_action_heads_lecture.md), [code](https://github.com/Physical-Intelligence/openpi), [project](https://www.physicalintelligence.company/blog/pi0)
 
     *Kevin Black, Noah Brown, Danny Driess, et al., Ury Zhilinsky*
 
@@ -139,7 +139,7 @@
 
     > 用多机器人、多环境、网页多模态、子任务预测等异构数据共训练，先以离散 token 预训练再以 flow matching 微调，使移动操作机器人能在完全未见的家庭中完成清洁等长时程任务。VLAct 在 VLA-Arena 上比 π0.5 高 10.5 分，RoboCasa-GR1 上 54.0% vs 37.0%，是全文最主要的对比基线之一。
 
-7. **GR00T N1: An Open Foundation Model for Generalist Humanoid Robots.** arXiv, 2025. [paper](https://arxiv.org/abs/2503.14734), [code](https://github.com/NVIDIA/Isaac-GR00T), [project](https://developer.nvidia.com/isaac/gr00t)
+7. **GR00T N1: An Open Foundation Model for Generalist Humanoid Robots.** arXiv, 2025. [paper](https://arxiv.org/abs/2503.14734), [PDF](papers/en/2503.14734_GR00T_N1.pdf), [PDF-zh](papers/zh/2503.14734_GR00T_N1_zh.pdf), [讲稿](reports/08_action_heads_lecture.md), [code](https://github.com/NVIDIA/Isaac-GR00T), [project](https://developer.nvidia.com/isaac/gr00t)
 
     *NVIDIA (Johan Bjorck, Fernando Castañeda, Nikita Cherniadev, et al., Yuke Zhu)*
 
@@ -255,7 +255,7 @@
 
 ### [Action Heads & Action Representation](#content)
 
-1. **FAST: Efficient Action Tokenization for Vision-Language-Action Models.** RSS, 2025. [paper](https://arxiv.org/abs/2501.09747), [code](https://github.com/Physical-Intelligence/openpi), [project](https://www.physicalintelligence.company/research/fast)
+1. **FAST: Efficient Action Tokenization for Vision-Language-Action Models.** RSS, 2025. [paper](https://arxiv.org/abs/2501.09747), [PDF](papers/en/2501.09747_FAST.pdf), [PDF-zh](papers/zh/2501.09747_FAST_zh.pdf), [讲稿](reports/08_action_heads_lecture.md), [code](https://github.com/Physical-Intelligence/openpi), [project](https://www.physicalintelligence.company/research/fast)
 
     *Karl Pertsch, Kyle Stachowicz, Brian Ichter, et al., Sergey Levine*
 
