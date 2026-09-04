@@ -4,47 +4,43 @@ StarVLA 生态的三篇论文共享同一个骨干（Qwen3-VL-4B）和同一套�
 
 ## 1. 四种头的形式化
 
-记骨干在时刻 \(t\) 的多模态 hidden state 为 \(H_t\)，待预测的动作块为 \(A_t=(a_t,\dots,a_{t+K-1})\)，\(K\) 为 chunk 长度。
+记骨干在时刻 $t$ 的多模态 hidden state 为 $H_t$，待预测的动作块为 $A_t=(a_t,\dots,a_{t+K-1})$，$K$ 为 chunk 长度。
 
 ### FAST：自回归离散 token
 
-把连续动作块经 FAST tokenizer（DCT 压缩 + BPE）编成 token 序列 \(z_{1:M}=\mathrm{Tok}(A_t)\)，在 LLM 自己的词表空间里做 next-token 预测：
+把连续动作块经 FAST tokenizer（DCT 压缩 + BPE）编成 token 序列 $z_{1:M}=\mathrm{Tok}(A_t)$，在 LLM 自己的词表空间里做 next-token 预测：
 
-\[
+$$
 \mathcal{L}_{\text{FAST}}=-\sum_{m=1}^{M}\log p_\theta(z_m\mid H_t,z_{<m})
-\]
-
+$$
 推理时逐 token 生成再逆 tokenizer。优点：不改 VLM 架构；代价：连续控制经过离散瓶颈，且解码是串行的。
 
 ### OFT：并行连续回归
 
-在输入序列末尾拼 \(K\) 个 action query token，取其 hidden state \(h^{\text{act}}_{t,k}\) 用小 MLP \(g_\phi\) 逐个回归：
+在输入序列末尾拼 $K$ 个 action query token，取其 hidden state $h^{\text{act}}_{t,k}$ 用小 MLP $g_\phi$ 逐个回归：
 
-\[
+$$
 \hat a_{t+k}=g_\phi(h^{\text{act}}_{t,k}),\qquad
 \mathcal{L}_{\text{OFT}}=\frac{1}{Kd_a}\sum_{k}\left\|g_\phi(h^{\text{act}}_{t,k})-a_{t+k}\right\|_1
-\]
-
+$$
 一次前向输出整个 chunk。它同时是一个诊断工具：如果 OFT 表现好，说明骨干表征里线性可读地暴露了连续控制所需的信息。代价是点估计，不能表达多模态动作分布。
 
 ### PI：flow-matching 动作专家
 
-学一个把高斯噪声搬运到示教动作块的向量场。取 \(\epsilon\sim\mathcal N(0,I)\)、\(\tau\in[0,1]\)，线性概率路径 \(A_t^\tau=(1-\tau)\epsilon+\tau A_t\)，目标速度 \(u=A_t-\epsilon\)：
+学一个把高斯噪声搬运到示教动作块的向量场。取 $\epsilon\sim\mathcal N(0,I)$、$\tau\in[0,1]$，线性概率路径 $A_t^\tau=(1-\tau)\epsilon+\tau A_t$，目标速度 $u=A_t-\epsilon$：
 
-\[
+$$
 \mathcal{L}_{\text{PI}}=\mathbb{E}\left[\left\|v_\phi(A_t^\tau,\tau;H_t)-(A_t-\epsilon)\right\|_2^2\right]
-\]
-
-推理从噪声出发做 \(N\) 步欧拉积分。StarVLA 实现为逐层 cross-attention 到多层 VL hidden state 的 DiT。
+$$
+推理从噪声出发做 $N$ 步欧拉积分。StarVLA 实现为逐层 cross-attention 到多层 VL hidden state 的 DiT。
 
 ### GR00T：双系统 flow matching
 
-同样的 flow-matching 目标，但 DiT 运动模块被显式分离为 System 1，额外条件于本体感受状态 \(s_t\) 和本体标识 \(e\)：
+同样的 flow-matching 目标，但 DiT 运动模块被显式分离为 System 1，额外条件于本体感受状态 $s_t$ 和本体标识 $e$：
 
-\[
+$$
 \mathcal{L}_{\text{GR00T}}=\mathbb{E}\left[\left\|v_\phi(A_t^\tau,\tau;H_t,s_t,e)-(A_t-\epsilon)\right\|_2^2\right]
-\]
-
+$$
 VLM 作为 System 2 只提供场景与指令的 token；状态与噪声动作在独立运动模块里嵌入、处理、解码回本体原生动作空间。
 
 ## 2. 三篇论文的对照数字
@@ -95,7 +91,7 @@ FAST 在 WidowX 上落后 29 个点、RoboTwin 落后 16 个点；三种连续�
 |---|---|---|---|
 | 多本体动作维度不同怎么办 | 每本体独立头 vs 零填充到 32 维 vs RDT 物理统一空间 | StarVLA-α 表 6：GR1 53.5 / **57.3** / 52.3 | 零填充 + 让 VLM 自己分辨本体，优于两种"专门设计" |
 | 零填充之上还能做什么 | 独立头 vs 统一头 vs 部分统一（夹爪共享、手臂分开、非激活维 mask） | VLAct 表 12：RoboTwin 78.5 / 79.5 / **80.5**；LIBERO-Plus 81.1 / 81.4 / **82.6** | 物理同义维度显式共享再拿 1 个点 |
-| 周期关节角 | 原始回归 vs 数据侧 wrap 到 \([-\pi,\pi]\) vs + 残差 wrap loss | VLAct 表 10：75.5 / 78.6 / **80.5** | +5 个点，是 VLAct 单项消融里最大的一项 |
+| 周期关节角 | 原始回归 vs 数据侧 wrap 到 $[-\pi,\pi]$ vs + 残差 wrap loss | VLAct 表 10：75.5 / 78.6 / **80.5** | +5 个点，是 VLAct 单项消融里最大的一项 |
 | 关节 vs 末端、绝对 vs delta | delta / relative 动作 | StarVLA-α 表 4：低数据段 +1～6 个点，数据充足后归零 | 参数化的收益随数据量衰减 |
 | 本体感受与历史帧 | +proprio / +2 帧历史 | StarVLA-α 表 4：proprio 在 RoboTwin 50×50 上 +10.5；历史帧多数设定略降 | 状态有用，朴素堆帧无用 |
 

@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1700" height="720" viewBox="0 0 1700 720" font-family="PingFang SC, Hiragino Sans GB, Noto Sans CJK SC, Helvetica, sans-serif">
+<rect width="1700" height="720" fill="#ffffff"/>
+<text x="30" y="34" font-size="17" font-weight="700" fill="#1a2332">图 2 · VLA 持续预训练的设计空间：七个维度与三篇论文给出的证据</text>
+<rect x="30" y="300" width="150" height="120" rx="10" fill="#3b1f0e"/>
+<text x="105.0" y="340" text-anchor="middle" font-size="15" font-weight="700" fill="#ffffff">StarVLA 生态</text>
+<text x="105.0" y="368" text-anchor="middle" font-size="15" font-weight="700" fill="#ffffff">VLA 持续预训练</text>
+<text x="105.0" y="396" text-anchor="middle" font-size="15" font-weight="700" fill="#ffffff">表示中心配方</text>
+<path d="M180,360.0 C220,360.0 220,77.0 260,77.0" stroke="#c2410c" stroke-width="2" fill="none"/>
+<rect x="260" y="60.0" width="190" height="34" rx="7" fill="#c2410c"/>
+<text x="355.0" y="82.0" text-anchor="middle" font-size="14" font-weight="700" fill="#ffffff">骨干与先验保护</text>
+<rect x="480.0" y="62.0" width="231.6" height="30" rx="5" fill="#c2410c" opacity="0.13" stroke="#c2410c" stroke-width="1"/>
+<text x="488.0" y="81.0" font-size="9.2" fill="#1a2332">冻结视觉编码器 + LLM 下半层（VLAct 表 6）</text>
+<rect x="719.6" y="62.0" width="231.6" height="30" rx="5" fill="#c2410c" opacity="0.13" stroke="#c2410c" stroke-width="1"/>
+<text x="727.6" y="81.0" font-size="9.2" fill="#1a2332">caption 混训 0.5·L_VLM-CE（VLAct 图 8）</text>
+<rect x="959.2" y="62.0" width="231.6" height="30" rx="5" fill="#c2410c" opacity="0.13" stroke="#c2410c" stroke-width="1"/>
+<text x="967.2" y="81.0" font-size="9.2" fill="#1a2332">空间 QA / grounding 共训（ST4VLA）</text>
+<rect x="1198.8" y="62.0" width="231.6" height="30" rx="5" fill="#c2410c" opacity="0.13" stroke="#c2410c" stroke-width="1"/>
+<text x="1206.8" y="81.0" font-size="11.5" fill="#1a2332">纯文本指令也有正向作用</text>
+<rect x="1438.4" y="62.0" width="231.6" height="30" rx="5" fill="#c2410c" opacity="0.13" stroke="#c2410c" stroke-width="1"/>
+<text x="1446.4" y="81.0" font-size="9.2" fill="#1a2332">Qwen3-VL &gt; Qwen2.5-VL &gt; Florence-2（α 表 9）</text>
+<path d="M180,360.0 C220,360.0 220,178.0 260,178.0" stroke="#0173B2" stroke-width="2" fill="none"/>
+<rect x="260" y="161.0" width="190" height="34" rx="7" fill="#0173B2"/>
+<text x="355.0" y="183.0" text-anchor="middle" font-size="14" font-weight="700" fill="#ffffff">动作头</text>
+<rect x="480.0" y="163.0" width="231.6" height="30" rx="5" fill="#0173B2" opacity="0.13" stroke="#0173B2" stroke-width="1"/>
+<text x="488.0" y="182.0" font-size="10.5" fill="#1a2332">FAST 离散 token（−15～30 点）</text>
+<rect x="719.6" y="163.0" width="231.6" height="30" rx="5" fill="#0173B2" opacity="0.13" stroke="#0173B2" stroke-width="1"/>
+<text x="727.6" y="182.0" font-size="11.5" fill="#1a2332">OFT 并行 L1 回归</text>
+<rect x="959.2" y="163.0" width="231.6" height="30" rx="5" fill="#0173B2" opacity="0.13" stroke="#0173B2" stroke-width="1"/>
+<text x="967.2" y="182.0" font-size="10.5" fill="#1a2332">PI 逐层 cross-DiT 流匹配</text>
+<rect x="1198.8" y="163.0" width="231.6" height="30" rx="5" fill="#0173B2" opacity="0.13" stroke="#0173B2" stroke-width="1"/>
+<text x="1206.8" y="182.0" font-size="11.5" fill="#1a2332">GR00T 双系统 DiT-B</text>
+<rect x="1438.4" y="163.0" width="231.6" height="30" rx="5" fill="#0173B2" opacity="0.13" stroke="#0173B2" stroke-width="1"/>
+<text x="1446.4" y="182.0" font-size="10.5" fill="#1a2332">多头共监督消除 decoder lock-in</text>
+<path d="M180,360.0 C220,360.0 220,279.0 260,279.0" stroke="#029E73" stroke-width="2" fill="none"/>
+<rect x="260" y="262.0" width="190" height="34" rx="7" fill="#029E73"/>
+<text x="355.0" y="284.0" text-anchor="middle" font-size="14" font-weight="700" fill="#ffffff">动作空间</text>
+<rect x="480.0" y="264.0" width="231.6" height="30" rx="5" fill="#029E73" opacity="0.13" stroke="#029E73" stroke-width="1"/>
+<text x="488.0" y="283.0" font-size="9.2" fill="#1a2332">零填充 32 维 &gt; 独立头 / RDT（α 表 6）</text>
+<rect x="719.6" y="264.0" width="231.6" height="30" rx="5" fill="#029E73" opacity="0.13" stroke="#029E73" stroke-width="1"/>
+<text x="727.6" y="283.0" font-size="11.5" fill="#1a2332">20 维部分统一：夹爪共享、手臂分开</text>
+<rect x="959.2" y="264.0" width="231.6" height="30" rx="5" fill="#029E73" opacity="0.13" stroke="#029E73" stroke-width="1"/>
+<text x="967.2" y="283.0" font-size="11.5" fill="#1a2332">非激活维 mask</text>
+<rect x="1198.8" y="264.0" width="231.6" height="30" rx="5" fill="#029E73" opacity="0.13" stroke="#029E73" stroke-width="1"/>
+<text x="1206.8" y="283.0" font-size="10.5" fill="#1a2332">wrap-aware L1（+5 点）</text>
+<rect x="1438.4" y="264.0" width="231.6" height="30" rx="5" fill="#029E73" opacity="0.13" stroke="#029E73" stroke-width="1"/>
+<text x="1446.4" y="283.0" font-size="9.2" fill="#1a2332">abs / delta / relative 收益随数据归零</text>
+<path d="M180,360.0 C220,360.0 220,380.0 260,380.0" stroke="#DE8F05" stroke-width="2" fill="none"/>
+<rect x="260" y="363.0" width="190" height="34" rx="7" fill="#DE8F05"/>
+<text x="355.0" y="385.0" text-anchor="middle" font-size="14" font-weight="700" fill="#ffffff">数据</text>
+<rect x="480.0" y="365.0" width="231.6" height="30" rx="5" fill="#DE8F05" opacity="0.13" stroke="#DE8F05" stroke-width="1"/>
+<text x="488.0" y="384.0" font-size="9.2" fill="#1a2332">DROID · InternData-A1 · RoboCoin · MolmoAct</text>
+<rect x="719.6" y="365.0" width="231.6" height="30" rx="5" fill="#DE8F05" opacity="0.13" stroke="#DE8F05" stroke-width="1"/>
+<text x="727.6" y="384.0" font-size="10.5" fill="#1a2332">OXE 跨域预训练拖后腿（α 表 3）</text>
+<rect x="959.2" y="365.0" width="231.6" height="30" rx="5" fill="#DE8F05" opacity="0.13" stroke="#DE8F05" stroke-width="1"/>
+<text x="967.2" y="384.0" font-size="10.5" fill="#1a2332">UMI / RealOmin 手持采集 +1.1</text>
+<rect x="1198.8" y="365.0" width="231.6" height="30" rx="5" fill="#DE8F05" opacity="0.13" stroke="#DE8F05" stroke-width="1"/>
+<text x="1206.8" y="384.0" font-size="11.5" fill="#1a2332">按步 mask 的动作清洗</text>
+<rect x="1438.4" y="365.0" width="231.6" height="30" rx="5" fill="#DE8F05" opacity="0.13" stroke="#DE8F05" stroke-width="1"/>
+<text x="1446.4" y="384.0" font-size="9.2" fill="#1a2332">caption / grounding / spatial / 纯文本辅助集</text>
+<path d="M180,360.0 C220,360.0 220,481.0 260,481.0" stroke="#CC78BC" stroke-width="2" fill="none"/>
+<rect x="260" y="464.0" width="190" height="34" rx="7" fill="#CC78BC"/>
+<text x="355.0" y="486.0" text-anchor="middle" font-size="14" font-weight="700" fill="#ffffff">训练系统</text>
+<rect x="480.0" y="466.0" width="231.6" height="30" rx="5" fill="#CC78BC" opacity="0.13" stroke="#CC78BC" stroke-width="1"/>
+<text x="488.0" y="485.0" font-size="9.2" fill="#1a2332">forward / predict_action 两条契约</text>
+<rect x="719.6" y="466.0" width="231.6" height="30" rx="5" fill="#CC78BC" opacity="0.13" stroke="#CC78BC" stroke-width="1"/>
+<text x="727.6" y="485.0" font-size="9.2" fill="#1a2332">Accelerate + DeepSpeed ZeRO-2/3</text>
+<rect x="959.2" y="466.0" width="231.6" height="30" rx="5" fill="#CC78BC" opacity="0.13" stroke="#CC78BC" stroke-width="1"/>
+<text x="967.2" y="485.0" font-size="10.5" fill="#1a2332">batch 64→1024：GR1 +19 点</text>
+<rect x="1198.8" y="466.0" width="231.6" height="30" rx="5" fill="#CC78BC" opacity="0.13" stroke="#CC78BC" stroke-width="1"/>
+<text x="1206.8" y="485.0" font-size="11.5" fill="#1a2332">4B 是规模甜点（8B &lt;1 点）</text>
+<rect x="1438.4" y="466.0" width="231.6" height="30" rx="5" fill="#CC78BC" opacity="0.13" stroke="#CC78BC" stroke-width="1"/>
+<text x="1446.4" y="485.0" font-size="11.5" fill="#1a2332">8→256 GPU 扩展效率 79%</text>
+<path d="M180,360.0 C220,360.0 220,582.0 260,582.0" stroke="#56B4E9" stroke-width="2" fill="none"/>
+<rect x="260" y="565.0" width="190" height="34" rx="7" fill="#56B4E9"/>
+<text x="355.0" y="587.0" text-anchor="middle" font-size="14" font-weight="700" fill="#ffffff">评测</text>
+<rect x="480.0" y="567.0" width="231.6" height="30" rx="5" fill="#56B4E9" opacity="0.13" stroke="#56B4E9" stroke-width="1"/>
+<text x="488.0" y="586.0" font-size="11.5" fill="#1a2332">LIBERO-Plus 七维扰动</text>
+<rect x="719.6" y="567.0" width="231.6" height="30" rx="5" fill="#56B4E9" opacity="0.13" stroke="#56B4E9" stroke-width="1"/>
+<text x="727.6" y="586.0" font-size="9.2" fill="#1a2332">RoboTwin 2.0 Base：clean + random</text>
+<rect x="959.2" y="567.0" width="231.6" height="30" rx="5" fill="#56B4E9" opacity="0.13" stroke="#56B4E9" stroke-width="1"/>
+<text x="967.2" y="586.0" font-size="10.5" fill="#1a2332">RoboCasa-GR1 数据比例曲线</text>
+<rect x="1198.8" y="567.0" width="231.6" height="30" rx="5" fill="#56B4E9" opacity="0.13" stroke="#56B4E9" stroke-width="1"/>
+<text x="1206.8" y="586.0" font-size="11.5" fill="#1a2332">VLA-Arena L0→L2 外推</text>
+<rect x="1438.4" y="567.0" width="231.6" height="30" rx="5" fill="#56B4E9" opacity="0.13" stroke="#56B4E9" stroke-width="1"/>
+<text x="1446.4" y="586.0" font-size="9.2" fill="#1a2332">RoboDojo 五维 · RoboChallenge 真机</text>
+<path d="M180,360.0 C220,360.0 220,683.0 260,683.0" stroke="#8d99ae" stroke-width="2" fill="none"/>
+<rect x="260" y="666.0" width="190" height="34" rx="7" fill="#8d99ae"/>
+<text x="355.0" y="688.0" text-anchor="middle" font-size="14" font-weight="700" fill="#ffffff">开放问题</text>
+<rect x="480.0" y="668.0" width="231.6" height="30" rx="5" fill="#8d99ae" opacity="0.13" stroke="#8d99ae" stroke-width="1"/>
+<text x="488.0" y="687.0" font-size="10.5" fill="#1a2332">Memory ≈ 0（RoboDojo）</text>
+<rect x="719.6" y="668.0" width="231.6" height="30" rx="5" fill="#8d99ae" opacity="0.13" stroke="#8d99ae" stroke-width="1"/>
+<text x="727.6" y="687.0" font-size="11.5" fill="#1a2332">低数据下生成式头落后 18 点</text>
+<rect x="959.2" y="668.0" width="231.6" height="30" rx="5" fill="#8d99ae" opacity="0.13" stroke="#8d99ae" stroke-width="1"/>
+<text x="967.2" y="687.0" font-size="11.5" fill="#1a2332">Language 维度 −5.5</text>
+<rect x="1198.8" y="668.0" width="231.6" height="30" rx="5" fill="#8d99ae" opacity="0.13" stroke="#8d99ae" stroke-width="1"/>
+<text x="1206.8" y="687.0" font-size="11.5" fill="#1a2332">20 维布局如何扩到人形 / 灵巧手</text>
+<rect x="1438.4" y="668.0" width="231.6" height="30" rx="5" fill="#8d99ae" opacity="0.13" stroke="#8d99ae" stroke-width="1"/>
+<text x="1446.4" y="687.0" font-size="11.5" fill="#1a2332">持续预训练的规模曲线空白</text>
+<text x="30" y="706" font-size="11" fill="#7a6a5e">α = StarVLA-α（2604.11757）；VLAct = 2608.27550；ST4VLA = 2602.10109。证据出处见 reports/。由 scripts/make_figures.py 生成。</text>
+</svg>

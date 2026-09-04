@@ -35,7 +35,7 @@
 |---|---|---|---|
 | FAST | 离散自回归 token | next-token 交叉熵 | 逐 token 生成后逆 tokenizer |
 | OFT | 并行连续回归（MLP 读 K 个 action query 的 hidden state） | L1 | 一次前向 |
-| PI | flow-matching action expert | \(\|v_\phi(A^\tau,\tau;H)-(A-\epsilon)\|^2\) | N 步积分 |
+| PI | flow-matching action expert | $\|v_\phi(A^\tau,\tau;H)-(A-\epsilon)\|^2$ | N 步积分 |
 | GR00T | 双系统：VLM 慢推理 + DiT 快运动模块 | 同 flow matching，额外条件于状态与本体标识 | N 步去噪 |
 
 两个失效模式：
@@ -53,16 +53,15 @@
 ### 3.1 保护 VLM 先验
 
 - **浅层保护**：冻结整个视觉编码器 + LLM 下半层，只更新上半层 LLM 和动作头。理由是低层负责底层视觉处理与早期视觉-语言对齐（附录图 6 用逐层 attention 可视化支撑：低层关注广泛视觉/空间信息，深层聚焦语义与任务相关区域）。下游微调时全模型解冻。
-- **caption 混训**：每个 minibatch 同时含机器人样本和辅助 VLM 样本，\(\mathcal{L}_{\text{total}}=\mathcal{L}_{\text{action}}+0.5\,\mathcal{L}_{\text{VLM-CE}}\)。消融了五类辅助数据（caption、BBox-QA、Point-QA、Spatial-QA、纯文本指令），caption 是最强的单一锚点。
+- **caption 混训**：每个 minibatch 同时含机器人样本和辅助 VLM 样本，$\mathcal{L}_{\text{total}}=\mathcal{L}_{\text{action}}+0.5\,\mathcal{L}_{\text{VLM-CE}}$。消融了五类辅助数据（caption、BBox-QA、Point-QA、Spatial-QA、纯文本指令），caption 是最强的单一锚点。
 
 ### 3.2 多头连续共监督
 
-三个连续头 OFT、PI、GR00T 并联在同一骨干上，接收同一潜表征 \(z\)、预测同一 ground-truth 动作块 \(a\)：
+三个连续头 OFT、PI、GR00T 并联在同一骨干上，接收同一潜表征 $z$、预测同一 ground-truth 动作块 $a$：
 
-\[
+$$
 \mathcal{L}_{\text{action}}=\mathcal{L}_{\text{OFT}}+\mathcal{L}_{\text{PI}}+\mathcal{L}_{\text{GR00T}}
-\]
-
+$$
 三个头共享一次骨干前向，额外开销只是头本身。作者刻意不引入新头或对齐模块，而是把**头的多样性本身当作监督信号**：三种不同的解码偏置迫使骨干把动作信息编码成多种参数化都能读取的形式。附录 E 显示这不只改善跨头迁移，同头微调也涨 1.6–4.3 个点。
 
 ### 3.3 跨本体的部分统一动作空间
@@ -81,12 +80,12 @@
 
 每个样本只在本体的激活维度上计算 loss，非激活维 mask 掉。没有本体适配器、路由模块或本体条件解码器。
 
-**wrap-aware loss**：绝对关节角是周期量，标准回归把 179° 和 −179° 当成差 358°。数据侧先把角度 wrap 到 \([-\pi,\pi]\)：\(a_{\text{wrap}}=(a+\pi)\bmod 2\pi-\pi\)；loss 侧再对残差 wrap：\(\delta_{\text{wrap}}=((\hat a-a)+\pi)\bmod 2\pi-\pi\)，\(\mathcal{L}_{\text{wrap}}=|\delta_{\text{wrap}}|\)，加到每个头各自的目标上。对 PI/GR00T，它作用在最终生成的动作样本上，而不是中间的噪声或速度目标。只用于绝对关节角维度。
+**wrap-aware loss**：绝对关节角是周期量，标准回归把 179° 和 −179° 当成差 358°。数据侧先把角度 wrap 到 $[-\pi,\pi]$：$a_{\text{wrap}}=(a+\pi)\bmod 2\pi-\pi$；loss 侧再对残差 wrap：$\delta_{\text{wrap}}=((\hat a-a)+\pi)\bmod 2\pi-\pi$，$\mathcal{L}_{\text{wrap}}=|\delta_{\text{wrap}}|$，加到每个头各自的目标上。对 PI/GR00T，它作用在最终生成的动作样本上，而不是中间的噪声或速度目标。只用于绝对关节角维度。
 
 ### 3.4 数据、训练与微调协议
 
 - 预训练数据全开源：DROID（v1.0.0 + v1.0.1）、InternData-A1、RoboCoin、MolmoAct，加 caption 数据。两个本体：Franka 单臂（7 维：6 维 delta EE + 1 夹爪）与 AgileX 双臂（14 维：12 关节角 + 2 夹爪）。
-- 数据清洗（附录 H）：删无效任务名；delta EE 动作按 FPS 换成每秒量，平移速度 > 0.5 或旋转速度 > 1.0 的步标记无效，**按步 mask 而非丢整条轨迹**，仅当一个 chunk 内无效比例 > 0.5 才丢弃；关节角先删 \([-2\pi,2\pi]\) 之外的值再 wrap；夹爪去极值后逐数据集 min-max 归一化。
+- 数据清洗（附录 H）：删无效任务名；delta EE 动作按 FPS 换成每秒量，平移速度 > 0.5 或旋转速度 > 1.0 的步标记无效，**按步 mask 而非丢整条轨迹**，仅当一个 chunk 内无效比例 > 0.5 才丢弃；关节角先删 $[-2\pi,2\pi]$ 之外的值再 wrap；夹爪去极值后逐数据集 min-max 归一化。
 - 代码库 StarVLA，骨干 Qwen3-VL-4B，16 GPU。
 - **微调协议**：丢弃预训练头和 caption 流，重新随机初始化任务头，全参数解冻，与每个基线使用完全相同的下游数据、优化器、训练预算。所有 VLAct 对比中，唯一变量是骨干权重。
 

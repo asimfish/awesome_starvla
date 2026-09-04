@@ -59,19 +59,26 @@ awesome_starvla/
 ├── reports/                        # 7 份中文深度报告（01–07）
 ├── report/
 │   ├── awesome_starvla_slides.tex  # Beamer 源码（XeLaTeX + ctex，16:9）
-│   └── awesome_starvla_slides.pdf  # 29 页
+│   ├── awesome_starvla_slides.pdf  # 29 页
+│   ├── awesome_starvla_full_report.html / .pdf   # 44 页合订全文报告
 ├── assets/
 │   ├── papers_curated.md           # 120 条文献编目（README 第 4 节的源）
-│   └── starvla_code_facts.md       # 代码库硬事实卡片（数字、路径、接口签名）
+│   ├── starvla_code_facts.md       # 代码库硬事实卡片（数字、路径、接口签名）
+│   ├── fig1_timeline.svg           # 图 1：120 篇文献时间线（由 make_figures.py 生成）
+│   ├── fig2_taxonomy.svg           # 图 2：设计空间分类树
+│   └── readme_head.md / readme_tail.md   # README 的非论文部分（build_readme.py 的输入）
 └── scripts/
     ├── build_slides.sh             # 编译幻灯片
     ├── build_readme.py             # 从 head/tail 与 papers_curated.md 拼装 README
+    ├── build_full_report.py        # 合订全文报告（pandoc + Chrome headless）
+    ├── make_figures.py             # 生成图 1 / 图 2
     └── translate_papers.sh         # super_translate 翻译流程
 ```
 
 ## [9. Translation & Build Pipeline](#content)
 
 - **翻译**：[super_translate](https://github.com/asimfish/super_translate) `paper-translate` skill，DeepSeek 后端，`--preserve-graphics-text`（图表内文字与公式原样保留），译后 `inspect` 视觉 QA。三篇的 QA 报告随 PDF 存放在 `papers/zh/*.inspect.json`。已知瑕疵：VLAct 中文版 p29 公式内指示函数文字保留英文、p30 一行字号偏小；StarVLA-α 中文版 p16 附录目录 9 条保留英文（带 hyperref 引用被判为保护区）；StarVLA 报告中文版 p15 一处字号偏小。正文均已翻译。
+- **合订报告与图**：`python3 scripts/make_figures.py && python3 scripts/build_full_report.py --pdf`（需要 pandoc 与 Google Chrome；公式由 MathJax 渲染，报告源文件统一用 `$...$` / `$$...$$` 定界以兼容 GitHub）。
 - **幻灯片**：`bash scripts/build_slides.sh`，需要 XeLaTeX 与 Fandol 字体（MiKTeX / TeX Live 均可）。遵循 [beamer-skill](https://github.com/Noi1r/beamer-skill) 规范：16:9、10pt、无 overlay、每页 ≤2 个彩色框、参考文献页 + 备份页。
 - **写作**：报告与 README 按 [anti-defensive-writing](https://github.com/Kiterlin/anti-defensive-writing) 与 [shuorenhua](https://github.com/MrGeDiao/shuorenhua) 的规则写：直接陈述、不做防御性免责、不用"值得注意的是 / 综上所述"类套话、术语保留英文、数字必须有出处。
 - **文献核验**：每条 arXiv 链接用 `curl "http://export.arxiv.org/api/query?id_list=<ID>"` 取回标题逐条比对；GitHub / 项目页链接经 HTTP 200 检查（2026-09-04）。
