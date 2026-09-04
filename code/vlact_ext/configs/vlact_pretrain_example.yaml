@@ -1,0 +1,163 @@
+# VLAct（arXiv 2608.27550）持续预训练配方的 StarVLA 风格配置示例
+# 骨干：Qwen3-VL-4B；框架：QwenMultiHead（OFT + PI + GR00T 三头共享一次骨干前向）
+#
+# 启动方式（需先把 vlact_ext 拷进 StarVLA，见 README）：
+#   accelerate launch --config_file starVLA/config/deepseeds/deepspeed_zero2.yaml --num_processes 8 \
+#     starVLA/training/train_starvla_cotrain.py --config_yaml <本文件> --run_id vlact_pretrain
+#   * (b) caption 共训必须用 train_starvla_cotrain.py（双 DataLoader，VLM 侧 loss 乘 loss_scale.vlm）
+#   * (a) 冻结规则中的 llm_layers_below 语法糖需要 vlact_ext.freeze_rules.install_into_starvla()，
+#         否则请改用下方注释里的 19 条精确路径（unmodified StarVLA 可直接解析）
+#
+# 未在 GPU 上验证：本文件的 shape/语法在 CPU 上核对过（dataclass 默认值 + OmegaConf 合并），
+# 但完整训练（Qwen3-VL-4B 加载、DiT 构造、DeepSpeed）只能在 GPU 环境跑通后确认。
+
+run_id: vlact_pretrain_qwen3vl4b_multihead
+run_root_dir: playground/Checkpoints
+seed: 42
+wandb_entity: your_wandb_entity
+wandb_project: vlact
+is_debug: false
+version_id: "0.21"
+
+framework:
+  name: QwenMultiHead                      # 注册名，见 multihead_framework.py
+  qwenvl:
+    base_vlm: ./playground/Pretrained_models/Qwen3-VL-4B-Instruct
+    attn_implementation: flash_attention_2 # QWen3.py 目前强制 sdpa，此项在 Qwen3-VL 上不生效
+    # vl_hidden_dim / num_vl_layers 运行期自动从 VLM 读取（4B: 2560 / 36）
+
+  # 三个头共享的动作配置：动作维度、chunk 长度等必须一致
+  action_model:
+    action_dim: 20                         # (d) 20 维部分统一布局
+    state_dim: 0                           # state 以离散文本注入所有头，GR00T 头不建 state_encoder
+    action_horizon: 16                     # 必须 <= DataConfig.action_indices 长度；训练内 eval 要求相等
+    action_hidden_dim: 2560                # OFT MLP 输入维，运行期覆盖为 VLM hidden_size
+    num_inference_timesteps: 4
+    num_target_vision_tokens: 32
+    noise_beta_alpha: 1.5
+    noise_beta_beta: 1.0
+    noise_s: 0.999
+    num_timestep_buckets: 1000
+    add_pos_embed: true
+    max_seq_len: 1024
+    repeated_diffusion_steps: 4            # 两个 flow-matching 头的默认重复采样次数（可按头覆盖）
+
+  # (c) 三头开关与权重：action_loss = sum_h loss_weight_h * L_h
+  heads:
+    oft:
+      enabled: true
+      loss_weight: 1.0
+    gr00t:
+      enabled: true
+      loss_weight: 1.0
+      action_model:                        # 与 QwenGR00T 默认一致（DiT-B，16 层交错 self/cross）
+        action_model_type: DiT-B
+        hidden_size: 1024
+        repeated_diffusion_steps: 4
+        diffusion_model_cfg:
+          dropout: 0.2
+          final_dropout: true
+          interleave_self_attention: true
+          norm_type: ada_norm
+          num_layers: 16
+          output_dim: 1024
+          positional_embeddings: null
+    pi:
+      enabled: true
+      loss_weight: 1.0
+      action_model:                        # 与 QwenPI_v3 默认一致（36 层逐层 cross-attn，DiT 宽 1024）
+        action_model_type: LayerwiseFM
+        repeated_diffusion_steps: 4
+        diffusion_model_cfg:
+          action_dit_hidden_dim: 1024
+          dropout: 0.2
+          final_dropout: true
+          interleave_self_attention: false
+          norm_type: ada_norm
+          positional_embeddings: null
+          attention_head_dim: 64
+
+  predict_head: oft                        # predict_action 默认用哪个头（可在调用时 head=... 覆盖）
+  mask_oft_queries_for_fm_heads: false     # true 时 PI/GR00T 的 cross-attn 看不到 OFT 的 <action> 查询位
+
+  # (e) wrap-aware L1：period 以归一化后的动作空间计量；关节若按 [-pi, pi] -> [-1, 1] 归一化则为 2.0
+  #     也可写成长度 20 的列表给每个槽位不同周期（见 README 关于 min_max 统计的说明）
+  wrap_aware:
+    enabled: true
+    period: 2.0
+    fm_sample_loss_weight: 1.0             # PI/GR00T 上作用于 x1_hat 的 wrap-aware L1 权重
+
+  # (d) 槽位映射：robot_tag -> EmbodimentLayout。样本 action 维度 != 20 时框架内自动映射并生成 mask；
+  #     数据侧用 UnifiedActionTransform 预处理的样本（已带 action_mask）直接通过
+  unified_layout:
+    enabled: true
+    unified_dim: 20
+    layouts:
+      franka: {preset: franka}             # LIBERO / Franka: 7 维 delta EE + 夹爪 -> 槽位 13-18, 19（1-based）
+      new_embodiment: {preset: agilex}     # StarVLA AgilexDataConfig 的 embodiment_tag 是 new_embodiment
+      # ur5: {slots: [0, 1, 2, 3, 4, 5, 18], periodic: [0, 1, 2, 3, 4, 5]}   # 新本体只需加一行
+
+datasets:
+  # (b) caption 共训：LLaVA-OneVision-COCO；VLAct 的 LLaVA-ReCap-CC3M 需先在 qwen_data_config.data_dict 注册
+  vlm_data:
+    dataset_py: vlm_datasets
+    dataformat: llava_json
+    dataset_use: sharegpt4v_coco
+    eval_dataset: sharegpt4v_coco
+    data_flatten: false
+    base_interval: 2
+    max_pixels: 307200
+    min_pixels: 784
+    model_max_length: 2048
+    model_type: qwen3vl                    # 必须与骨干匹配（Qwen3-VL 用 get_rope_index_3）
+    per_device_batch_size: 4
+
+  vla_data:
+    dataset_py: lerobot_datasets
+    data_root_dir: playground/Datasets
+    data_mix: vlact_franka_agilex          # 需在 examples/**/train_files/data_registry 注册：[(libero_xxx, 1.0, libero_franka), (robotwin_xxx, 1.0, agilex)]
+    include_state: false                   # 混合本体时 state 维度不同；如需 state 请保持 false 或统一 state
+    per_device_batch_size: 16
+    video_backend: torchvision_av
+    image_size: 224
+
+trainer:
+  max_train_steps: 100000
+  num_warmup_steps: 5000
+  save_interval: 5000
+  eval_interval: 1000
+  learning_rate:
+    base: 2.5e-05
+    qwen_vl_interface: 1.0e-05
+    heads: 1.0e-04                         # 三个头统一 LR（子模块路径 heads.oft / heads.gr00t / heads.pi 也可分别写）
+    project_layers: 1.0e-04
+  lr_scheduler_type: cosine_with_min_lr
+  scheduler_specific_kwargs:
+    min_lr: 1.0e-06
+
+  # (a) 浅层保护：冻结视觉编码器 + 词嵌入 + LLM 下半层（Qwen3-VL-4B 共 36 层，冻结 0-17）
+  #     形式 1（需 install_into_starvla）：
+  freeze_modules: "qwen_vl_interface.model.model.visual,qwen_vl_interface.model.model.language_model.embed_tokens,llm_layers_below:18"
+  #     形式 2（不改 StarVLA）：把上面一行换成 expand_to_exact_paths(model, rules) 的输出，即
+  #     "qwen_vl_interface.model.model.visual,qwen_vl_interface.model.model.language_model.embed_tokens,
+  #      qwen_vl_interface.model.model.language_model.layers.0,...,qwen_vl_interface.model.model.language_model.layers.17"
+  #     也可以不写 llm_layers_below:18 而写独立键：
+  # freeze_llm_layers_below: 18
+  # llm_layers_path: qwen_vl_interface.model.model.language_model.layers
+
+  loss_scale:
+    vla: 1.0                               # 训练脚本不读取此项，恒为 1
+    vlm: 0.5                               # (b) L = L_action + 0.5 * L_VLM-CE
+  gradient_clipping: 1.0
+  logging_frequency: 10
+
+  optimizer:
+    name: AdamW
+    betas: [0.9, 0.95]
+    eps: 1.0e-08
+    weight_decay: 1.0e-08
+
+  # (f) 下游微调（另开一份 yaml，框架可换成 QwenOFT / QwenPI_v3 / QwenGR00T 单头）：
+  # pretrained_checkpoint: playground/Checkpoints/vlact_pretrain_qwen3vl4b_multihead/checkpoints/steps_100000_pytorch_model.pt
+  # reload_modules: "qwen_vl_interface"    # 只加载骨干；预训练三头全部丢弃，任务头随机初始化
+  # freeze_modules: ""                     # 全参数解冻

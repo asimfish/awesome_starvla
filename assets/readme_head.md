@@ -6,6 +6,7 @@
 ![zh-PDF](https://img.shields.io/badge/zh--PDF-3-green)
 ![slides](https://img.shields.io/badge/slides-29p-orange)
 ![full report](https://img.shields.io/badge/full_report-44p-8a2be2)
+![code](https://img.shields.io/badge/vlact__ext-61_tests_passed-brightgreen)
 ![license](https://img.shields.io/badge/license-CC_BY_4.0-8a2be2)
 
 ![Figure 1 · Timeline](assets/fig1_timeline.svg)
@@ -22,6 +23,7 @@
 - **3 篇论文英文原版 + 保版式中文翻译 PDF**（`papers/`，翻译由 [super_translate](https://github.com/asimfish/super_translate) 生成；三篇论文均为 CC BY 4.0）
 - **29 页 Beamer 幻灯片**（`report/awesome_starvla_slides.pdf`，XeLaTeX 源码同目录）+ **44 页合订全文报告**（`report/awesome_starvla_full_report.pdf`，7 份报告 + 两张总览图）
 - **120 篇文献编目**（第 4 节，113 条 arXiv 链接经 arXiv API 逐条核验标题，其余 7 条为无 arXiv 的官方技术博客 / 模型卡 / 数据集页）
+- **VLAct 缺失组件的 StarVLA 扩展代码**（`code/vlact_ext/`，约 1,600 行）：多头共监督框架 `QwenMultiHead`、wrap-aware L1、20 维部分统一动作布局 transform、正则 / 区间冻结规则，附 61 个 CPU 单元测试与完整的 VLAct 预训练示例 yaml；不改 StarVLA 任何已有文件即可拷入使用
 
 一句话结论：**VLM 骨干是 VLA 的一阶设计变量，预训练不是双刃剑，配方决定符号**——朴素动作拟合会把机器人预训练变成负资产（OXE 预训练让 RoboCasa-GR1 24×10 从 9.8 掉到 1.2），保护 VLM 先验 + 多头共监督 + 部分统一动作空间把同样的数据源变成净收益（20% 数据超过全量 GR00T-N1.6）；下一步最值钱的是表征诊断工具、"只换骨干"的基准协议，以及所有人都接近零的 Memory 维度。
 
@@ -61,6 +63,10 @@ StarVLA 团队或直接基于 StarVLA 代码库构建的工作以 ⭐ 标记。
 	<td></td>
 </tr>
 <tr><td colspan="2"><a href="#5-starvla-codebase-at-a-glance">5. StarVLA Codebase at a Glance</a></td></tr>
+<tr>
+	<td>&emsp;<a href="#51-vlact-extension-for-starvla-codevlact_ext">5.1 VLAct Extension for StarVLA（code/vlact_ext）</a></td>
+	<td></td>
+</tr>
 <tr><td colspan="2"><a href="#6-benchmarks-cheat-sheet">6. Benchmarks Cheat Sheet</a></td></tr>
 <tr><td colspan="2"><a href="#7-research-roadmap">7. Research Roadmap</a></td></tr>
 <tr><td colspan="2"><a href="#8-repository-layout">8. Repository Layout</a></td></tr>
@@ -75,7 +81,7 @@ StarVLA 团队或直接基于 StarVLA 代码库构建的工作以 ⭐ 标记。
 | 15 分钟 | [`report/awesome_starvla_slides.pdf`](report/awesome_starvla_slides.pdf)（29 页，含 4 页备份） |
 | 通读 | [`report/awesome_starvla_full_report.pdf`](report/awesome_starvla_full_report.pdf)（44 页 A4，7 份报告合订 + 图 1 时间线 / 图 2 设计空间）· [HTML 版](report/awesome_starvla_full_report.html) |
 | 1 小时 | [01 · VLAct 精读](reports/01_vlact_deep_dive.md) → [05 · 动作头与动作表示](reports/05_action_heads_and_representation.md) → [07 · 研究路线图](reports/07_research_roadmap.md) |
-| 准备上手代码 | [02 · StarVLA 代码库解析](reports/02_starvla_codebase_analysis.md)（第 9 章是 VLAct 配方在代码中的落点，第 11 章是最短上手命令序列） → [06 · 基准生态](reports/06_benchmarks_landscape.md)（第 5 章是基准选择建议） |
+| 准备上手代码 | [02 · StarVLA 代码库解析](reports/02_starvla_codebase_analysis.md)（第 9 章是 VLAct 配方在代码中的落点，第 11 章是最短上手命令序列） → [06 · 基准生态](reports/06_benchmarks_landscape.md)（第 5 章是基准选择建议） → [`code/vlact_ext/README.md`](code/vlact_ext/README.md)（怎么把多头 / wrap loss / 统一布局拷进 StarVLA） |
 | 系统研读 | 按 04 → 03 → 01 → 02 → 05 → 06 → 07 的顺序读 `reports/`，配 `papers/zh/` 中文 PDF 对照原文 |
 
 ## [2. Core Readings](#content)

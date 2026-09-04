@@ -14,7 +14,25 @@
 | 部署 | `deployment/model_server/` | WebSocket / ZMQ 策略服务器；基准侧 12 个 `model2*_interface.py` 适配器 |
 | 生态 | `examples/` | 13 仿真基准 / 5 真机 / 6 模型扩展 / 1 UMI 人类数据 |
 
-**VLAct 六项配方在代码中的状态**：(b) caption 共训与 (f) 丢头重训 **已有**；(a) 浅层冻结与 (d) 20 维部分统一布局 **部分**（冻结需列 18 条精确路径，mask 只有 OFT 头消费）；(c) 多头共监督与 (e) wrap-aware loss **缺失**。复现 VLAct 的工程量集中在一个新框架 `QwenMultiHead` 与一个动作空间 transform。
+**VLAct 六项配方在代码中的状态**：(b) caption 共训与 (f) 丢头重训 **已有**；(a) 浅层冻结与 (d) 20 维部分统一布局 **部分**（冻结需列 18 条精确路径，mask 只有 OFT 头消费）；(c) 多头共监督与 (e) wrap-aware loss **缺失**。复现 VLAct 的工程量集中在一个新框架 `QwenMultiHead` 与一个动作空间 transform——两者都已在下面的扩展包里实现。
+
+### [5.1 VLAct Extension for StarVLA（code/vlact_ext）](#content)
+
+把上面"部分 / 缺失"的四项实现为一个**不修改 StarVLA 源码**即可拷入的扩展包（详见 [`code/vlact_ext/README.md`](code/vlact_ext/README.md)）：
+
+| 配方 | 文件 | 实现 |
+|---|---|---|
+| (a) 浅层冻结 | `freeze_rules.py` | `re:<regex>`、`path.layers[lo:hi]`、`llm_layers_below:N` 三种语法，展开成 StarVLA 原生可解析的精确路径；`install_into_starvla()` 一行 monkeypatch 让 yaml 直接用新语法 |
+| (c) 多头共监督 | `multihead_framework.py` | `Qwen_MultiHead(baseframework)`，注册名 `QwenMultiHead`：一次骨干前向，OFT + GR00T + PI 三头各算 loss，`action_loss = Σ w_h·L_h`，每头可开关 / 加权，`predict_action(head=...)` 路由；复用 StarVLA 现有头的构造函数 |
+| (d) 20 维统一布局 | `unified_action_layout.py` | dict 驱动的 `robot_tag → 槽位` 映射（加新本体只改 dict），`to_unified` / `from_unified`，样本级 transform 附加 `action_mask` / `periodic_mask`，含 DataConfig `make_dataset` 钩子 |
+| (e) wrap-aware L1 | `wrap_aware_loss.py` | `wrap_to_pi`、残差 wrap、`masked_wrap_aware_l1`（torch / numpy）；对 PI / GR00T 作用于单步样本估计 `x1_hat = x_t + (1−t)·v̂` |
+| (b)(f) | `configs/vlact_pretrain_example.yaml` | 完整的 VLAct 持续预训练配置：冻结列表、`loss_scale.vlm: 0.5`、`data_mix`、三头开关与权重、动作布局、下游丢头重训写法 |
+
+```bash
+python3 -m pytest code/vlact_ext/tests -q     # 60 passed, 1 skipped（CPU，mock 骨干，约 30 s）
+```
+
+已在 CPU 上验证：loss 边界（+179° vs −179° 的残差 ≈ 2°）、mask 不产生 NaN、Franka 7 维 / AgileX 14 维 ↔ 20 维 round-trip、三种冻结语法与语法糖的参数集合一致、三头 loss 求和与 `predict_action` 路由、示例 yaml 与各头 DefaultConfig 的字段合并。**未在 GPU 上验证**：真实 Qwen3-VL-4B + 三个真实头在 bf16 / DeepSpeed 下的前向与显存、flow-matching loss 与原头实现的数值等价、真实 LeRobot 数据上的 `make_dataset` 钩子。这些是[路线图](reports/07_research_roadmap.md)第 1 个月"复现 VLAct"的起点。
 
 ## [6. Benchmarks Cheat Sheet](#content)
 
@@ -61,6 +79,8 @@ awesome_starvla/
 │   ├── awesome_starvla_slides.tex  # Beamer 源码（XeLaTeX + ctex，16:9）
 │   ├── awesome_starvla_slides.pdf  # 29 页
 │   ├── awesome_starvla_full_report.html / .pdf   # 44 页合订全文报告
+├── code/
+│   └── vlact_ext/                  # VLAct 缺失组件的 StarVLA 扩展（多头框架、wrap loss、统一布局、冻结规则）+ 61 个测试
 ├── assets/
 │   ├── papers_curated.md           # 120 条文献编目（README 第 4 节的源）
 │   ├── starvla_code_facts.md       # 代码库硬事实卡片（数字、路径、接口签名）

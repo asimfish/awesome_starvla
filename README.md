@@ -6,6 +6,7 @@
 ![zh-PDF](https://img.shields.io/badge/zh--PDF-3-green)
 ![slides](https://img.shields.io/badge/slides-29p-orange)
 ![full report](https://img.shields.io/badge/full_report-44p-8a2be2)
+![code](https://img.shields.io/badge/vlact__ext-61_tests_passed-brightgreen)
 ![license](https://img.shields.io/badge/license-CC_BY_4.0-8a2be2)
 
 ![Figure 1 · Timeline](assets/fig1_timeline.svg)
@@ -22,6 +23,7 @@
 - **3 篇论文英文原版 + 保版式中文翻译 PDF**（`papers/`，翻译由 [super_translate](https://github.com/asimfish/super_translate) 生成；三篇论文均为 CC BY 4.0）
 - **29 页 Beamer 幻灯片**（`report/awesome_starvla_slides.pdf`，XeLaTeX 源码同目录）+ **44 页合订全文报告**（`report/awesome_starvla_full_report.pdf`，7 份报告 + 两张总览图）
 - **120 篇文献编目**（第 4 节，113 条 arXiv 链接经 arXiv API 逐条核验标题，其余 7 条为无 arXiv 的官方技术博客 / 模型卡 / 数据集页）
+- **VLAct 缺失组件的 StarVLA 扩展代码**（`code/vlact_ext/`，约 1,600 行）：多头共监督框架 `QwenMultiHead`、wrap-aware L1、20 维部分统一动作布局 transform、正则 / 区间冻结规则，附 61 个 CPU 单元测试与完整的 VLAct 预训练示例 yaml；不改 StarVLA 任何已有文件即可拷入使用
 
 一句话结论：**VLM 骨干是 VLA 的一阶设计变量，预训练不是双刃剑，配方决定符号**——朴素动作拟合会把机器人预训练变成负资产（OXE 预训练让 RoboCasa-GR1 24×10 从 9.8 掉到 1.2），保护 VLM 先验 + 多头共监督 + 部分统一动作空间把同样的数据源变成净收益（20% 数据超过全量 GR00T-N1.6）；下一步最值钱的是表征诊断工具、"只换骨干"的基准协议，以及所有人都接近零的 Memory 维度。
 
@@ -61,6 +63,10 @@ StarVLA 团队或直接基于 StarVLA 代码库构建的工作以 ⭐ 标记。
 	<td></td>
 </tr>
 <tr><td colspan="2"><a href="#5-starvla-codebase-at-a-glance">5. StarVLA Codebase at a Glance</a></td></tr>
+<tr>
+	<td>&emsp;<a href="#51-vlact-extension-for-starvla-codevlact_ext">5.1 VLAct Extension for StarVLA（code/vlact_ext）</a></td>
+	<td></td>
+</tr>
 <tr><td colspan="2"><a href="#6-benchmarks-cheat-sheet">6. Benchmarks Cheat Sheet</a></td></tr>
 <tr><td colspan="2"><a href="#7-research-roadmap">7. Research Roadmap</a></td></tr>
 <tr><td colspan="2"><a href="#8-repository-layout">8. Repository Layout</a></td></tr>
@@ -75,7 +81,7 @@ StarVLA 团队或直接基于 StarVLA 代码库构建的工作以 ⭐ 标记。
 | 15 分钟 | [`report/awesome_starvla_slides.pdf`](report/awesome_starvla_slides.pdf)（29 页，含 4 页备份） |
 | 通读 | [`report/awesome_starvla_full_report.pdf`](report/awesome_starvla_full_report.pdf)（44 页 A4，7 份报告合订 + 图 1 时间线 / 图 2 设计空间）· [HTML 版](report/awesome_starvla_full_report.html) |
 | 1 小时 | [01 · VLAct 精读](reports/01_vlact_deep_dive.md) → [05 · 动作头与动作表示](reports/05_action_heads_and_representation.md) → [07 · 研究路线图](reports/07_research_roadmap.md) |
-| 准备上手代码 | [02 · StarVLA 代码库解析](reports/02_starvla_codebase_analysis.md)（第 9 章是 VLAct 配方在代码中的落点，第 11 章是最短上手命令序列） → [06 · 基准生态](reports/06_benchmarks_landscape.md)（第 5 章是基准选择建议） |
+| 准备上手代码 | [02 · StarVLA 代码库解析](reports/02_starvla_codebase_analysis.md)（第 9 章是 VLAct 配方在代码中的落点，第 11 章是最短上手命令序列） → [06 · 基准生态](reports/06_benchmarks_landscape.md)（第 5 章是基准选择建议） → [`code/vlact_ext/README.md`](code/vlact_ext/README.md)（怎么把多头 / wrap loss / 统一布局拷进 StarVLA） |
 | 系统研读 | 按 04 → 03 → 01 → 02 → 05 → 06 → 07 的顺序读 `reports/`，配 `papers/zh/` 中文 PDF 对照原文 |
 
 ## [2. Core Readings](#content)
@@ -864,7 +870,25 @@ _Senqiao Yang, Chengyao Wang, Yuxin Chen, et al., Hengshuang Zhao, Bei Yu, Jiaya
 | 部署 | `deployment/model_server/` | WebSocket / ZMQ 策略服务器；基准侧 12 个 `model2*_interface.py` 适配器 |
 | 生态 | `examples/` | 13 仿真基准 / 5 真机 / 6 模型扩展 / 1 UMI 人类数据 |
 
-**VLAct 六项配方在代码中的状态**：(b) caption 共训与 (f) 丢头重训 **已有**；(a) 浅层冻结与 (d) 20 维部分统一布局 **部分**（冻结需列 18 条精确路径，mask 只有 OFT 头消费）；(c) 多头共监督与 (e) wrap-aware loss **缺失**。复现 VLAct 的工程量集中在一个新框架 `QwenMultiHead` 与一个动作空间 transform。
+**VLAct 六项配方在代码中的状态**：(b) caption 共训与 (f) 丢头重训 **已有**；(a) 浅层冻结与 (d) 20 维部分统一布局 **部分**（冻结需列 18 条精确路径，mask 只有 OFT 头消费）；(c) 多头共监督与 (e) wrap-aware loss **缺失**。复现 VLAct 的工程量集中在一个新框架 `QwenMultiHead` 与一个动作空间 transform——两者都已在下面的扩展包里实现。
+
+### [5.1 VLAct Extension for StarVLA（code/vlact_ext）](#content)
+
+把上面"部分 / 缺失"的四项实现为一个**不修改 StarVLA 源码**即可拷入的扩展包（详见 [`code/vlact_ext/README.md`](code/vlact_ext/README.md)）：
+
+| 配方 | 文件 | 实现 |
+|---|---|---|
+| (a) 浅层冻结 | `freeze_rules.py` | `re:<regex>`、`path.layers[lo:hi]`、`llm_layers_below:N` 三种语法，展开成 StarVLA 原生可解析的精确路径；`install_into_starvla()` 一行 monkeypatch 让 yaml 直接用新语法 |
+| (c) 多头共监督 | `multihead_framework.py` | `Qwen_MultiHead(baseframework)`，注册名 `QwenMultiHead`：一次骨干前向，OFT + GR00T + PI 三头各算 loss，`action_loss = Σ w_h·L_h`，每头可开关 / 加权，`predict_action(head=...)` 路由；复用 StarVLA 现有头的构造函数 |
+| (d) 20 维统一布局 | `unified_action_layout.py` | dict 驱动的 `robot_tag → 槽位` 映射（加新本体只改 dict），`to_unified` / `from_unified`，样本级 transform 附加 `action_mask` / `periodic_mask`，含 DataConfig `make_dataset` 钩子 |
+| (e) wrap-aware L1 | `wrap_aware_loss.py` | `wrap_to_pi`、残差 wrap、`masked_wrap_aware_l1`（torch / numpy）；对 PI / GR00T 作用于单步样本估计 `x1_hat = x_t + (1−t)·v̂` |
+| (b)(f) | `configs/vlact_pretrain_example.yaml` | 完整的 VLAct 持续预训练配置：冻结列表、`loss_scale.vlm: 0.5`、`data_mix`、三头开关与权重、动作布局、下游丢头重训写法 |
+
+```bash
+python3 -m pytest code/vlact_ext/tests -q     # 60 passed, 1 skipped（CPU，mock 骨干，约 30 s）
+```
+
+已在 CPU 上验证：loss 边界（+179° vs −179° 的残差 ≈ 2°）、mask 不产生 NaN、Franka 7 维 / AgileX 14 维 ↔ 20 维 round-trip、三种冻结语法与语法糖的参数集合一致、三头 loss 求和与 `predict_action` 路由、示例 yaml 与各头 DefaultConfig 的字段合并。**未在 GPU 上验证**：真实 Qwen3-VL-4B + 三个真实头在 bf16 / DeepSpeed 下的前向与显存、flow-matching loss 与原头实现的数值等价、真实 LeRobot 数据上的 `make_dataset` 钩子。这些是[路线图](reports/07_research_roadmap.md)第 1 个月"复现 VLAct"的起点。
 
 ## [6. Benchmarks Cheat Sheet](#content)
 
@@ -911,6 +935,8 @@ awesome_starvla/
 │   ├── awesome_starvla_slides.tex  # Beamer 源码（XeLaTeX + ctex，16:9）
 │   ├── awesome_starvla_slides.pdf  # 29 页
 │   ├── awesome_starvla_full_report.html / .pdf   # 44 页合订全文报告
+├── code/
+│   └── vlact_ext/                  # VLAct 缺失组件的 StarVLA 扩展（多头框架、wrap loss、统一布局、冻结规则）+ 61 个测试
 ├── assets/
 │   ├── papers_curated.md           # 120 条文献编目（README 第 4 节的源）
 │   ├── starvla_code_facts.md       # 代码库硬事实卡片（数字、路径、接口签名）
