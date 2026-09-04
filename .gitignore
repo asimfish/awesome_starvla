@@ -1,0 +1,11 @@
+.work/
+.DS_Store
+report/*.aux
+report/*.log
+report/*.nav
+report/*.out
+report/*.snm
+report/*.toc
+report/*.vrb
+report/build.log
+__pycache__/

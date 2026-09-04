@@ -1,0 +1,11 @@
+{
+  "issue_count": 1,
+  "issues": [
+    {
+      "page": 15,
+      "code": "font_size_drift",
+      "severity": "error",
+      "message": "Page 15: block set at 8.35pt but the original at this position is 9.95pt (ratio 0.84 vs page median 0.92) at x=91.3, y=538.2: 表8：协同训练策略对多模态理解、空间定位和机器人操作的影响（来自基于StarVLA 的空间引导协"
+    }
+  ]
+}

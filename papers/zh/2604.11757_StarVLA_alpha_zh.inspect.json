@@ -1,0 +1,29 @@
+{
+  "issue_count": 4,
+  "issues": [
+    {
+      "page": 16,
+      "code": "untranslated_block",
+      "severity": "error",
+      "message": "Page 16: paragraph still in English (14 words, 0 CJK chars) at x=93.4, y=145.8: described in Sec. A.2. Benchmark details. Detailed descr"
+    },
+    {
+      "page": 16,
+      "code": "untranslated_block",
+      "severity": "error",
+      "message": "Page 16: paragraph still in English (19 words, 0 CJK chars) at x=93.4, y=171.4: 2.0, RoboCasa-GR1, and RoboChallenge, are described in S"
+    },
+    {
+      "page": 16,
+      "code": "untranslated_block",
+      "severity": "error",
+      "message": "Page 16: paragraph still in English (21 words, 0 CJK chars) at x=93.4, y=197.0: ture details are described in Sec. C.4. More ablation st"
+    },
+    {
+      "page": 16,
+      "code": "untranslated_block",
+      "severity": "error",
+      "message": "Page 16: paragraph still in English (23 words, 0 CJK chars) at x=93.4, y=222.6: all-in-one setting are described in Sec. D.5. Large-scal"
+    }
+  ]
+}
