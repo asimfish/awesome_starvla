@@ -532,6 +532,10 @@ class Qwen_MultiHead(baseframework):
         with _autocast(torch.bfloat16):
             outputs = self.qwen_vl_interface(**inputs, output_attentions=False, output_hidden_states=True, return_dict=True)
             hidden_states = tuple(outputs.hidden_states)
+            if hidden_states[-1].device.type != "cuda":
+                # On CUDA the heads run under autocast(float32) exactly like StarVLA's own frameworks, which
+                # reconciles the bf16 backbone with fp32 heads. CPU has no such autocast: cast explicitly.
+                hidden_states = tuple(h.float() for h in hidden_states)
             pi_embs = None
             if "pi" in self.heads:
                 n = len(self.project_layers)
