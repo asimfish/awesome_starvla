@@ -84,7 +84,7 @@ RoboTwin 2.0 常规（马尔可夫）任务上，EventVLA 相对 QwenOFT 基线 
 **局限与未回答的问题**
 
 1. 缓冲有界（作者自述）：超过 10 分钟、事件密集的任务会饱和并淘汰早期证据；层次化或压缩记忆是下一步。
-2. 关键帧真值依赖 Qwen3-VL 离线标注，标注质量的上限决定 KEM 的上限；论文没有报告标注错误率。
+2. 关键帧真值依赖 Qwen3-VL 离线标注，标注质量的上限决定 KEM 的上限；论文没有报告标注错误率。开源实现里训练标签实际是仿真脚本专家打的 oracle 关键帧，标注管线未发布，见 [11 · 代码审计](11_eventvla_code_audit.md) §3。
 3. 只在 OFT 头上验证。KEM 与 flow-matching 头（PI / GR00T）共存时，隐状态 $h_t$ 的语义是否仍然"包含未来计划"，需要实验。
 4. 与 VLAct 配方的叠加未做：VLAct 是持续预训练阶段的骨干配方，EventVLA 是下游架构改动，两者正交，可以直接组合（见 §6）。
 
@@ -93,4 +93,5 @@ RoboTwin 2.0 常规（马尔可夫）任务上，EventVLA 相对 QwenOFT 基线 
 - **路线图 D1（记忆与长程）**：EventVLA 就是 D1 路线 (i)"压缩历史"之外的第四条路——稀疏事件记忆；RoboTwin-MeM 是 D1 应当采用的评测。已在 [07 · 路线图](07_research_roadmap.md) D1 中更新。
 - **基准 §5.4**：RoboTwin-MeM（8 任务、n 可控）与 RMBench 填上了"没有好记忆基准"的空白，已在 [06](06_benchmarks_landscape.md) 中补注。
 - **可直接做的实验**：用 VLAct 骨干替换 EventVLA 的 Qwen3-VL 初始化，其余不变，看 RoboTwin-MeM 是否叠加提升；以及把 KEM 头加进 [`code/vlact_ext`](../code/vlact_ext/) 的 `QwenMultiHead`，检验多头共监督下 KEM 的预测是否更准。
+- **代码层核对**：论文与开源实现的差异（N_max 4 vs 5、λ 1.0 vs 0.1、NMS / 冷却 20 vs 8 / 10、课程只在 10k–40k 步过渡、锚点在前记忆在后、每 chunk 最多 1 个事件、评测客户端只在前 3 次写入后 replan）与第三方复现坑，见 [11 · EventVLA 代码审计](11_eventvla_code_audit.md)。
 - **代码入口**：`code/EventVLA/EventVLA/`（模型与训练）、`code/EventVLA/RoboTwin-Mem/`（基准）；模型 checkpoint 与 StarVLA `from_pretrained` 兼容。

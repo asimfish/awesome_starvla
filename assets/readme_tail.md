@@ -91,7 +91,7 @@ awesome_starvla/
 ├── papers/
 │   ├── en/                         # 七篇论文英文原版 PDF（arXiv，均 CC BY 4.0）
 │   └── zh/                         # 保版式中文翻译 PDF + 翻译缓存 + QA 报告
-├── reports/                        # 10 份中文深度报告（01–10）
+├── reports/                        # 11 份中文深度报告（01–11）
 ├── report/
 │   ├── awesome_starvla_slides.tex  # Beamer 源码（XeLaTeX + ctex，16:9）
 │   ├── awesome_starvla_slides.pdf  # 29 页
