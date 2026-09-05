@@ -161,6 +161,12 @@ def main(cfg: Any) -> None:
     optimizer, lr_scheduler = build_optimizer_and_scheduler(
         vla, cfg, lab, scheduler_factory, fallback=lambda m, c: base.setup_optimizer_and_scheduler(model=m, cfg=c)
     )
+    if lab.llrd.enabled:
+        layer_groups = [g for g in optimizer.param_groups if "layer_index" in g]
+        others = ", ".join(f"{g.get('name', '?')}={g['lr']:.2e}" for g in optimizer.param_groups if "layer_index" not in g)
+        span = (f"layer {layer_groups[0]['layer_index']} lr {layer_groups[0]['lr']:.2e} ... "
+                f"layer {layer_groups[-1]['layer_index']} lr {layer_groups[-1]['lr']:.2e}") if layer_groups else "no trainable layers"
+        print(f"[starvla_lab] LLRD groups: {len(layer_groups)} decoder layers ({span}); {others}")
     if mode == "cotrain":
         trainer = base.VLAMTrainer(cfg=cfg, model=vla, vla_train_dataloader=vla_loader, vlm_train_dataloader=vlm_loader,
                                    optimizer=optimizer, lr_scheduler=lr_scheduler, accelerator=base.accelerator)
