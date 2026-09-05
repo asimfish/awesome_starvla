@@ -95,10 +95,17 @@ def main(cfg: Any) -> None:
     trainer.prepare_training()
 
     if lab.any_enabled():
+        # StarVLA's LeRobot collate_fn returns the raw list of sample dicts, so slicing gives a fixed probe batch.
         probe_batch = next(iter(vla_loader))[: lab.probes.probe_batch_size] if lab.probes.enabled else None
         hooks = LabHooks(trainer, lab, extract_fn=qwen_layer_extract_fn if lab.probes.enabled else None, probe_batch=probe_batch)
         attach_to_trainer(trainer, hooks)
     trainer.train()
+
+    import torch.distributed as dist  # same shutdown as StarVLA's own main()
+
+    if dist.is_initialized():
+        dist.barrier()
+        dist.destroy_process_group()
 
 
 if __name__ == "__main__":

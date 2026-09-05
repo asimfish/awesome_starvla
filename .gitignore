@@ -9,3 +9,6 @@ report/*.toc
 report/*.vrb
 report/build.log
 __pycache__/
+.pytest_cache/
+.venv-starvla/
+*.egg-info/

@@ -37,6 +37,16 @@ python3 -m unittest discover -s code/vlact_ext/tests -t code
 
 测试环境只需 `torch`、`numpy`（系统 python3.9 已有）。多头框架测试通过依赖注入（`Qwen_MultiHead(config, vlm=..., heads=..., project_layers=...)`）用 mock 骨干与极小头运行，不需要 transformers / omegaconf / StarVLA。
 
+**与真实 StarVLA 一起跑（推荐上手路径）**：StarVLA 要求 Python ≥ 3.10，用仓库脚本建一个独立环境，然后同一套测试在 StarVLA 可导入时也要全绿，再跑集成冒烟：
+
+```bash
+bash scripts/setup_cpu_env.sh                          # .venv-starvla：py3.12 + CPU torch + StarVLA 可编辑安装（约 1 分钟）
+PYTHONPATH=code:../starVLA_code .venv-starvla/bin/python -m pytest code/vlact_ext/tests code/starvla_lab/tests -q   # 169 passed, 2 skipped
+PYTHONPATH=code:../starVLA_code .venv-starvla/bin/python scripts/smoke_starvla_integration.py
+```
+
+冒烟脚本用 StarVLA 真实的 `MLP_ActionHeader` / `GR00T_ActionHeader` / `LayerwiseFM_ActionHeader` 工厂构造三个缩小的头，注入 `Qwen_MultiHead`，验证三头前向 / 反传 / 逐头 `predict_action`，并检查 `flow_matching_loss` 与两个原头 `forward` 在同一随机种子下逐位相等。注入 `vlm=` / `heads=` 时框架**不会**再与 `QwenMultiHeadDefaultConfig` 深合并（否则单测里的小配置会被 Qwen3-VL-4B 的默认值覆盖）；只有走默认构造（不注入）才合并。
+
 ## 2. 怎么拷进 StarVLA
 
 推荐布局（`<StarVLA>` 为仓库根目录）：
@@ -153,8 +163,8 @@ masked_wrap_aware_l1(pred, target, active_mask=None, periodic_mask=None, period=
 
 ## 5. 哪些行为只在 CPU/mock 上验证、需要 GPU 复核
 
-* 用真实 `get_vlm_model`（Qwen3-VL-4B 权重）与真实三头构造 `Qwen_MultiHead`，以及 `forward`/`predict_action` 在 bf16 autocast 下的数值与显存（三头 + `repeated_diffusion_steps` 会显著增加 DiT 前向次数）。
-* `flow_matching_loss` 与 `FlowmatchingActionHead.forward` / `LayerwiseFlowmatchingActionHead.forward` 的逐项等价（代码逐行对照过，但没有在真实 DiT 上做数值对比；目标 tensor 同样用 `last_hidden.dtype`，DeepSpeed bf16 下与头的权重 dtype 一致，但 loss 归约升到 fp32 计算）。
+* 用真实 `get_vlm_model`（Qwen3-VL-4B 权重）构造 `Qwen_MultiHead`，以及 `forward`/`predict_action` 在 bf16 autocast 下的数值与显存（三头 + `repeated_diffusion_steps` 会显著增加 DiT 前向次数）。真实三头的**构造与前向**已在 CPU 上用缩小尺寸验证（`scripts/smoke_starvla_integration.py`），GPU 上待验的是 4B 骨干 + 默认尺寸头。
+* ~~`flow_matching_loss` 与原头 `forward` 的数值等价~~ **已验证**：`smoke_starvla_integration.py` 在同一随机种子下对 `FlowmatchingActionHead` 与 `LayerwiseFlowmatchingActionHead` 各比一次，velocity loss 逐位相等（atol 1e-6）。两边都先 `randn` 再 `sample_time`，所以随机数序列一致。bf16 下的行为仍需 GPU 复核（目标 tensor 用 `last_hidden.dtype`，loss 归约升到 fp32）。
 * `install_into_starvla` 在 Accelerate/DeepSpeed 启动流程中的顺序（`setup_optimizer_and_scheduler` 先于 `prepare_training` 里的冻结，与原实现一致，但未实跑）。
 * `make_dataset_hook` 返回的 `LeRobotSingleDataset` 子类在 `LeRobotMixtureDataset` 中的行为（依赖真实 LeRobot 数据）。
 * 部署链路：`server_policy.py` 透传 `head` / `robot_tag` → `from_unified` → `PolicyNormProcessor.unapply_actions`。
@@ -170,4 +180,5 @@ masked_wrap_aware_l1(pred, target, active_mask=None, periodic_mask=None, period=
 ## 7. 后续改动记录
 
 - 2026-09-05：`Qwen_MultiHead` 增加 `active_heads`（默认 `None` = 全部启用的头参与 loss；由 `starvla_lab.train.LabHooks` 按步设置以实现头 dropout，空或未知名称回退为全部头）；行为不变时测试不受影响（60 passed, 1 skipped）。
+- 2026-09-05（真实 StarVLA 集成）：(1) 注入 `vlm=` 与 `heads=` 时不再与 `QwenMultiHeadDefaultConfig` 合并——此前只要 StarVLA 可导入就会合并，导致 mock 单测在 py3.12 环境下 11 个失败（`head_weights` 被默认 1.0 覆盖、`action_horizon` 变 16）；(2) `to_pil_preserve` 改为包装函数：StarVLA 可导入时用其实现，但对单测里的字符串占位图像直通；(3) `Qwen_MultiHeadLab` 同步只在非注入路径合并默认配置。新增 `scripts/smoke_starvla_integration.py` 与 `scripts/setup_cpu_env.sh`。py3.12 + StarVLA：169 passed, 2 skipped（两个 skip 是"无 StarVLA 时必须报 ImportError"与可选的迷你 Qwen3-VL 冻结路径核对）。
 - 已知偏差：GR00T 头以 `state_dim: 0` 构建、本体状态改走文本，与 GR00T 论文及 StarVLA 原生 `QwenGR00T` 的"状态进 System 1"不同；比较时须注明。

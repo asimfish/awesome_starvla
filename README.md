@@ -69,6 +69,10 @@ StarVLA 团队或直接基于 StarVLA 代码库构建的工作以 ⭐ 标记。
 	<td>&emsp;<a href="#51-vlact-extension-for-starvla-codevlact_ext">5.1 VLAct Extension for StarVLA（code/vlact_ext）</a></td>
 	<td>&emsp;<a href="#52-improvement-lab-codestarvla_lab">5.2 Improvement Lab（code/starvla_lab）</a></td>
 </tr>
+<tr>
+	<td>&emsp;<a href="#53-跑通与-starvla-的真实集成cpu无需权重">5.3 跑通与 StarVLA 的真实集成（CPU，无需权重）</a></td>
+	<td></td>
+</tr>
 <tr><td colspan="2"><a href="#6-benchmarks-cheat-sheet">6. Benchmarks Cheat Sheet</a></td></tr>
 <tr><td colspan="2"><a href="#7-research-roadmap">7. Research Roadmap</a></td></tr>
 <tr><td colspan="2"><a href="#8-repository-layout">8. Repository Layout</a></td></tr>
@@ -85,7 +89,7 @@ StarVLA 团队或直接基于 StarVLA 代码库构建的工作以 ⭐ 标记。
 | 1 小时 | [01 · VLAct 精读](reports/01_vlact_deep_dive.md) → [05 · 动作头与动作表示](reports/05_action_heads_and_representation.md) → [07 · 研究路线图](reports/07_research_roadmap.md) |
 | 动手做改进 | [10 · 改进方案](reports/10_improvement_plan.md)（研究问题 → 工作包 → 实验矩阵 → 决策门） → [`code/starvla_lab/README.md`](code/starvla_lab/README.md)（怎么接进 StarVLA） → [`experiments/README.md`](experiments/README.md)（运行清单与结果台账）；动 EventVLA 之前先读 [11 · EventVLA 代码审计](reports/11_eventvla_code_audit.md)（论文 vs 代码差异、复现坑、改进落点） |
 | 搞懂四个动作头 | [08 · 讲稿：FAST / OFT / PI / GR00T](reports/08_action_heads_lecture.md)（60 分钟组会讲稿，含直觉、公式、训练/推理、StarVLA 实现、选型问答）+ [讲解幻灯片](report/action_heads_lecture_slides.pdf)（20 页）+ 四篇源论文中译（`papers/zh/`） |
-| 准备上手代码 | [02 · StarVLA 代码库解析](reports/02_starvla_codebase_analysis.md)（第 9 章是 VLAct 配方在代码中的落点，第 11 章是最短上手命令序列） → [06 · 基准生态](reports/06_benchmarks_landscape.md)（第 5 章是基准选择建议） → [`code/vlact_ext/README.md`](code/vlact_ext/README.md)（怎么把多头 / wrap loss / 统一布局拷进 StarVLA） |
+| 准备上手代码 | [02 · StarVLA 代码库解析](reports/02_starvla_codebase_analysis.md)（第 9 章是 VLAct 配方在代码中的落点，第 11 章是最短上手命令序列） → [06 · 基准生态](reports/06_benchmarks_landscape.md)（第 5 章是基准选择建议） → [`code/vlact_ext/README.md`](code/vlact_ext/README.md)（怎么把多头 / wrap loss / 统一布局拷进 StarVLA） → [§5.3](#53-跑通与-starvla-的真实集成cpu无需权重) 用 `scripts/setup_cpu_env.sh` + `scripts/smoke_starvla_integration.py` 在笔记本上把真实 StarVLA 头跑一遍（不需要 GPU 和权重） |
 | 系统研读 | 按 04 → 03 → 01 → 02 → 05 → 06 → 07 的顺序读 `reports/`，配 `papers/zh/` 中文 PDF 对照原文 |
 
 ## [2. Core Readings](#content)
@@ -909,7 +913,7 @@ _Johan Bjorck et al._（NVIDIA）— 双系统：Eagle-2 VLM（第 12 层特征�
 | (b)(f) | `configs/vlact_pretrain_example.yaml` | 完整的 VLAct 持续预训练配置：冻结列表、`loss_scale.vlm: 0.5`、`data_mix`、三头开关与权重、动作布局、下游丢头重训写法 |
 
 ```bash
-python3 -m pytest code/vlact_ext/tests -q     # 60 passed, 1 skipped（CPU，mock 骨干，约 30 s）
+python3 -m pytest code/vlact_ext/tests -q     # 60 passed, 1 skipped（系统 python3.9 即可：CPU，mock 骨干，约 30 s）
 ```
 
 ### [5.2 Improvement Lab（code/starvla_lab）](#content)
@@ -927,11 +931,23 @@ python3 -m pytest code/vlact_ext/tests -q     # 60 passed, 1 skipped（CPU，moc
 | `configs/` + `experiments/` | §3 | `protocol_f1.yaml`、`matrix_R0_R9.yaml` → `scripts/build_run_matrix.py` → `experiments/run_matrix*.csv`（主矩阵 92 次 + 跨头 16 次）与 `budget.md`（预训练 7,300 + 下游 13,800 ≈ 21,000 GPU 小时） |
 
 ```bash
-python3 -m pytest code/starvla_lab/tests -q          # 110 passed
+python3 -m pytest code/starvla_lab/tests -q          # 110 passed（系统 python3.9 即可）
 python3 scripts/build_run_matrix.py --print-commands 2
 ```
 
-已在 CPU 上验证：loss 边界（+179° vs −179° 的残差 ≈ 2°）、mask 不产生 NaN、Franka 7 维 / AgileX 14 维 ↔ 20 维 round-trip、三种冻结语法与语法糖的参数集合一致、三头 loss 求和与 `predict_action` 路由、示例 yaml 与各头 DefaultConfig 的字段合并。**未在 GPU 上验证**：真实 Qwen3-VL-4B + 三个真实头在 bf16 / DeepSpeed 下的前向与显存、flow-matching loss 与原头实现的数值等价、真实 LeRobot 数据上的 `make_dataset` 钩子。这些是[路线图](reports/07_research_roadmap.md)第 1 个月"复现 VLAct"的起点。
+### [5.3 跑通与 StarVLA 的真实集成（CPU，无需权重）](#content)
+
+StarVLA 要求 Python ≥ 3.10（源码用了 `str | None` 注解），所以真实集成要单独建环境；`starVLA_code/` 是 [starVLA/starVLA](https://github.com/starVLA/starVLA) 的 checkout，放在本仓库旁边：
+
+```bash
+bash scripts/setup_cpu_env.sh                          # 一次：uv 建 .venv-starvla（py3.12）+ CPU torch + StarVLA 可编辑安装
+PYTHONPATH=code:../starVLA_code .venv-starvla/bin/python -m pytest code/vlact_ext/tests code/starvla_lab/tests -q   # 169 passed, 2 skipped
+PYTHONPATH=code:../starVLA_code .venv-starvla/bin/python scripts/smoke_starvla_integration.py                       # 约 15 s
+```
+
+`smoke_starvla_integration.py` 用 StarVLA **真实的三个头工厂**（`L1RegressionActionHead` / `FlowmatchingActionHead` / `LayerwiseFlowmatchingActionHead`，缩到 CPU 尺寸）和一个随机初始化、但模块树与 Qwen3-VL 完全一致的迷你骨干，依次验证：`QwenMultiHead` 三头前向 / 反传 / 逐头 `predict_action`；`flow_matching_loss` 与两个原头 `forward` 在同一随机种子下逐位相等（atol 1e-6）；`llm_layers_below:1` 冻结规则 + LLRD 参数组（冻结层不进优化器、层越深 lr 越大）；头 dropout 每步轮换；探针每 2 步写 JSONL 并驱动 LLRD；辅助数据调度把 `loss_scale.vlm` 写回配置。
+
+**仍需 GPU**：真实 Qwen3-VL-4B 权重 + 三头在 bf16 / DeepSpeed 下的前向与显存、真实 LeRobot 数据上的 `make_dataset` 钩子、任何训练效果数字。这些是[路线图](reports/07_research_roadmap.md)第 1 个月"复现 VLAct"的起点。
 
 ## [6. Benchmarks Cheat Sheet](#content)
 

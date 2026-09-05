@@ -116,7 +116,7 @@ class Qwen_MultiHeadLab(Qwen_MultiHead):
         aux_heads: Optional[Mapping[str, nn.Module]] = None,
         **kwargs,
     ) -> None:
-        if _STARVLA_AVAILABLE and config is not None:
+        if _STARVLA_AVAILABLE and vlm is None and heads is None:
             config = merge_framework_config(QwenMultiHeadLabDefaultConfig, config)
         super().__init__(config, vlm=vlm, heads=heads, project_layers=project_layers, **kwargs)
         self._encoded: Optional[Tuple[Any, torch.Tensor]] = None

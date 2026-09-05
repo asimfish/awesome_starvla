@@ -137,7 +137,9 @@ experiments/
 - [x] `starvla_lab/configs` + `scripts/build_run_matrix.py` → `experiments/run_matrix*.csv` + `experiments/budget.md`
 - [x] `starvla_lab/README.md`、`experiments/README.md`
 
-阶段 A 完成：`python3 -m pytest code/starvla_lab/tests -q` → 110 passed；`python3 -m pytest code/vlact_ext/tests -q` → 60 passed, 1 skipped。
+- [x] 与真实 StarVLA 的 CPU 集成：`scripts/setup_cpu_env.sh`（py3.12 环境）+ `scripts/smoke_starvla_integration.py`（真实三头工厂 + `QwenMultiHead` + 全部 `LabHooks` 钩子；`flow_matching_loss` 与原头 `forward` 逐位相等）
+
+阶段 A 完成：`python3 -m pytest code/starvla_lab/tests -q` → 110 passed；`python3 -m pytest code/vlact_ext/tests -q` → 60 passed, 1 skipped（系统 python3.9，mock 骨干）；py3.12 + StarVLA 可导入时两包合跑 → 169 passed, 2 skipped，冒烟脚本通过。
 
 ## 8. 已知偏差与解释约束
 

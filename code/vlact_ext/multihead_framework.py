@@ -94,11 +94,20 @@ except ImportError:  # stand-ins so the file imports (and the class can be unit-
 
 
 try:
-    from deployment.model_server.tools.image_tools import to_pil_preserve
+    from deployment.model_server.tools.image_tools import to_pil_preserve as _starvla_to_pil
 except ImportError:
+    _starvla_to_pil = None
 
-    def to_pil_preserve(images):
+
+def to_pil_preserve(images):
+    """Preserve PIL / ndarray images; pass through mock placeholders used in CPU unit tests."""
+    if _starvla_to_pil is None:
         return images
+    if isinstance(images, str):
+        return images
+    if isinstance(images, list) and images and isinstance(images[0], str):
+        return images
+    return _starvla_to_pil(images)
 
 
 try:
@@ -364,15 +373,15 @@ class Qwen_MultiHead(baseframework):
         **kwargs,
     ) -> None:
         super().__init__()
-        if _STARVLA_AVAILABLE:
+        if vlm is not None and heads is not None:
+            self.config = config
+        elif _STARVLA_AVAILABLE:
             self.config = merge_framework_config(QwenMultiHeadDefaultConfig, config)
         else:
-            if vlm is None or heads is None:
-                raise ImportError(
-                    "StarVLA is not importable: Qwen_MultiHead can only be constructed with injected "
-                    "`vlm=` and `heads=` (copy this file into StarVLA for the default constructors)."
-                )
-            self.config = config
+            raise ImportError(
+                "StarVLA is not importable: Qwen_MultiHead can only be constructed with injected "
+                "`vlm=` and `heads=` (copy this file into StarVLA for the default constructors)."
+            )
 
         fw = self.config.framework
         shared_am = _to_plain(fw.action_model)

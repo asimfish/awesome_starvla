@@ -29,7 +29,7 @@
 | (b)(f) | `configs/vlact_pretrain_example.yaml` | 完整的 VLAct 持续预训练配置：冻结列表、`loss_scale.vlm: 0.5`、`data_mix`、三头开关与权重、动作布局、下游丢头重训写法 |
 
 ```bash
-python3 -m pytest code/vlact_ext/tests -q     # 60 passed, 1 skipped（CPU，mock 骨干，约 30 s）
+python3 -m pytest code/vlact_ext/tests -q     # 60 passed, 1 skipped（系统 python3.9 即可：CPU，mock 骨干，约 30 s）
 ```
 
 ### [5.2 Improvement Lab（code/starvla_lab）](#content)
@@ -47,11 +47,23 @@ python3 -m pytest code/vlact_ext/tests -q     # 60 passed, 1 skipped（CPU，moc
 | `configs/` + `experiments/` | §3 | `protocol_f1.yaml`、`matrix_R0_R9.yaml` → `scripts/build_run_matrix.py` → `experiments/run_matrix*.csv`（主矩阵 92 次 + 跨头 16 次）与 `budget.md`（预训练 7,300 + 下游 13,800 ≈ 21,000 GPU 小时） |
 
 ```bash
-python3 -m pytest code/starvla_lab/tests -q          # 110 passed
+python3 -m pytest code/starvla_lab/tests -q          # 110 passed（系统 python3.9 即可）
 python3 scripts/build_run_matrix.py --print-commands 2
 ```
 
-已在 CPU 上验证：loss 边界（+179° vs −179° 的残差 ≈ 2°）、mask 不产生 NaN、Franka 7 维 / AgileX 14 维 ↔ 20 维 round-trip、三种冻结语法与语法糖的参数集合一致、三头 loss 求和与 `predict_action` 路由、示例 yaml 与各头 DefaultConfig 的字段合并。**未在 GPU 上验证**：真实 Qwen3-VL-4B + 三个真实头在 bf16 / DeepSpeed 下的前向与显存、flow-matching loss 与原头实现的数值等价、真实 LeRobot 数据上的 `make_dataset` 钩子。这些是[路线图](reports/07_research_roadmap.md)第 1 个月"复现 VLAct"的起点。
+### [5.3 跑通与 StarVLA 的真实集成（CPU，无需权重）](#content)
+
+StarVLA 要求 Python ≥ 3.10（源码用了 `str | None` 注解），所以真实集成要单独建环境；`starVLA_code/` 是 [starVLA/starVLA](https://github.com/starVLA/starVLA) 的 checkout，放在本仓库旁边：
+
+```bash
+bash scripts/setup_cpu_env.sh                          # 一次：uv 建 .venv-starvla（py3.12）+ CPU torch + StarVLA 可编辑安装
+PYTHONPATH=code:../starVLA_code .venv-starvla/bin/python -m pytest code/vlact_ext/tests code/starvla_lab/tests -q   # 169 passed, 2 skipped
+PYTHONPATH=code:../starVLA_code .venv-starvla/bin/python scripts/smoke_starvla_integration.py                       # 约 15 s
+```
+
+`smoke_starvla_integration.py` 用 StarVLA **真实的三个头工厂**（`L1RegressionActionHead` / `FlowmatchingActionHead` / `LayerwiseFlowmatchingActionHead`，缩到 CPU 尺寸）和一个随机初始化、但模块树与 Qwen3-VL 完全一致的迷你骨干，依次验证：`QwenMultiHead` 三头前向 / 反传 / 逐头 `predict_action`；`flow_matching_loss` 与两个原头 `forward` 在同一随机种子下逐位相等（atol 1e-6）；`llm_layers_below:1` 冻结规则 + LLRD 参数组（冻结层不进优化器、层越深 lr 越大）；头 dropout 每步轮换；探针每 2 步写 JSONL 并驱动 LLRD；辅助数据调度把 `loss_scale.vlm` 写回配置。
+
+**仍需 GPU**：真实 Qwen3-VL-4B 权重 + 三头在 bf16 / DeepSpeed 下的前向与显存、真实 LeRobot 数据上的 `make_dataset` 钩子、任何训练效果数字。这些是[路线图](reports/07_research_roadmap.md)第 1 个月"复现 VLAct"的起点。
 
 ## [6. Benchmarks Cheat Sheet](#content)
 
