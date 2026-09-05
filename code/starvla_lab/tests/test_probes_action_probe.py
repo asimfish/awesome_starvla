@@ -133,3 +133,54 @@ def test_cross_head_report_with_mlp_and_in_sample_eval():
         cross_head_probe_report({"a": H_lin[:-1]}, A)
     with pytest.raises(ValueError):
         cross_head_probe_report({}, A)
+
+
+def test_standardize_features_uses_fit_statistics_only():
+    from starvla_lab.probes import standardize_features
+
+    fit = _randn(64, 5, seed=3) * 4 + 2
+    other = _randn(16, 5, seed=4)
+    fit_z, other_z = standardize_features(fit, other)
+    assert torch.allclose(fit_z.mean(0), torch.zeros(5), atol=1e-5) and torch.allclose(fit_z.std(0, unbiased=False), torch.ones(5), atol=1e-5)
+    assert torch.allclose(other_z, (other - fit.mean(0)) / fit.std(0, unbiased=False), atol=1e-6)
+    const = torch.ones(8, 2)
+    assert torch.isfinite(standardize_features(const)[0]).all()  # zero variance is clamped, no NaN
+
+
+def test_split_indices_by_group_is_seeded_disjoint_and_per_group():
+    from starvla_lab.probes import split_indices_by_group
+
+    groups = ["goal"] * 40 + ["spatial"] * 24
+    splits = split_indices_by_group(groups, holdout=0.25, seed=1)
+    assert set(splits) == {"goal", "spatial"}
+    fit_g, eval_g = splits["goal"]
+    assert fit_g.numel() == 30 and eval_g.numel() == 10 and set(fit_g.tolist()).isdisjoint(eval_g.tolist())
+    assert all(groups[i] == "goal" for i in torch.cat([fit_g, eval_g]).tolist())
+    assert splits["spatial"][1].numel() == 6
+    again = split_indices_by_group(groups, holdout=0.25, seed=1)
+    assert torch.equal(again["goal"][0], fit_g) and torch.equal(again["goal"][1], eval_g)
+    assert not torch.equal(split_indices_by_group(groups, 0.25, seed=2)["goal"][1], eval_g)
+    with pytest.raises(ValueError):
+        split_indices_by_group(groups, holdout=1.0)
+
+
+def test_fit_ridge_probe_cv_recovers_linear_map_and_reports_identity_retention():
+    from starvla_lab.probes import fit_ridge_probe_cv
+
+    X = _randn(600, 40, seed=5)
+    W = _randn(40, 6, seed=6)
+    Y = X @ W + 0.05 * _randn(600, 6, seed=7)
+    out = fit_ridge_probe_cv(X[:480], Y[:480], X[480:], Y[480:], lambdas=(0.01, 1.0, 100.0))
+    assert out["r2"] > 0.95 and out["lambda"] in (0.01, 1.0, 100.0) and out["n_fit"] == 480 and out["n_eval"] == 120
+    assert out["inner_val_r2"] > 0.9 and 0.0 < out["mae_std"] < 0.3
+    # identity map (retention of the same representation) reads ~1; independent noise reads ~0
+    T = _randn(400, 20, seed=8)
+    assert fit_ridge_probe_cv(T[:300], T[:300], T[300:], T[300:])["r2"] > 0.999
+    assert fit_ridge_probe_cv(T[:300], _randn(300, 20, seed=9), T[300:], _randn(100, 20, seed=10))["r2"] < 0.1
+    # targets may be [N, K, D]; the probe flattens them
+    Y3 = Y.reshape(600, 2, 3)
+    assert fit_ridge_probe_cv(X[:480], Y3[:480], X[480:], Y3[480:])["r2"] > 0.95
+    with pytest.raises(ValueError):
+        fit_ridge_probe_cv(X[:480], Y[:480], X[480:], Y[480:], lambdas=())
+    with pytest.raises(ValueError):
+        fit_ridge_probe_cv(X[:480], Y[:480], X[480:], Y[480:], inner_frac=1.0)

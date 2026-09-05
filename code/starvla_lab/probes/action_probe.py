@@ -11,7 +11,7 @@ from __future__ import annotations
 import json
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Mapping, Optional, Tuple, Union
+from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple, Union
 
 import torch
 from torch import Tensor, nn
@@ -200,6 +200,75 @@ def fit_mlp_probe(
         losses.append(float(loss))
     net.eval()
     return MLPProbe(net, in_mean, in_std, out_mean, out_std, tuple(A.shape[1:]), losses)
+
+
+def standardize_features(fit: Tensor, *others: Tensor, eps: float = 1e-6) -> Tuple[Tensor, ...]:
+    """Z-score ``fit`` and every tensor in ``others`` per feature with the statistics of ``fit`` (dim 0 = samples)."""
+    mean = fit.mean(dim=0, keepdim=True)
+    std = fit.std(dim=0, unbiased=False, keepdim=True).clamp_min(eps)
+    return tuple((x - mean) / std for x in (fit, *others))
+
+
+def split_indices_by_group(groups: Sequence[str], holdout: float, seed: int = 0) -> Dict[str, Tuple[Tensor, Tensor]]:
+    """Per-group ``(fit_idx, eval_idx)`` from a seeded permutation, so every variant sees the same split.
+
+    ``holdout`` is the evaluation fraction inside each group (e.g. one benchmark suite per group).
+    """
+    if not 0.0 <= holdout < 1.0:
+        raise ValueError("holdout must be in [0, 1)")
+    out: Dict[str, Tuple[Tensor, Tensor]] = {}
+    for g in sorted(set(groups)):
+        idx = torch.tensor([i for i, x in enumerate(groups) if x == g])
+        perm = idx[torch.randperm(idx.numel(), generator=torch.Generator().manual_seed(seed))]
+        n_eval = int(round(idx.numel() * holdout))
+        out[g] = (perm[n_eval:], perm[:n_eval])
+    return out
+
+
+DEFAULT_RIDGE_GRID: Tuple[float, ...] = (0.1, 1.0, 10.0, 100.0, 1000.0, 10000.0)
+
+
+def fit_ridge_probe_cv(
+    X_fit: Tensor,
+    Y_fit: Tensor,
+    X_eval: Tensor,
+    Y_eval: Tensor,
+    lambdas: Sequence[float] = DEFAULT_RIDGE_GRID,
+    inner_frac: float = 0.2,
+    seed: int = 0,
+    device: Optional[Union[str, torch.device]] = None,
+) -> Dict[str, float]:
+    """Standardised ridge probe with the ridge strength chosen on an inner split of the fit set.
+
+    Inputs and targets are z-scored with fit-set statistics (so ``r2`` is the mean per-dimension R^2 and
+    ``mae_std`` is in target standard deviations); ``lambdas`` are tried on ``inner_frac`` of the fit set, the
+    best is refitted on the whole fit set and evaluated on ``(X_eval, Y_eval)``. Runs in fp64 on ``device``
+    (default: where ``X_fit`` lives) -- the 2560 x 2560 primal systems of token-level probes take milliseconds
+    on a GPU and seconds on a CPU. Returns ``r2``, ``mae_std``, ``lambda``, ``inner_val_r2``, ``n_fit``, ``n_eval``.
+    """
+    if not lambdas:
+        raise ValueError("lambdas must not be empty")
+    if not 0.0 < inner_frac < 1.0:
+        raise ValueError("inner_frac must be in (0, 1)")
+    dev = torch.device(device) if device is not None else X_fit.device
+    X_fit, X_eval = standardize_features(X_fit.to(dev, torch.float64), X_eval.to(dev, torch.float64))
+    Y_fit, Y_eval = standardize_features(
+        Y_fit.to(dev, torch.float64).reshape(Y_fit.shape[0], -1), Y_eval.to(dev, torch.float64).reshape(Y_eval.shape[0], -1)
+    )
+    n = X_fit.shape[0]
+    perm = torch.randperm(n, generator=torch.Generator().manual_seed(seed)).to(dev)
+    n_val = max(1, int(round(n * inner_frac)))
+    val_i, tr_i = perm[:n_val], perm[n_val:]
+    best_lam, best_r2 = None, -float("inf")
+    for lam in lambdas:
+        r2 = fit_linear_probe(X_fit[tr_i], Y_fit[tr_i], ridge=float(lam)).r2(X_fit[val_i], Y_fit[val_i])
+        if r2 > best_r2:
+            best_lam, best_r2 = float(lam), r2
+    metrics = fit_linear_probe(X_fit, Y_fit, ridge=best_lam).metrics(X_eval, Y_eval)
+    return {
+        "r2": metrics["r2"], "mae_std": metrics["mae"], "lambda": best_lam, "inner_val_r2": best_r2,
+        "n_fit": int(n), "n_eval": int(X_eval.shape[0]),
+    }
 
 
 @dataclass

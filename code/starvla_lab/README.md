@@ -4,12 +4,12 @@
 
 ```bash
 cd awesome_starvla
-python3 -m pytest code/starvla_lab/tests -q        # 122 passed（系统 python3.9，CPU，约 4 s；首次 import torch 约 20 s）
+python3 -m pytest code/starvla_lab/tests -q        # 125 passed（系统 python3.9，CPU，约 4 s；首次 import torch 约 20 s）
 python3 scripts/build_run_matrix.py --print-commands 2   # 生成 experiments/run_matrix*.csv + budget.md 并打印示例命令
 
 # 与真实 StarVLA 一起（StarVLA 需 Python >= 3.10；starVLA_code/ 是放在本仓库旁边的 StarVLA checkout）
 bash scripts/setup_cpu_env.sh                      # 一次：.venv-starvla（py3.12 + CPU torch + StarVLA 可编辑安装）
-PYTHONPATH=code:../starVLA_code .venv-starvla/bin/python -m pytest code/vlact_ext/tests code/starvla_lab/tests -q   # 181 passed, 2 skipped
+PYTHONPATH=code:../starVLA_code .venv-starvla/bin/python -m pytest code/vlact_ext/tests code/starvla_lab/tests -q   # 184 passed, 2 skipped
 PYTHONPATH=code:../starVLA_code .venv-starvla/bin/python scripts/smoke_starvla_integration.py   # 真实三头 + 全部 lab 钩子，约 15 s
 ```
 
@@ -19,7 +19,7 @@ PYTHONPATH=code:../starVLA_code .venv-starvla/bin/python scripts/smoke_starvla_i
 
 | 子包 | WP | 公共 API | 一句话 |
 |---|---|---|---|
-| `probes/` | WP1 | `fit_linear_probe` / `fit_mlp_probe` / `cross_head_probe_report`；`linear_cka` / `layerwise_cka`（可指定 GPU 算 Gram）；`DriftTracker` / `drift_to_llrd_decay`；`QwenBackboneProbe`（Qwen-VL 骨干的逐层表征提取：纯 VLM prompt、token 级或 mean-pool、提取时换回预训练 `embed_tokens`）+ `stratified_probe_batch` / `gather_probe_batch`；`ProbeSchedule` / `ProbeRunner` / `read_jsonl` | 不跑下游微调就度量骨干的"线性可读性"（探针 MAE / R²）与逐层表征漂移（1 − CKA），按步触发写 JSONL |
+| `probes/` | WP1 | `fit_linear_probe` / `fit_mlp_probe` / `fit_ridge_probe_cv`（z-score + 内层 CV 选岭系数）/ `split_indices_by_group` / `cross_head_probe_report`；`linear_cka` / `layerwise_cka`（可指定 GPU 算 Gram）；`DriftTracker` / `drift_to_llrd_decay`；`QwenBackboneProbe`（Qwen-VL 骨干的逐层表征提取：纯 VLM prompt、token 级或 mean-pool、提取时换回预训练 `embed_tokens`）+ `stratified_probe_batch` / `gather_probe_batch`；`ProbeSchedule` / `ProbeRunner` / `read_jsonl` | 不跑下游微调就度量骨干的"线性可读性"（探针 MAE / R²）与逐层表征漂移（1 − CKA），按步触发写 JSONL |
 | `schedules/` | WP2 / WP4 | `layerwise_lr_decay_groups`（复用 `vlact_ext.freeze_rules` 的路径语法，冻结参数不进优化器）；`DriftDrivenLLRD`（漂移高 → 降 lr，有下限、带滞回；可与 `LambdaLR` 协同）；`AuxDataScheduler`（`fixed` / `linear` / `drift` 三策略，输出 VLM 采样概率与 `loss_scale.vlm`，`apply_to_cfg` 写回 StarVLA 配置） | 把 VLAct 的"硬冻结 + 固定 0.5 caption 权重"变成可连续调节、可由漂移信号驱动的策略 |
 | `heads/` | WP3 | `FutureFeaturePredictionHead` + `targets_from_sequence`；`KeyframeHead` + `soft_keyframe_labels` + `keyframe_bce_loss` + `KeyframeWritePolicy`（阈值 → 1D NMS → 冷却 → FIFO）+ `EvidenceMemory` + `TeacherStudentCurriculum`；`Qwen_MultiHeadLab`（注册名 `QwenMultiHeadLab`） | 把"头多样性即正则化"推到非动作头：未来视觉特征预测（与世界模型路线汇合）与关键帧预测（EventVLA 的 KEM 思想，自行实现），作为可开关、可加权的辅助头挂在 `QwenMultiHead` 之上 |
 | `data/` | WP3b / F1 | `TrajectorySubset` / `install_fraction_hook`（按轨迹的确定性子采样，挂到 StarVLA 的 `make_LeRobotSingleDataset`）；`build_feature_cache` / `FeatureCache` / `FutureFeatureTransform`（冻结提取器逐轨迹缓存未来帧特征）；`heuristic_keyframe_steps` / `FunctionLabeler` / `KeyframeLabelTransform`（关键帧标注与块内相对步） | 数据比例曲线与两个辅助头所需的离线数据准备 |
@@ -48,7 +48,7 @@ PYTHONPATH=<awesome_starvla>/code accelerate launch --config_file starVLA/config
 
 ## 已验证与未验证
 
-**CPU 上已验证（120 个测试）**：探针 / 调度器 / 头 dropout 在 mock 训练器里按步生效、`calibrate_only` 只记录不干预、数据比例钩子只替换命名工厂、特征缓存复用不重算、关键帧标注块外裁剪；探针在合成数据上恢复已知线性映射；CKA 对同一表征为 1、对正交旋转与缩放不变；漂移→衰减系数单调有界；LLRD 分组层深单调、冻结层不进优化器、与 `LambdaLR` 协同后倍率保持；调度器三策略轨迹与饱和边界；辅助头损失在完美预测时为 0、mask 生效、全 mask 无 NaN；写入策略的阈值 / NMS / 冷却 / FIFO；`Qwen_MultiHeadLab` 用 mock 骨干前向返回全部 loss 键且可反传、关闭辅助头时与父类一致；协议矩阵只有允许的键在变、CSV 往返、结果聚合。
+**CPU 上已验证（125 个测试）**：探针 / 调度器 / 头 dropout 在 mock 训练器里按步生效、`calibrate_only` 只记录不干预、数据比例钩子只替换命名工厂、特征缓存复用不重算、关键帧标注块外裁剪；探针在合成数据上恢复已知线性映射；CKA 对同一表征为 1、对正交旋转与缩放不变；漂移→衰减系数单调有界；LLRD 分组层深单调、冻结层不进优化器、与 `LambdaLR` 协同后倍率保持；调度器三策略轨迹与饱和边界；辅助头损失在完美预测时为 0、mask 生效、全 mask 无 NaN；写入策略的阈值 / NMS / 冷却 / FIFO；`Qwen_MultiHeadLab` 用 mock 骨干前向返回全部 loss 键且可反传、关闭辅助头时与父类一致；协议矩阵只有允许的键在变、CSV 往返、结果聚合。
 
 **CPU 上与真实 StarVLA 一起验证（`scripts/smoke_starvla_integration.py`）**：StarVLA 真实的 OFT / GR00T / PI 头工厂构造的头注入 `QwenMultiHead` 后三头前向 / 反传 / 逐头推理；在模块树与 Qwen3-VL 一致的迷你骨干上，`llm_layers_below:1` 冻结 + `layerwise_lr_decay_groups`（冻结层不进优化器、lr 随层深单调）、`LabHooks` 的头 dropout 轮换、探针每 N 步写 JSONL 并驱动 `DriftDrivenLLRD`、`AuxDataScheduler` 把 `loss_scale.vlm` 写回配置，全部在同一个 8 步 mock 训练循环里生效。
 
@@ -65,6 +65,6 @@ starvla_lab/
 ├── train/       lab_config.py  integration.py  train_starvla_lab.py
 ├── bench/       backbone_bench.py  overhead_bench.py
 ├── configs/     protocol_f1.yaml  matrix_R0_R9.yaml
-├── tests/       test_{probes,schedules,heads,data,train,bench}_*.py（120 个）
+├── tests/       test_{probes,schedules,heads,data,train,bench}_*.py（125 个）
 └── pytest.ini
 ```

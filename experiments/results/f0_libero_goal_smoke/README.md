@@ -1,6 +1,6 @@
 # F0 · 真实数据微调冒烟：LIBERO-goal，QwenOFT vs QwenMultiHead（1 卡，各 300 步；v2 诊断 + v3 修正后的探针）
 
-**三句话结论。** (1) `starvla_lab.train.train_starvla_lab` + `vlact_ext.QwenMultiHead` 在真实 LeRobot 数据上端到端跑通，三头模型每步 2.70 s / 47 GB，单头 OFT 1.86 s / 30 GB（1.45×）。(2) 同一数据、同一超参、头学习率对齐到 1e-4 后，**三头模型里 OFT 头最后 50 步的 L1 损失 0.243，与单头 OFT 的 0.244 相同**——300 步内多加 GR00T 与 PI 两个 flow-matching 头对 OFT 头没有任何损害。(3) 训练中记录的"逐层表征漂移"曲线**不能直接用**：诊断表明它几乎全部来自 `embed_tokens` 里 42–46 行 prompt 词嵌入的更新（相对 Frobenius 变化仅 ~2e-5）被一个近退化的探针批放大；把预训练嵌入换回去后，OFT 微调的骨干几乎没动（可训练层 1−CKA = 0.0002），而三头模型的上层动了约 20 倍（0.0038，第 35 层 0.019）。这直接改写了方案 WP1 / M1 对漂移度量的定义。**v3（§3.5）把修正后的探针接进训练循环重跑**：冻结层漂移精确为 0，单头 OFT 300 步只在第 35 层动了 2e-4，三头模型第 35 层动到 0.05（约 240×）、第 34 层 8e-4、第 33 层以下 < 1e-4，曲线单调、约 225 次更新后饱和；冻结 `embed_tokens` 的消融损失不变（0.247 vs 0.251）、漂移读数与"探针时换回嵌入"一致。
+**三句话结论。** (1) `starvla_lab.train.train_starvla_lab` + `vlact_ext.QwenMultiHead` 在真实 LeRobot 数据上端到端跑通，三头模型每步 2.70 s / 47 GB，单头 OFT 1.86 s / 30 GB（1.45×）。(2) 同一数据、同一超参、头学习率对齐到 1e-4 后，**三头模型里 OFT 头最后 50 步的 L1 损失 0.243，与单头 OFT 的 0.244 相同**——300 步内多加 GR00T 与 PI 两个 flow-matching 头对 OFT 头没有任何损害。(3) 训练中记录的"逐层表征漂移"曲线**不能直接用**：诊断表明它几乎全部来自 `embed_tokens` 里 42–46 行 prompt 词嵌入的更新（相对 Frobenius 变化仅 ~2e-5）被一个近退化的探针批放大；把预训练嵌入换回去后，OFT 微调的骨干几乎没动（可训练层 1−CKA = 0.0002），而三头模型的上层动了约 20 倍（0.0038，第 35 层 0.019）。这直接改写了方案 WP1 / M1 对漂移度量的定义。**v3（§3.5）把修正后的探针接进训练循环重跑**：冻结层漂移精确为 0，单头 OFT 300 步只在第 35 层动了 2e-4，三头模型第 35 层动到 0.05（约 240×）、第 34 层 8e-4、第 33 层以下 < 1e-4，曲线单调、约 225 次更新后饱和；冻结 `embed_tokens` 的消融损失不变（0.247 vs 0.251）、漂移读数与"探针时换回嵌入"一致。**跨头线性探针（§3.6）说明这次改写不是"写入"**：预训练 VLM 已线性编码约一半动作方差（R² 0.50），五个微调骨干都没有提高它，三头模型第 35 层反而低 0.01；token 级保留度 OFT 99.5% vs 三头 97.6%——小幅、可复现的侵蚀。
 
 ## 1. 设置
 
@@ -10,7 +10,7 @@
 | 硬件 / 软件 | 1 × A100-80GB（`tianyiyun-30110-pub2` GPU 0，与一个 1 GB 小进程共卡）；torch 2.6.0+cu124，transformers 4.57.0，StarVLA `starVLA_dev@d81fc66`；单进程、`STARVLA_DISABLE_DEEPSPEED=1`，无 DeepSpeed |
 | 配置 | [`code/starvla_lab/configs/f0_libero_goal_smoke.yaml`](../../../code/starvla_lab/configs/f0_libero_goal_smoke.yaml)：300 步，batch 8，无梯度累积，warmup 30，cosine 到 1e-6；lr 骨干 1e-5 / 头 1e-4；VLAct 式冻结 = 视觉编码器 + LLM 前 18 层（19 条精确路径，**`embed_tokens` 不在冻结集合内**）；梯度检查点开；探针 `calibrate_only`，v2 每 25 步、32 样本（训练 loader 单场景批，mean-pool）；v3 每 25 次更新、32 样本跨场景批（LIBERO-goal + LIBERO-spatial 按指令轮询，20 条指令），token 级 CKA 为主、mean-pool 为次，提取时换回预训练 `embed_tokens` |
 | 运行 | A `QwenOFT`（StarVLA 原生，可训练 2.27B）；B `QwenMultiHead`（`vlact_ext`，OFT + GR00T + PI，`state_dim 0`，`--trainer.learning_rate.heads 1e-4 --trainer.learning_rate.project_layers 1e-4`，可训练 3.06B）；v3 另加 C `QwenOFT` + 冻结 `embed_tokens`（20 条冻结路径，可训练 1.88B） |
-| 启动 | `scripts/cluster/run_f0_smoke.sh <framework> <run_id> [覆盖项]`；分析 `scripts/analyze_f0.py`；探针诊断 `scripts/probe_diagnostics.py` |
+| 启动 | `scripts/cluster/run_f0_smoke.sh <framework> <run_id> [覆盖项]`；分析 `scripts/analyze_f0.py`；探针诊断 `scripts/probe_diagnostics.py`；跨头探针 `scripts/cluster/run_cross_head_probe.sh` → `scripts/cross_head_probe.py` |
 
 v1（`v1/`、`v1_raw/`）是第一遍：B 的头学习率误落在 `base` 组（2.5e-5，因为 StarVLA 的 `learning_rate` 键是模块路径，`heads.*` 不匹配 `action_model`），探针 prompt 两条不一致、池化在 bf16 上做、每 50 步 16 样本。v2 修正了这三点，§2–§3 的数字来自 v2；§3.5 是 v3（探针口径按 §3 的诊断重定义后重跑，训练配置与 v2 相同）；v1 保留供对照。
 
@@ -93,6 +93,32 @@ v1（`v1/`、`v1_raw/`）是第一遍：B 的头学习率误落在 `base` 组（
 4. **冻结 `embed_tokens` 没有代价。** C 的损失 0.247（A 0.251，噪声范围内），可训练参数少 389M（= 151,936 × 2,560，正是嵌入矩阵），漂移曲线与 A 重合（第 35 层 2.9e-4 vs 2.2e-4）。两种做法——训练时冻结，或探针时换回——给出同样的骨干漂移读数，互相验证了 §3 的归因；VLAct 论文没说明嵌入是否冻结，后续实验建议直接冻结（更便宜，也让探针更简单）。
 5. **对 M1 阈值的量级提示**：在这个度量下，单头 OFT 的逐层漂移全部 < 3e-4，三头模型只有第 34–35 层超过 1e-3。`LLRDConfig` / `AuxSchedulerConfig` 里 0.10 / 0.05 的默认阈值差了两个数量级；`matrix_R0_R9.yaml` 的 R5 已改为 `drift_high 1e-2 / drift_low 1e-3` 作为起点，R3 的标定曲线出来后再定。
 
+## 3.6 WP1 跨头线性探针首跑：顶层的改写是"写入"还是"侵蚀"？
+
+§3.5 只说明三头模型把第 34–35 层改写得比单头多两个数量级，没说这改写的内容是什么。`scripts/cross_head_probe.py`（集群入口 `scripts/cluster/run_cross_head_probe.sh`，1 卡，6 个骨干共 934 s）在同一批 2,048 个样本上（LIBERO-goal 1,025 + LIBERO-spatial 1,023，20 条指令分层抽样；每套内 75% 拟合 / 25% 留出，所有变体共用同一切分、同一 token 位置、同一岭系数网格）对 6 个骨干做两种与头无关的线性度量——预训练 Qwen3-VL-4B、v3 的三个最终模型、v2 的 OFT / 三头模型作复现：
+
+- **动作可读性**：第 l 层对全部有效 token（或只对图像 token）mean-pool 的特征 → 原始动作块 [8×7]，岭回归（特征与目标都按拟合集 z-score，λ 在拟合集内 20% 上从 {0.1 … 1e4} 里选），报告留出集 R²（= 各维 R² 的均值）。
+- **保留度**：第 34 / 35 层 token 级特征（每样本 16 个固定位置，共 24,576 个拟合 token / 8,192 个留出 token）→ **预训练模型同一 token 的特征**的线性映射，留出 R²；反向（预训练 → 微调后）则度量"新表征里有多少是旧表征线性解释不了的"。
+
+| 骨干 | 可读性 goal→goal L17 / L34 / **L35** | 可读性 spatial→spatial L17 / L34 / **L35** | 保留度 L34（微调→预训练） | **保留度 L35（微调→预训练 / 反向）** |
+|---|---|---|---:|---|
+| 预训练 VLM | 0.526 / 0.496 / 0.502 | 0.461 / 0.426 / 0.410 | 1.000 | 1.000 / 1.000 |
+| A `QwenOFT` v3 | 0.527 / 0.497 / 0.504 | 0.461 / 0.427 / 0.410 | 0.996 | 0.995 / 0.995 |
+| B `QwenMultiHead` v3 | 0.527 / 0.496 / **0.493** | 0.460 / 0.424 / **0.402** | 0.987 | **0.976 / 0.967** |
+| C `QwenOFT` + 冻结嵌入 v3 | 0.526 / 0.497 / 0.501 | 0.461 / 0.427 / 0.410 | 0.999 | 0.998 / 0.998 |
+| `QwenOFT` v2（复现） | 0.527 / 0.498 / 0.505 | 0.460 / 0.426 / 0.408 | 0.996 | 0.995 / 0.995 |
+| `QwenMultiHead` v2（复现） | 0.527 / 0.497 / **0.495** | 0.459 / 0.426 / **0.405** | 0.988 | **0.977 / 0.969** |
+
+（完整数字含 L26 / L30 / L33、图像 token 池化、跨套 goal↔spatial 见 `v3/cross_head_probe.json`；跨套 R² 全部为负——在一个场景上拟合的线性动作解码器不能迁到另一个场景，所有骨干一样，无差别信息。）
+
+读法：
+
+1. **预训练 VLM 已经线性编码了约一半的动作块方差**（goal 0.50、未见过的 spatial 0.41–0.46），且在 17→35 层几乎不变——这是指令身份 + 图像里的任务阶段，不是微调学出来的。**300 步微调没有让动作从骨干里更可线性读出**：五个微调骨干与预训练的差 ≤ 0.003（第 34 层及以下），全在噪声内。
+2. **三头模型第 35 层的可读性反而低了 0.008–0.01**（goal 0.493 vs 0.502，spatial 0.402 vs 0.410；v2 复现 0.495 / 0.405；图像 token 池化同样方向）。也就是说 §3.5 里那 240× 的顶层改写，没有往 pool 出来的表征里写入线性可读的动作信息。
+3. **保留度给出量化的侵蚀**：OFT 微调后预训练第 35 层的 token 表征仍有 99.5% 可线性恢复（冻结嵌入 99.8%），三头模型只剩 **97.6%**，反向 96.7%——2–3% 的方差既不能从旧表征解释，也没让动作更可读。规模不大，但在两次独立运行里一致（v2 0.977 / 0.969），是目前最接近"先验侵蚀"的证据。
+4. **对 Q1 / Q3 的含义**：在"小数据、300 步、单场景"的微调 regime 里，flow-matching 头带来的额外骨干改写用线性探针看不到收益、能看到轻微损失；而 OFT 头几乎不碰骨干却拿到同样的损失（§2、§3.5）。这**不**等于三头共监督在 VLAct 的持续预训练 regime 下没用——那里数据、步数和任务多样性都差三个数量级——但它给决策门 G2 立了一个基线：线性探针能在 15 分钟、1 卡内区分开"改写了多少"和"读出了多少"，下一步用 R3 的 checkpoint 看这两条曲线是否在大规模下分离。
+5. **方法上的注意**：可读性 R² 的绝对值受 mean-pool 限制（头读的是特定 token，不是池化特征），比较只在变体之间有效；岭系数在动作探针上一律选到 1e3（网格内部），保留度探针 0.1–100，未触边界。
+
 ## 4. 这轮实跑抓到并修掉的问题
 
 | 问题 | 修法 |
@@ -114,8 +140,8 @@ v1（`v1/`、`v1_raw/`）是第一遍：B 的头学习率误落在 `base` 组（
 ```
 f0_libero_goal_smoke/
 ├── README.md                     本文
-├── v3/  summary.md  f0_curves.png  f0v3_{oft,multihead,oft_embedfrozen}_{metrics,drift}.csv   修正后的探针（§3.5）
-├── v3_raw/  f0v3_*.log  *_probes.jsonl（含 drift / drift_secondary / embed_tokens / probe_tokens）  *_config.yaml
+├── v3/  summary.md  f0_curves.png  f0v3_{oft,multihead,oft_embedfrozen}_{metrics,drift}.csv  cross_head_probe.json   修正后的探针（§3.5）+ 跨头探针（§3.6）
+├── v3_raw/  f0v3_*.log  *_probes.jsonl（含 drift / drift_secondary / embed_tokens / probe_tokens）  *_config.yaml  cross_head_f0.log
 ├── v2/  summary.md  f0_curves.png  f0v2_{oft,multihead}_{metrics,drift}.csv  probe_diag_f0v2_{oft,multihead}.json
 ├── v2_raw/  f0v2_{oft,multihead}.log  *_probes.jsonl  *_config.yaml（StarVLA 保存的实际生效配置）
 ├── v1/  v1_raw/                 第一遍（头 lr 未对齐、探针定义旧），仅供对照

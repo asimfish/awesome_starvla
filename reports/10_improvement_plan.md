@@ -93,7 +93,7 @@ R0–R8 全部计算 WP1 的探针指标，回答 Q1。
 ```
 code/
 ├── vlact_ext/                 # 已有：VLAct 配方（只修 bug；本轮加了 active_heads 头 dropout 开关）
-└── starvla_lab/               # 本方案的研究包（122 个 CPU 测试）
+└── starvla_lab/               # 本方案的研究包（125 个 CPU 测试）
     ├── probes/                #   WP1：action_probe.py, cka.py, drift.py, hooks.py
     ├── schedules/             #   WP2 / WP4：llrd.py, aux_scheduler.py
     ├── heads/                 #   WP3：feature_prediction_head.py, keyframe_head.py, register.py
@@ -118,7 +118,7 @@ experiments/
 |---|---|
 | WP0 复现失败（VLAct 官方权重 / 脚本未发布） | 以 StarVLA-α 配置 + VLAct 附录 H 的清洗规则自行复现，把差距作为第一份报告；G1 允许 2 点误差 |
 | 三头 + 辅助头预训练显存爆 | WP6 先测；头 dropout（每步只激活一个头）或 2B 骨干做方法验证 |
-| 探针与下游不相关（G2 失败） | 探针降级为报告项，不影响后续 WP；Q1 记为负结果并分析原因 |
+| 探针与下游不相关（G2 失败） | 探针降级为报告项，不影响后续 WP；Q1 记为负结果并分析原因。F0 首跑已表明两种探针能分开"改写了多少"（保留度）与"读出了多少"（可读性）：300 步 regime 里三头模型顶层改写 240× 却无可读性收益、保留度低 2 个百分点；G2 要在 R3 的 checkpoint 上看这两条曲线是否随规模分离 |
 | 辅助头与动作头梯度冲突 | 记录各头梯度范数与余弦；必要时用 GradNorm / PCGrad 式加权，作为 WP3 的备选 |
 | 基准噪声淹没差异 | 3 seeds；LIBERO-Plus 10,030 实例作主指标；SimplerEnv 不作主指标 |
 | 漂移控制阈值无依据 | M1 的 R3 以 `calibrate_only` 跑出漂移曲线后再定 `drift_high / drift_low`；阈值写进 R5 的配置并在报告里给出标定图 |
@@ -140,13 +140,13 @@ experiments/
 
 - [x] 与真实 StarVLA 的 CPU 集成：`scripts/setup_cpu_env.sh`（py3.12 环境）+ `scripts/smoke_starvla_integration.py`（真实三头工厂 + `QwenMultiHead` + 全部 `LabHooks` 钩子；`flow_matching_loss` 与原头 `forward` 逐位相等）
 
-阶段 A 完成：`python3 -m pytest code/starvla_lab/tests -q` → 122 passed（含 v3 探针 12 个）；`python3 -m pytest code/vlact_ext/tests -q` → 60 passed, 1 skipped（系统 python3.9，mock 骨干）；py3.12 + StarVLA 可导入时两包合跑 → 169 passed, 2 skipped，冒烟脚本通过。
+阶段 A 完成：`python3 -m pytest code/starvla_lab/tests -q` → 125 passed（含 v3 探针 15 个）；`python3 -m pytest code/vlact_ext/tests -q` → 60 passed, 1 skipped（系统 python3.9，mock 骨干）；py3.12 + StarVLA 可导入时两包合跑 → 169 passed, 2 skipped，冒烟脚本通过。
 
 **阶段 B 已开始（1 卡，2026-09-05/06）**：
 - [x] WP6 开销数字：三头 = OFT 单头 1.54× 时间、27.2 GB（[`experiments/results/wp6_overhead/`](../experiments/results/wp6_overhead/README.md)）
 - [x] WP9 真实数据接线：`train_starvla_lab` + `QwenOFT` / `QwenMultiHead` 在 LIBERO-goal 上各 300 步跑通；三头模型里 OFT 头损失 0.243 vs 单头 0.244；漂移度量的定义问题及修正见 [`experiments/results/f0_libero_goal_smoke/`](../experiments/results/f0_libero_goal_smoke/README.md)
 - [x] 用修正后的漂移度量重跑（F0 v3，三条运行各 300 步，1 卡）：`QwenBackboneProbe`（换回嵌入 + token 级 CKA + 跨场景分层探针批 + 按更新次数编号）；OFT 第 35 层 2e-4、三头 5e-2、冻结层精确 0；`embed_tokens` 冻结消融无代价；M1 阈值量级写进 R5（[`experiments/results/f0_libero_goal_smoke/`](../experiments/results/f0_libero_goal_smoke/README.md) §3.5）
-- [ ] WP1 跨头线性探针在 F0 的最终模型上首跑（v2 / v3 checkpoint 已保存在节点）
+- [x] WP1 跨头线性探针在 F0 的 5 个最终模型 + 预训练 VLM 上首跑（`scripts/cross_head_probe.py`，1 卡 15 分钟，2,048 样本跨两套）：预训练 VLM 已线性编码约一半动作方差（R² 0.50），五个微调骨干都没有提高它，三头模型第 35 层反而低 0.01；token 级保留度 OFT 99.5% vs 三头 97.6%（反向 96.7%），v2 复现一致——顶层改写是小幅侵蚀而非写入，G2 的线性探针基线已立（[`experiments/results/f0_libero_goal_smoke/`](../experiments/results/f0_libero_goal_smoke/README.md) §3.6）
 - [ ] R3 标定曲线（VLAct 全配方、2000 步一探针）→ 定 R5 的 `drift_high / drift_low`
 
 ## 8. 已知偏差与解释约束

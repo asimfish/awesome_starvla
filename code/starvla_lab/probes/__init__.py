@@ -1,6 +1,7 @@
 """WP1 diagnostic suite: cross-head action probes, linear CKA, drift tracking and step-triggered hooks."""
 
 from .action_probe import (
+    DEFAULT_RIDGE_GRID,
     LinearProbe,
     MLPProbe,
     ProbeReport,
@@ -8,8 +9,11 @@ from .action_probe import (
     cross_head_probe_report,
     fit_linear_probe,
     fit_mlp_probe,
+    fit_ridge_probe_cv,
     mae_score,
     r2_score,
+    split_indices_by_group,
+    standardize_features,
 )
 from .cka import layerwise_cka, linear_cka
 from .drift import DriftRecord, DriftTracker, ExtractFn, drift_to_llrd_decay
@@ -20,6 +24,10 @@ __all__ = [
     "QwenBackboneProbe",
     "gather_probe_batch",
     "stratified_probe_batch",
+    "DEFAULT_RIDGE_GRID",
+    "fit_ridge_probe_cv",
+    "split_indices_by_group",
+    "standardize_features",
     "LinearProbe",
     "MLPProbe",
     "ProbeReport",

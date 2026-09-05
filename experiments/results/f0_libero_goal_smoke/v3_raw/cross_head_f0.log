@@ -1,0 +1,70 @@
+[probe] host=ide-7e33a68268b54c4b9512a8ca868790c2-e64a97 gpu=0 out=/home/dataset-assist-0/liyufeng/awesome_starvla_work/results/cross_head_f0 variants=oft_v3=f0v3_oft multihead_v3=f0v3_multihead oft_embedfrozen_v3=f0v3_oft_embedfrozen oft_v2=f0v2_oft multihead_v2=f0v2_multihead
+/home/dataset-assist-0/liyufeng/envs/starvla/lib/python3.11/site-packages/albumentations/__init__.py:13: UserWarning: A new version of Albumentations is available: 2.0.8 (you have 1.4.18). Upgrade using: pip install -U albumentations. To disable automatic update checks, set the environment variable NO_ALBUMENTATIONS_UPDATE to 1.
+  check_for_updates()
+09/06 [03:33:10] WARNING  | >>  DataConfig for                    registry.py:70
+                          robot_type='ur5_robochallenge' has no                 
+                          `embodiment_tag` classvar; defaulting                 
+                          to EmbodimentTag.NEW_EMBODIMENT.                      
+                 WARNING  | >>  DataConfig for                    registry.py:70
+                          robot_type='arx5_robochallenge' has no                
+                          `embodiment_tag` classvar; defaulting                 
+                          to EmbodimentTag.NEW_EMBODIMENT.                      
+                 WARNING  | >>  DataConfig for                    registry.py:70
+                          robot_type='dosw1_robochallenge' has no               
+                          `embodiment_tag` classvar; defaulting                 
+                          to EmbodimentTag.NEW_EMBODIMENT.                      
+09/06 [03:33:11] INFO     | >>  Using mixture             lerobot_datasets.py:92
+                          'lab_probe_c0bdcf28':                                 
+                          [('libero_goal_no_noops_1.0.0_l                       
+                          erobot', 1.0, 'libero_franka'),                       
+                          ('libero_spatial_no_noops_1.0.0                       
+                          _lerobot', 1.0,                                       
+                          'libero_franka')]                                     
+Initialized dataset libero_goal_no_noops_1.0.0_lerobot with EmbodimentTag.FRANKA
+Initialized dataset libero_spatial_no_noops_1.0.0_lerobot with EmbodimentTag.FRANKA
+Dataset lengths: [52042 52970]
+Merged dataset statistics saved to: /home/dataset-assist-0/liyufeng/awesome_starvla_work/results/cross_head_f0/_data/dataset_statistics.json
+Used action keys (reordered): ['x', 'y', 'z', 'roll', 'pitch', 'yaw', 'gripper']
+Used state keys (reordered): ['x', 'y', 'z', 'roll', 'pitch', 'yaw', 'pad', 'gripper']
+[probe] 2048 samples, 20 instructions, suites {'goal': 1025, 'spatial': 1023}, actions (2048, 8, 7) (108s)
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00, 14.85it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00, 14.74it/s]
+[probe] pretrained features in 93s; token positions per sample 16
+[probe] oft_v3: 714 backbone tensors loaded, features in 144s
+[probe] multihead_v3: 714 backbone tensors loaded, features in 163s
+[probe] oft_embedfrozen_v3: 714 backbone tensors loaded, features in 141s
+[probe] oft_v2: 714 backbone tensors loaded, features in 97s
+[probe] multihead_v2: 714 backbone tensors loaded, features in 109s
+
+action readability, held-out R^2 (all-token pool, within suite):
+| variant | L17 goal->goal | L17 spatial->spatial | L26 goal->goal | L26 spatial->spatial | L30 goal->goal | L30 spatial->spatial | L33 goal->goal | L33 spatial->spatial | L34 goal->goal | L34 spatial->spatial | L35 goal->goal | L35 spatial->spatial |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| pretrained | 0.526 | 0.461 | 0.514 | 0.433 | 0.492 | 0.419 | 0.491 | 0.427 | 0.496 | 0.426 | 0.502 | 0.410 |
+| oft_v3 | 0.527 | 0.461 | 0.514 | 0.435 | 0.493 | 0.419 | 0.491 | 0.427 | 0.497 | 0.427 | 0.504 | 0.410 |
+| multihead_v3 | 0.527 | 0.460 | 0.513 | 0.434 | 0.494 | 0.421 | 0.492 | 0.427 | 0.496 | 0.424 | 0.493 | 0.402 |
+| oft_embedfrozen_v3 | 0.526 | 0.461 | 0.513 | 0.434 | 0.493 | 0.420 | 0.491 | 0.427 | 0.497 | 0.427 | 0.501 | 0.410 |
+| oft_v2 | 0.527 | 0.460 | 0.514 | 0.434 | 0.494 | 0.419 | 0.493 | 0.427 | 0.498 | 0.426 | 0.505 | 0.408 |
+| multihead_v2 | 0.527 | 0.459 | 0.514 | 0.434 | 0.495 | 0.419 | 0.493 | 0.428 | 0.497 | 0.426 | 0.495 | 0.405 |
+
+action readability, cross-suite R^2 (all-token pool):
+| variant | L17 goal->spatial | L17 spatial->goal | L26 goal->spatial | L26 spatial->goal | L30 goal->spatial | L30 spatial->goal | L33 goal->spatial | L33 spatial->goal | L34 goal->spatial | L34 spatial->goal | L35 goal->spatial | L35 spatial->goal |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| pretrained | -0.403 | -0.226 | -0.318 | -0.264 | -0.296 | -0.250 | -0.489 | -0.323 | -0.607 | -0.355 | -0.420 | -0.458 |
+| oft_v3 | -0.406 | -0.235 | -0.302 | -0.271 | -0.278 | -0.236 | -0.472 | -0.298 | -0.587 | -0.330 | -0.394 | -0.440 |
+| multihead_v3 | -0.398 | -0.232 | -0.307 | -0.275 | -0.266 | -0.239 | -0.495 | -0.304 | -0.665 | -0.327 | -0.378 | -0.436 |
+| oft_embedfrozen_v3 | -0.403 | -0.226 | -0.307 | -0.266 | -0.277 | -0.247 | -0.468 | -0.312 | -0.570 | -0.344 | -0.416 | -0.451 |
+| oft_v2 | -0.413 | -0.231 | -0.307 | -0.266 | -0.279 | -0.237 | -0.473 | -0.298 | -0.587 | -0.341 | -0.415 | -0.441 |
+| multihead_v2 | -0.391 | -0.225 | -0.300 | -0.275 | -0.262 | -0.248 | -0.489 | -0.312 | -0.608 | -0.343 | -0.342 | -0.488 |
+
+retention, held-out token-level R^2:
+| variant | L34 ft->pre | L34 pre->ft | L35 ft->pre | L35 pre->ft |
+|---|---:|---:|---:|---:|
+| pretrained | 1.0000 | 1.0000 | 1.0000 | 1.0000 |
+| oft_v3 | 0.9961 | 0.9960 | 0.9953 | 0.9951 |
+| multihead_v3 | 0.9870 | 0.9841 | 0.9762 | 0.9670 |
+| oft_embedfrozen_v3 | 0.9987 | 0.9986 | 0.9981 | 0.9980 |
+| oft_v2 | 0.9964 | 0.9962 | 0.9953 | 0.9952 |
+| multihead_v2 | 0.9875 | 0.9850 | 0.9771 | 0.9688 |
+
+[done] wrote /home/dataset-assist-0/liyufeng/awesome_starvla_work/results/cross_head_f0/cross_head_probe.json (934s total)
+[probe] finished
+ALL_DONE
