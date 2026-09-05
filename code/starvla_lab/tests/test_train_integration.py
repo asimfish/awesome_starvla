@@ -155,7 +155,9 @@ def test_hooks_probes_drive_llrd_and_write_jsonl(tmp_path: Path):
     assert lrs[2] < ref_lrs[2] and lrs[3] < ref_lrs[3]          # perturbed layer and downstream drift -> lr reduced
     assert lrs[0] == pytest.approx(ref_lrs[0]) and lrs[1] == pytest.approx(ref_lrs[1])
     records = read_jsonl(tmp_path / "p.jsonl")
-    assert len(records) == 3 and records[0]["step"] == 0 and "drift" in records[-1]
+    # step = number of completed updates: the initial record (0, reference vs itself) then every 2 updates
+    assert [r["step"] for r in records] == [0, 2, 4, 6] and all(r["probe"] == "drift" for r in records)
+    assert records[0]["drift"]["mean"] == 0.0 and "drift" in records[-1]
     assert hooks.last_drift is not None and hooks.last_drift > 0
 
 
@@ -171,7 +173,63 @@ def test_calibrate_only_records_but_does_not_act(tmp_path: Path):
     for _ in range(4):
         trainer._train_step("vla", "vlm")
     assert hooks.llrd.lrs() == pytest.approx(before)
-    assert len(read_jsonl(tmp_path / "c.jsonl")) == 4 and hooks.last_drift > 0
+    assert [r["step"] for r in read_jsonl(tmp_path / "c.jsonl")] == [0, 1, 2, 3, 4] and hooks.last_drift > 0
+
+
+def test_probe_step_matches_starvla_post_increment_convention(tmp_path: Path):
+    """StarVLA bumps completed_steps in train() after _train_step returns; the probe must still be labelled 'after k updates'."""
+
+    class _StarVLALike(_Trainer):
+        def __init__(self, *a, **k):
+            super().__init__(*a, **k)
+            self.accelerator = SimpleNamespace(sync_gradients=True)
+
+        def _train_step(self, batch_vla, batch_vlm=None):
+            with torch.no_grad():
+                self.model.qwen_vl_interface.model.model.language_model.layers[1].weight.add_(0.3)
+            return {"action_dit_loss": 1.0}  # no increment here: train() does it afterwards
+
+    model = _Framework(n=3)
+    cfg = _cfg(probes={"enabled": True, "every_n_steps": 3, "jsonl_path": str(tmp_path / "s.jsonl"), "calibrate_only": True})
+    trainer = _StarVLALike(cfg, model, torch.optim.SGD(model.parameters(), lr=1e-3))
+    hooks = LabHooks(trainer, LabConfig.from_cfg(cfg), extract_fn=_extract, probe_batch=torch.randn(16, 4))
+    attach_to_trainer(trainer, hooks)
+    for _ in range(6):
+        trainer._train_step("vla")
+        trainer.completed_steps += 1
+    assert [r["step"] for r in read_jsonl(tmp_path / "s.jsonl")] == [0, 3, 6]
+    trainer.accelerator.sync_gradients = False  # mid-accumulation micro-step: no update, no probe
+    trainer._train_step("vla")
+    assert [r["step"] for r in read_jsonl(tmp_path / "s.jsonl")] == [0, 3, 6]
+
+
+def test_secondary_tracker_is_recorded_but_does_not_drive(tmp_path: Path):
+    model = _Framework(n=3)
+    cfg = _cfg(probes={"enabled": True, "every_n_steps": 1, "jsonl_path": str(tmp_path / "d.jsonl"), "record_initial": False})
+    trainer = _Trainer(cfg, model, torch.optim.SGD(model.parameters(), lr=1e-3))
+
+    def secondary(m, batch):
+        return [torch.ones(batch.shape[0], 1) for _ in m.layer_reps(batch)]  # degenerate -> CKA 0 -> drift 1
+
+    hooks = LabHooks(trainer, LabConfig.from_cfg(cfg), extract_fn=_extract, probe_batch=torch.randn(16, 4), secondary_extract_fn=secondary)
+    attach_to_trainer(trainer, hooks)
+    trainer._train_step("vla", "vlm")
+    rec = read_jsonl(tmp_path / "d.jsonl")
+    assert len(rec) == 1 and rec[0]["step"] == 1
+    assert rec[0]["drift_secondary"]["mean"] == pytest.approx(1.0) and rec[0]["drift"]["mean"] < 1.0
+    assert hooks.last_drift == pytest.approx(rec[0]["drift"]["mean"])
+
+
+def test_probes_config_validation_and_none_switch():
+    lab = LabConfig.from_cfg(_cfg(probes={"enabled": True, "every_n_steps": 1, "secondary_representation": "none", "probe_data_mix": ""}))
+    assert lab.probes.secondary_representation is None and lab.probes.probe_data_mix is None
+    lab.validate()
+    with pytest.raises(ValueError):
+        LabConfig.from_cfg(_cfg(probes={"enabled": True, "every_n_steps": 1, "representation": "cls"})).validate()
+    with pytest.raises(ValueError):
+        LabConfig.from_cfg(_cfg(probes={"enabled": True, "every_n_steps": 1, "representation": "pooled", "secondary_representation": "pooled"})).validate()
+    with pytest.raises(ValueError):
+        LabConfig.from_cfg(_cfg(probes={"enabled": True, "every_n_steps": 1, "token_subset": "patches"})).validate()
 
 
 def test_per_head_losses_from_forward_reach_the_metrics():

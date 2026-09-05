@@ -93,7 +93,7 @@ R0–R8 全部计算 WP1 的探针指标，回答 Q1。
 ```
 code/
 ├── vlact_ext/                 # 已有：VLAct 配方（只修 bug；本轮加了 active_heads 头 dropout 开关）
-└── starvla_lab/               # 本方案的研究包（110 个 CPU 测试）
+└── starvla_lab/               # 本方案的研究包（122 个 CPU 测试）
     ├── probes/                #   WP1：action_probe.py, cka.py, drift.py, hooks.py
     ├── schedules/             #   WP2 / WP4：llrd.py, aux_scheduler.py
     ├── heads/                 #   WP3：feature_prediction_head.py, keyframe_head.py, register.py
@@ -122,8 +122,8 @@ experiments/
 | 辅助头与动作头梯度冲突 | 记录各头梯度范数与余弦；必要时用 GradNorm / PCGrad 式加权，作为 WP3 的备选 |
 | 基准噪声淹没差异 | 3 seeds；LIBERO-Plus 10,030 实例作主指标；SimplerEnv 不作主指标 |
 | 漂移控制阈值无依据 | M1 的 R3 以 `calibrate_only` 跑出漂移曲线后再定 `drift_high / drift_low`；阈值写进 R5 的配置并在报告里给出标定图 |
-| 度量口径不一致 | 固定探测批：VLA 训练集前 64 个样本（`probes.probe_batch_size`），逐层 mean-pool 隐状态算 CKA，OFT 查询位隐状态拟合探针；所有变体共用同一批与同一 `extract_fn` |
-| **漂移度量被 `embed_tokens` 主导（F0 实测，2026-09-06）** | F0 在 LIBERO-goal 上的受控诊断（[`experiments/results/f0_libero_goal_smoke/`](../experiments/results/f0_libero_goal_smoke/README.md) §3）：微调只改了 `embed_tokens` 的 42–46 行（相对变化 ~2e-5），却贡献了 mean-pool CKA 漂移的 98%，冻结层也随之"漂移"；换回预训练嵌入后 OFT 微调的骨干漂移只有 0.0002，三头模型 0.0038（第 35 层 0.019）。修正：(a) 探针提取时临时换回预训练 `embed_tokens`，或把 `embed_tokens` 加入冻结集合并作为消融（VLAct 未说明）；(b) 主指标改为 token 级 CKA（几千 token 为样本），mean-pool 只作辅助；(c) 探针批必须跨场景 / 跨任务（≥ 64 样本，LIBERO 四套 + RoboTwin 混合），单场景批的 Gram 矩阵近退化；(d) M1 的阈值标定用修正后的度量重做 |
+| 度量口径不一致 | 固定探测批：`probes.probe_data_mix` 指定的跨场景混合里按指令轮询抽 64 个样本（`probes.probe_batch_size`），纯 VLM prompt、换回预训练 `embed_tokens`、token 级 CKA（≤ 4096 个固定 token 位置）为主、mean-pool 为次，OFT 查询位隐状态拟合探针；所有变体共用同一批与同一 `QwenBackboneProbe`；记录以已完成的更新次数为步号 |
+| **漂移度量被 `embed_tokens` 主导（F0 实测，2026-09-06）** | F0 在 LIBERO-goal 上的受控诊断（[`experiments/results/f0_libero_goal_smoke/`](../experiments/results/f0_libero_goal_smoke/README.md) §3）：微调只改了 `embed_tokens` 的 42–46 行（相对变化 ~2e-5），却贡献了 mean-pool CKA 漂移的 98%，冻结层也随之"漂移"；换回预训练嵌入后 OFT 微调的骨干漂移只有 0.0002，三头模型 0.0038（第 35 层 0.019）。修正：(a) 探针提取时临时换回预训练 `embed_tokens`，或把 `embed_tokens` 加入冻结集合并作为消融（VLAct 未说明）；(b) 主指标改为 token 级 CKA（几千 token 为样本），mean-pool 只作辅助；(c) 探针批必须跨场景 / 跨任务（≥ 64 样本，LIBERO 四套 + RoboTwin 混合），单场景批的 Gram 矩阵近退化；(d) M1 的阈值标定用修正后的度量重做。**已落实（F0 v3，2026-09-06）**：(a)(b)(c) 实现为 `starvla_lab.probes.QwenBackboneProbe` + `probes.probe_data_mix`，接进 `train_starvla_lab`；重跑后冻结层漂移精确为 0，单头 OFT 300 步只在第 35 层动 2e-4，三头模型第 35 层 5e-2、第 33 层以下 < 1e-4，曲线单调饱和；冻结 `embed_tokens` 的消融损失不变（0.247 vs 0.251），读数与"探针时换回"一致。(d) 的量级：单头逐层 < 3e-4，三头只有第 34–35 层 > 1e-3，库默认阈值 0.10 / 0.05 差两个数量级，R5 起点改为 1e-2 / 1e-3 |
 | 评测脚本参数约定各异 | 每个基准的评测命令是 `protocol_f1.yaml` 里的模板字符串（`{ckpt_file}`、`{seed}`、`{run_id}` 占位），与 StarVLA 真实脚本的参数一一对应 |
 
 ## 7. 阶段 A 交付清单（评审后更新）
@@ -140,13 +140,14 @@ experiments/
 
 - [x] 与真实 StarVLA 的 CPU 集成：`scripts/setup_cpu_env.sh`（py3.12 环境）+ `scripts/smoke_starvla_integration.py`（真实三头工厂 + `QwenMultiHead` + 全部 `LabHooks` 钩子；`flow_matching_loss` 与原头 `forward` 逐位相等）
 
-阶段 A 完成：`python3 -m pytest code/starvla_lab/tests -q` → 110 passed；`python3 -m pytest code/vlact_ext/tests -q` → 60 passed, 1 skipped（系统 python3.9，mock 骨干）；py3.12 + StarVLA 可导入时两包合跑 → 169 passed, 2 skipped，冒烟脚本通过。
+阶段 A 完成：`python3 -m pytest code/starvla_lab/tests -q` → 122 passed（含 v3 探针 12 个）；`python3 -m pytest code/vlact_ext/tests -q` → 60 passed, 1 skipped（系统 python3.9，mock 骨干）；py3.12 + StarVLA 可导入时两包合跑 → 169 passed, 2 skipped，冒烟脚本通过。
 
 **阶段 B 已开始（1 卡，2026-09-05/06）**：
 - [x] WP6 开销数字：三头 = OFT 单头 1.54× 时间、27.2 GB（[`experiments/results/wp6_overhead/`](../experiments/results/wp6_overhead/README.md)）
 - [x] WP9 真实数据接线：`train_starvla_lab` + `QwenOFT` / `QwenMultiHead` 在 LIBERO-goal 上各 300 步跑通；三头模型里 OFT 头损失 0.243 vs 单头 0.244；漂移度量的定义问题及修正见 [`experiments/results/f0_libero_goal_smoke/`](../experiments/results/f0_libero_goal_smoke/README.md)
-- [ ] WP1 跨头线性探针在 F0 的两个最终模型上首跑（checkpoint 已保存在节点）
-- [ ] 用修正后的漂移度量重跑标定（M1 前置）
+- [x] 用修正后的漂移度量重跑（F0 v3，三条运行各 300 步，1 卡）：`QwenBackboneProbe`（换回嵌入 + token 级 CKA + 跨场景分层探针批 + 按更新次数编号）；OFT 第 35 层 2e-4、三头 5e-2、冻结层精确 0；`embed_tokens` 冻结消融无代价；M1 阈值量级写进 R5（[`experiments/results/f0_libero_goal_smoke/`](../experiments/results/f0_libero_goal_smoke/README.md) §3.5）
+- [ ] WP1 跨头线性探针在 F0 的最终模型上首跑（v2 / v3 checkpoint 已保存在节点）
+- [ ] R3 标定曲线（VLAct 全配方、2000 步一探针）→ 定 R5 的 `drift_high / drift_low`
 
 ## 8. 已知偏差与解释约束
 
@@ -171,4 +172,4 @@ experiments/
 | 10 | `QwenMultiHeadLab` 侧信道缓存 | 保留，写入 §8；父类改动时同步 |
 | 11 | 头 dropout 未接线 | `QwenMultiHead` 增加 `active_heads`，`LabHooks` 每步设置 |
 | 12 | 漂移阈值无依据 | M1 的 R3 以 `calibrate_only` 标定；写入 §6 |
-| 13 | 度量粒度未定 | §6 固定探测批与 `extract_fn`（`train_starvla_lab.qwen_layer_extract_fn`：逐层 mean-pool） |
+| 13 | 度量粒度未定 | §6 固定探测批与 `extract_fn`（最初为 `train_starvla_lab.qwen_layer_extract_fn` 逐层 mean-pool；F0 v2 诊断后改为 `probes.QwenBackboneProbe`：换回预训练嵌入、token 级 CKA 为主） |

@@ -11,7 +11,7 @@
 | `budget.md` | 同上 | 预训练 + 下游的 GPU 小时合计（当前约 21,000；最小子集约 9,000） |
 | `results/<run_id>.json` | 评测脚本（人工或 CI）写入 | 一次运行一个文件，字段见下 |
 | `results/summary.md` | `python3 -c "from starvla_lab.bench import *; ..."`（见下） | 由 `summarize_results` 聚合成 mean ± std 表 |
-| `results/f0_libero_goal_smoke/` | `scripts/cluster/run_f0_smoke.sh` → `scripts/analyze_f0.py` / `scripts/probe_diagnostics.py` | **已有数字**：LIBERO-goal 上 `QwenOFT` vs `QwenMultiHead` 各 300 步的损失曲线、逐头损失、探针漂移与探针方法学诊断（1×A100，2026-09-06），含 `README.md` 解读 |
+| `results/f0_libero_goal_smoke/` | `scripts/cluster/run_f0_smoke.sh` → `scripts/analyze_f0.py` / `scripts/probe_diagnostics.py` | **已有数字**：LIBERO-goal 上 `QwenOFT` vs `QwenMultiHead` 各 300 步的损失曲线、逐头损失（v2）、探针方法学诊断（`embed_tokens` 主导旧度量）、修正后探针的训练中漂移曲线 + `embed_tokens` 冻结消融（v3，共 5 条运行，1×A100，2026-09-06），含 `README.md` 解读 |
 | `results/wp6_overhead/` | `scripts/gpu_overhead_bench.py`（经 `scripts/cluster/run_overhead_bench.sh`） | **已有数字**：Qwen3-VL-4B 上单头 / 三头 / 头 dropout 的 s/step、samples/s、峰值显存与推理延迟（1×A100，2026-09-05），含 `overhead.csv`、`results.json`、`stdout.log` 与解读 `README.md` |
 
 ## 结果 JSON 约定

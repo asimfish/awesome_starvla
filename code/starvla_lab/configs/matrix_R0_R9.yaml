@@ -45,7 +45,9 @@ variants:
     tier: core
     question: WP0 reproduction of VLAct
     description: three heads + frozen vision encoder and lower half of the LLM + caption co-training (0.5)
-    train_script: starVLA/training/train_starvla_cotrain.py
+    # trainer.lab.* is only consumed by the lab entry (mode auto -> cotrain because vlm_data is set); the native
+    # cotrain script would silently skip the calibration probes.
+    train_script: code/starvla_lab/train/train_starvla_lab.py
     overrides:
       framework.name: QwenMultiHead
       framework.mask_oft_queries_for_fm_heads: true
@@ -54,6 +56,10 @@ variants:
       trainer.lab.probes.enabled: true          # calibration run: record drift, act on nothing
       trainer.lab.probes.calibrate_only: true
       trainer.lab.probes.every_n_steps: 2000
+      # F0 v3 probe definition (token-level CKA, pretrained embed_tokens restored, cross-scene stratified batch);
+      # the mix must name datasets present under data_root_dir.
+      trainer.lab.probes.probe_batch_size: 64
+      trainer.lab.probes.probe_data_mix: "libero_goal_no_noops_1.0.0_lerobot:libero_franka,libero_spatial_no_noops_1.0.0_lerobot:libero_franka,libero_object_no_noops_1.0.0_lerobot:libero_franka,libero_10_no_noops_1.0.0_lerobot:libero_franka"
     est_gpu_hours: 900
   R4:
     tier: extra
@@ -86,6 +92,15 @@ variants:
       trainer.lab.aux_scheduler.strategy: drift
       trainer.lab.probes.enabled: true
       trainer.lab.probes.every_n_steps: 2000
+      trainer.lab.probes.probe_batch_size: 64
+      trainer.lab.probes.probe_data_mix: "libero_goal_no_noops_1.0.0_lerobot:libero_franka,libero_spatial_no_noops_1.0.0_lerobot:libero_franka,libero_object_no_noops_1.0.0_lerobot:libero_franka,libero_10_no_noops_1.0.0_lerobot:libero_franka"
+      # Starting thresholds from the F0 v3 scale (token-level 1-CKA, Qwen3-VL-4B, 300 steps LIBERO-goal): the 3-head
+      # model's layer 35 reached 0.05 and layer 34 8e-4, single-head OFT stayed below 3e-4 everywhere. The library
+      # defaults (0.10 / 0.05) are two orders of magnitude too coarse for this metric; re-check on the R3 curve.
+      trainer.lab.llrd.drift_high: 1.0e-2
+      trainer.lab.llrd.drift_low: 1.0e-3
+      trainer.lab.aux_scheduler.drift_high: 1.0e-2
+      trainer.lab.aux_scheduler.drift_low: 1.0e-3
     est_gpu_hours: 900
   R6:
     tier: extra

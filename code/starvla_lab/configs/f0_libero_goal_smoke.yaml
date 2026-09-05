@@ -11,7 +11,12 @@
 #
 # 与 StarVLA examples/simBenchmarks/LIBERO/train_files/starvla_cotrain_libero.yaml 的差别：单 loader（无 vlm_data）、
 # 300 步、batch 8 / 无梯度累积、VLAct 式冻结（视觉编码器 + LLM 前 18 层，写成 StarVLA 原生可解析的 19 条精确路径）、
-# 不存 checkpoint、探针每 50 步。
+# 不存 checkpoint。
+#
+# 探针（v3，按 F0 v2 诊断修正，见 experiments/results/f0_libero_goal_smoke/README.md §3）：每 25 次更新在固定的 32 样本
+# 探针批上测 36 层 1−CKA；主指标 token 级（每个有效 token 是一个样本，≤4096 个固定位置），次指标 mean-pool；提取时把
+# 预训练 embed_tokens 临时换回（否则 40 余行 prompt 词嵌入的更新会主导整条曲线）；探针批跨场景：从 LIBERO-goal +
+# LIBERO-spatial 两套里按指令轮询抽样（20 个任务、2 个场景），训练数据仍只有 LIBERO-goal。
 
 run_id: f0_libero_goal_smoke
 run_root_dir: /home/dataset-assist-0/liyufeng/awesome_starvla_work/checkpoints
@@ -84,7 +89,16 @@ trainer:
     mode: single
     probes:
       enabled: true
-      every_n_steps: 50
+      every_n_steps: 25
       calibrate_only: true
-      probe_batch_size: 16
+      record_initial: true
+      probe_batch_size: 32
+      representation: token             # 主指标：token 级 CKA
+      secondary_representation: pooled  # 次指标：mean-pool（v1/v2 的口径），写入 JSONL 的 drift_secondary
+      token_subset: all
+      max_tokens: 4096
+      restore_pretrained_embeddings: true
+      probe_data_mix: "libero_goal_no_noops_1.0.0_lerobot:libero_franka,libero_spatial_no_noops_1.0.0_lerobot:libero_franka"
+      stratify_by_instruction: true
+      pool_factor: 4
       jsonl_path: /home/dataset-assist-0/liyufeng/awesome_starvla_work/checkpoints/f0_libero_goal_smoke/lab_probes.jsonl

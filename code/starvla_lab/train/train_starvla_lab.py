@@ -5,7 +5,10 @@ Mirrors ``starVLA/training/train_starvla.py::main`` (single VLA loader) or
 
 * ``datasets.vla_data.data_fraction < 1`` wraps every LeRobot dataset in a seeded ``TrajectorySubset``;
 * ``trainer.lab.llrd.enabled`` builds layer-wise decayed parameter groups instead of StarVLA's default;
-* ``VLA(M)Trainer._train_step`` is wrapped with :class:`starvla_lab.train.LabHooks`.
+* ``VLA(M)Trainer._train_step`` is wrapped with :class:`starvla_lab.train.LabHooks`; with ``trainer.lab.probes``
+  the drift probe uses :class:`starvla_lab.probes.QwenBackboneProbe` (token-level CKA on the plain VLM prompt
+  with the pretrained ``embed_tokens`` swapped in, pooled view as secondary) on a probe batch that is stratified
+  over instructions and may come from a separate mixture (``probes.probe_data_mix``).
 
 ``trainer.lab.mode`` selects the base script: ``single`` / ``cotrain`` / ``auto`` (cotrain when
 ``datasets.vlm_data`` is configured). ``single`` honours StarVLA's ``STARVLA_DISABLE_DEEPSPEED=1`` for
@@ -20,36 +23,78 @@ this package on ``PYTHONPATH``::
 from __future__ import annotations
 
 import argparse
-from typing import Any, List
+import os
+from typing import Any, List, Optional
 
 import torch
 
+from ..data.mixtures import register_mixture
 from ..data.subsample import install_fraction_hook
-from .integration import LabHooks, attach_to_trainer, build_optimizer_and_scheduler, unwrap_model
-from .lab_config import LabConfig, cfg_get
+from ..probes.qwen_extract import QwenBackboneProbe, framework_of, gather_probe_batch
+from .integration import LabHooks, attach_to_trainer, build_optimizer_and_scheduler
+from .lab_config import LabConfig, ProbesConfig, cfg_get
 
 
-def qwen_layer_extract_fn(model: torch.nn.Module, batch: List[dict]) -> List[torch.Tensor]:
-    """Per-layer mean-pooled hidden states of a StarVLA Qwen-VL framework on raw samples.
+def build_probe_extractors(probes: ProbesConfig) -> tuple[QwenBackboneProbe, Optional[QwenBackboneProbe]]:
+    """Primary (drives the schedulers) and optional secondary (recorded only) extractors from the probe config."""
+    kwargs = dict(token_subset=probes.token_subset, max_tokens=probes.max_tokens,
+                  restore_pretrained_embeddings=probes.restore_pretrained_embeddings)
+    primary = QwenBackboneProbe(representation=probes.representation, **kwargs)
+    secondary = QwenBackboneProbe(representation=probes.secondary_representation, **kwargs) if probes.secondary_representation else None
+    return primary, secondary
 
-    The probe prompt is the plain VLM prompt (images + instruction), identical for every framework and free
-    of framework-specific learnable tokens: OFT's ``<action>🔍…`` query embeddings are trained from scratch
-    and would otherwise dominate the pooled features of *frozen* layers. What is measured is therefore the
-    drift of the VLM's own visual-language representation. Returns one ``[N, d]`` tensor per decoder layer
-    (embedding output excluded).
+
+def mixture_registries() -> List[dict]:
+    """Every dict StarVLA may resolve ``data_mix`` through. ``lerobot_datasets`` reads
+    ``gr00t_lerobot.registry.DATASET_NAMED_MIXTURES``, which is a *copy* of ``gr00t_lerobot.mixtures``' dict made
+    at import time, so an ad-hoc mixture has to go into the registry copy (and into the base dict for older
+    StarVLA checkouts without ``registry.py``)."""
+    out: List[dict] = []
+    for module in ("starVLA.dataloader.gr00t_lerobot.mixtures", "starVLA.dataloader.gr00t_lerobot.registry"):
+        try:
+            mod = __import__(module, fromlist=["DATASET_NAMED_MIXTURES"])
+        except ImportError:
+            continue
+        registry = getattr(mod, "DATASET_NAMED_MIXTURES", None)
+        if isinstance(registry, dict) and all(registry is not r for r in out):
+            out.append(registry)
+    if not out:
+        raise ImportError("StarVLA mixture registry not importable (starVLA.dataloader.gr00t_lerobot.{mixtures,registry})")
+    return out
+
+
+def build_probe_loader(cfg: Any, probe_data_mix: str):
+    """A separate LeRobot loader for the probe batch (``trainer.lab.probes.probe_data_mix``).
+
+    ``probe_data_mix`` is a StarVLA mixture name or an inline ``dataset_dir:robot_type[,...]`` list (registered at
+    runtime, see :mod:`starvla_lab.data.mixtures`). Everything else (action type, image size, root dir) is copied from
+    the training data config. StarVLA's ``build_dataloader`` writes ``dataset_statistics.json`` into ``cfg.output_dir``,
+    so the copy points at ``<run>/probe_data/`` to leave the training run's statistics untouched.
     """
-    fw = unwrap_model(model)
-    instructions = [ex["lang"] for ex in batch]
-    images = [ex["image"] for ex in batch]
-    inputs = fw.qwen_vl_interface.build_qwenvl_inputs(images, instructions)
-    device = fw.qwen_vl_interface.model.device
-    inputs = {k: (v.to(device) if hasattr(v, "to") else v) for k, v in inputs.items()}
-    with torch.no_grad():
-        out = fw.qwen_vl_interface.model(**inputs, output_hidden_states=True, return_dict=True)
-    # Pool in fp32: the backbone emits bf16 hidden states, and a bf16 mean over ~200 tokens is rounded to ~3
-    # significant digits, which would hide small drifts and add a noise floor to 1 - CKA.
-    mask = inputs["attention_mask"].unsqueeze(-1).float()
-    return [((h.float() * mask).sum(1) / mask.sum(1).clamp(min=1.0)).cpu() for h in out.hidden_states[1:]]
+    from omegaconf import OmegaConf
+    from starVLA.dataloader import build_dataloader
+
+    # StarVLA hands main() an AccessTrackedConfig; copy the underlying OmegaConf tree so the probe loader's
+    # edits never touch the training config (nor its accessed-keys bookkeeping).
+    base = cfg.unwrap() if hasattr(cfg, "unwrap") else cfg
+    probe_cfg = OmegaConf.create(OmegaConf.to_container(base, resolve=True))
+    name = None
+    for registry in mixture_registries():
+        name = register_mixture(str(probe_data_mix), registry)
+    probe_cfg.datasets.vla_data.data_mix = name
+    probe_cfg.datasets.vla_data.num_workers = 0  # one-off loader: no worker pool next to the training loader
+    probe_cfg.output_dir = os.path.join(str(cfg.output_dir), "probe_data")
+    os.makedirs(probe_cfg.output_dir, exist_ok=True)
+    return build_dataloader(cfg=probe_cfg, dataset_py="lerobot_datasets")
+
+
+def build_probe_batch(cfg: Any, probes: ProbesConfig, train_loader: Any) -> List[dict]:
+    loader = build_probe_loader(cfg, probes.probe_data_mix) if probes.probe_data_mix else train_loader
+    batch = gather_probe_batch(loader, probes.probe_batch_size, stratify=probes.stratify_by_instruction, pool_factor=probes.pool_factor)
+    n_instr = len({str(ex.get("lang", "")) for ex in batch})
+    print(f"[starvla_lab] probe batch: {len(batch)} samples, {n_instr} distinct instructions, "
+          f"source={'probe_data_mix=' + str(probes.probe_data_mix) if probes.probe_data_mix else 'training loader'}")
+    return batch
 
 
 def select_mode(cfg: Any) -> str:
@@ -113,15 +158,13 @@ def main(cfg: Any) -> None:
     trainer.prepare_training()
 
     if lab.any_enabled():
-        probe_batch = None
+        probe_batch, primary, secondary, compute_device = None, None, None, None
         if lab.probes.enabled:
-            # StarVLA's LeRobot collate_fn returns the raw list of sample dicts; gather loader batches until the
-            # requested probe size is reached (per-device batch is usually smaller than probe_batch_size).
-            probe_batch, it = [], iter(vla_loader)
-            while len(probe_batch) < lab.probes.probe_batch_size:
-                probe_batch.extend(next(it))
-            probe_batch = probe_batch[: lab.probes.probe_batch_size]
-        hooks = LabHooks(trainer, lab, extract_fn=qwen_layer_extract_fn if lab.probes.enabled else None, probe_batch=probe_batch)
+            probe_batch = build_probe_batch(cfg, lab.probes, vla_loader)
+            primary, secondary = build_probe_extractors(lab.probes)
+            compute_device = framework_of(trainer.model).qwen_vl_interface.model.device
+        hooks = LabHooks(trainer, lab, extract_fn=primary, probe_batch=probe_batch, secondary_extract_fn=secondary,
+                         compute_device=compute_device)
         attach_to_trainer(trainer, hooks)
     trainer.train()
 

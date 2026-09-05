@@ -4,10 +4,10 @@
 ![papers](https://img.shields.io/badge/papers-120-blue)
 ![reports](https://img.shields.io/badge/reports-11-red)
 ![zh-PDF](https://img.shields.io/badge/zh--PDF-7-green)
-![tests](https://img.shields.io/badge/CPU_tests-171_passed-brightgreen)
+![tests](https://img.shields.io/badge/CPU_tests-183_passed-brightgreen)
 ![license](https://img.shields.io/badge/license-CC_BY_4.0-8a2be2)
 
-围绕 **StarVLA 代码库生态**与 **VLA 持续预训练 / 动作头 / 跨本体表示学习**的论文列表 + 调研 + 代码仓库。核心对象是同一团队、同一骨干（Qwen3-VL-4B）、同一代码库的三篇工作：[StarVLA 技术报告](https://arxiv.org/abs/2604.05014)（基础设施）、[StarVLA-α](https://arxiv.org/abs/2604.11757)（去混杂的对照基线）、[VLAct](https://arxiv.org/abs/2608.27550)（表示中心的持续预训练配方），以及基于 StarVLA 做记忆的 [EventVLA](https://arxiv.org/abs/2606.20092)。除 120 篇文献编目外，仓库还提供 11 份中文深度报告、7 篇论文的保版式中文翻译、两个不改 StarVLA 源码即可使用的扩展包（VLAct 配方 + 改进方案研究包，171 个 CPU 测试）、EventVLA 子模块，以及已经跑出来的第一批 GPU 数字。
+围绕 **StarVLA 代码库生态**与 **VLA 持续预训练 / 动作头 / 跨本体表示学习**的论文列表 + 调研 + 代码仓库。核心对象是同一团队、同一骨干（Qwen3-VL-4B）、同一代码库的三篇工作：[StarVLA 技术报告](https://arxiv.org/abs/2604.05014)（基础设施）、[StarVLA-α](https://arxiv.org/abs/2604.11757)（去混杂的对照基线）、[VLAct](https://arxiv.org/abs/2608.27550)（表示中心的持续预训练配方），以及基于 StarVLA 做记忆的 [EventVLA](https://arxiv.org/abs/2606.20092)。除 120 篇文献编目外，仓库还提供 11 份中文深度报告、7 篇论文的保版式中文翻译、两个不改 StarVLA 源码即可使用的扩展包（VLAct 配方 + 改进方案研究包，183 个 CPU 测试）、EventVLA 子模块，以及已经跑出来的第一批 GPU 数字。
 
 > **一句话结论**：VLM 骨干是 VLA 的一阶设计变量，预训练不是双刃剑，配方决定符号——朴素动作拟合会把机器人预训练变成负资产（OXE 预训练让 RoboCasa-GR1 24×10 从 9.8 掉到 1.2），保护 VLM 先验 + 多头共监督 + 部分统一动作空间把同样的数据源变成净收益（20% 数据超过全量 GR00T-N1.6）；下一步最值钱的是表征诊断工具、"只换骨干"的基准协议，以及所有人都接近零的 Memory 维度。
 
@@ -74,7 +74,7 @@
 | 目录 | 内容 | 验证 |
 |---|---|---|
 | [`code/vlact_ext/`](code/vlact_ext/) | VLAct 六项配方里 StarVLA 缺失 / 半支持的四项：`QwenMultiHead` 多头共监督框架（OFT + GR00T + PI 三头，`action_loss = Σ w_h·L_h`，`predict_action(head=…)` 路由）、wrap-aware L1、20 维部分统一动作布局 transform、正则 / 区间冻结规则；附完整的 VLAct 预训练示例 yaml | 61 个 CPU 测试，mock 骨干，约 30 s |
-| [`code/starvla_lab/`](code/starvla_lab/) | [10 · 改进方案](reports/10_improvement_plan.md) 阶段 A 的研究包：`probes/`（跨头探针、CKA、漂移追踪）、`schedules/`（分层学习率衰减、漂移驱动的冻结与辅助数据调度）、`heads/`（未来特征预测头、关键帧头、`QwenMultiHeadLab`）、`data/`（按轨迹子采样、辅助头离线数据）、`train/`（`train_starvla_lab.py` 入口）、`bench/`（"只换骨干"协议、开销测量、头 dropout）、`configs/`（R0–R9 矩阵） | 110 个 CPU 测试 |
+| [`code/starvla_lab/`](code/starvla_lab/) | [10 · 改进方案](reports/10_improvement_plan.md) 阶段 A 的研究包：`probes/`（跨头探针、CKA、漂移追踪）、`schedules/`（分层学习率衰减、漂移驱动的冻结与辅助数据调度）、`heads/`（未来特征预测头、关键帧头、`QwenMultiHeadLab`）、`data/`（按轨迹子采样、辅助头离线数据）、`train/`（`train_starvla_lab.py` 入口）、`bench/`（"只换骨干"协议、开销测量、头 dropout）、`configs/`（R0–R9 矩阵） | 122 个 CPU 测试 |
 | [`code/EventVLA/`](code/EventVLA/) | git 子模块 → [asimfish/EventVLA](https://github.com/asimfish/EventVLA)（fork 自官方）：EventVLA 模型、训练与评测代码 + RoboTwin-MeM 基准（8 个记忆任务）。审计见 [报告 11](reports/11_eventvla_code_audit.md) | 上游 2 个测试文件 |
 | [`experiments/`](experiments/) | 运行清单与结果台账：`run_matrix*.csv`（主矩阵 92 次 + 跨头 16 次）、`budget.md`（预训练 7,300 + 下游 13,800 ≈ 21,000 GPU 小时）、`results/<run>/`（每次运行一个 JSON + README） | — |
 
@@ -83,7 +83,7 @@
 | 实验 | 结论 | 详情 |
 |---|---|---|
 | WP6 · 三头共监督的训练开销（1×A100-80GB，Qwen3-VL-4B 真实权重，batch 8） | OFT 单头 1.27 s/step / 15.4 GB；PI 单头 1.64 / 22.0；三头 OFT + GR00T + PI 1.95 / 27.2（1.54× 单头，不是 3×）；三头 + 头 dropout 1.54 / 25.0 | [`experiments/results/wp6_overhead/`](experiments/results/wp6_overhead/README.md) |
-| F0 · LIBERO-goal 真实数据微调冒烟（各 300 步，1×A100） | `QwenMultiHead` 的 OFT 头 L1 0.243 vs `QwenOFT` 0.244——三头不伤单头；训练中记录的逐层 1−CKA"漂移"几乎全部来自 `embed_tokens` 里 prompt 词嵌入的更新被单场景探针批放大，WP1 的漂移度量因此改为"换回预训练嵌入 + token 级 CKA + 跨场景探针批" | [`experiments/results/f0_libero_goal_smoke/`](experiments/results/f0_libero_goal_smoke/README.md) |
+| F0 · LIBERO-goal 真实数据微调冒烟（各 300 步，1×A100，v2 + v3 共 5 条运行） | `QwenMultiHead` 的 OFT 头 L1 0.242–0.243 vs `QwenOFT` 0.244–0.251——三头不伤单头；v2 里训练中记录的逐层 1−CKA"漂移"几乎全部来自 `embed_tokens` 里几十行 prompt 词嵌入的更新被单场景探针批放大，WP1 的度量因此改为"换回预训练嵌入 + token 级 CKA + 跨场景探针批"；v3 用修正后的探针重跑：冻结层精确 0，单头 OFT 只在第 35 层动 2e-4，三头模型第 35 层 5e-2（其余层 < 1e-3），冻结 `embed_tokens` 无代价 | [`experiments/results/f0_libero_goal_smoke/`](experiments/results/f0_libero_goal_smoke/README.md) |
 | CPU · 与真实 StarVLA 的集成 | `QwenMultiHead` 用 StarVLA 真实的三个头工厂前向 / 反传 / 逐头预测；`flow_matching_loss` 与原头逐位相等（atol 1e-6）；冻结规则 + LLRD 参数组、头 dropout、探针驱动调度全部走通 | `scripts/smoke_starvla_integration.py` |
 
 仍需 GPU：LIBERO / RoboTwin 仿真评测、DeepSpeed 多卡显存、WP1 跨头探针在 F0 最终模型上的首跑、任何 ≥ 10k 步的训练效果数字——这些是 [07 · 路线图](reports/07_research_roadmap.md) 第 1 个月"复现 VLAct"的起点。
@@ -92,7 +92,7 @@
 
 ```bash
 python3 -m pytest code/vlact_ext/tests -q        # 60 passed, 1 skipped（系统 python3.9，CPU）
-python3 -m pytest code/starvla_lab/tests -q      # 110 passed
+python3 -m pytest code/starvla_lab/tests -q      # 122 passed
 python3 scripts/build_run_matrix.py --print-commands 2
 ```
 
@@ -102,7 +102,7 @@ StarVLA 要求 Python ≥ 3.10，所以真实集成单独建环境；`starVLA_co
 
 ```bash
 bash scripts/setup_cpu_env.sh                          # uv 建 .venv-starvla（py3.12）+ CPU torch + StarVLA 可编辑安装
-PYTHONPATH=code:../starVLA_code .venv-starvla/bin/python -m pytest code/vlact_ext/tests code/starvla_lab/tests -q   # 169 passed, 2 skipped
+PYTHONPATH=code:../starVLA_code .venv-starvla/bin/python -m pytest code/vlact_ext/tests code/starvla_lab/tests -q   # 181 passed, 2 skipped
 PYTHONPATH=code:../starVLA_code .venv-starvla/bin/python scripts/smoke_starvla_integration.py                       # 约 15 s
 ```
 

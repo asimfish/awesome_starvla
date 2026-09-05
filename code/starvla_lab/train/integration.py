@@ -11,7 +11,8 @@ Two entry points:
   into the config (``trainer.loss_scale.vlm`` is read per step by StarVLA's ``_train_step``), picks the
   active heads for head dropout, and every ``probes.every_n_steps`` measures drift with a
   :class:`starvla_lab.probes.DriftTracker`, logs to JSONL and feeds the schedulers.
-  :func:`attach_to_trainer` wraps ``trainer._train_step`` so the StarVLA loop stays untouched.
+  :func:`attach_to_trainer` wraps ``trainer._train_step`` so the StarVLA loop stays untouched. Probe records
+  are labelled with the number of completed optimizer updates (``step 0`` = reference, before training).
 
 Everything here works on the minimal trainer surface ``config / model / optimizer / lr_scheduler /
 completed_steps / _train_step`` so it can be tested with a mock trainer on CPU.
@@ -32,7 +33,7 @@ from ..schedules.aux_scheduler import AuxDataScheduler
 from ..schedules.llrd import DriftDrivenLLRD, layer_group_index, layerwise_lr_decay_groups
 from .lab_config import LabConfig, cfg_get
 
-__all__ = ["build_optimizer_and_scheduler", "LabHooks", "attach_to_trainer", "unwrap_model", "default_reference_reps"]
+__all__ = ["build_optimizer_and_scheduler", "LabHooks", "attach_to_trainer", "unwrap_model", "default_reference_reps", "completed_updates_after"]
 
 SchedulerFactory = Callable[[torch.optim.Optimizer], Any]
 
@@ -114,7 +115,13 @@ class LabHooks:
         reference_reps: Optional[Sequence[torch.Tensor]] = None,
         layer_names: Optional[Sequence[str]] = None,
         vlm_capability_fn: Optional[Callable[[nn.Module], Mapping[str, float]]] = None,
+        secondary_extract_fn: Optional[ExtractFn] = None,
+        compute_device: Optional[Any] = None,
     ) -> None:
+        """``extract_fn`` feeds the primary :class:`DriftTracker` (drives ``last_drift`` and the schedulers);
+        ``secondary_extract_fn`` (e.g. the pooled view next to the token-level one) is only recorded, under
+        ``drift_secondary``. ``compute_device`` is where the CKA Gram products run (default: where the
+        representations are)."""
         lab.validate()
         self.trainer = trainer
         self.lab = lab
@@ -146,15 +153,26 @@ class LabHooks:
                 self.head_dropout = HeadDropoutSchedule(heads, p_all=lab.head_dropout.p_all, seed=lab.head_dropout.seed)
 
         self.tracker: Optional[DriftTracker] = None
+        self.secondary_tracker: Optional[DriftTracker] = None
         self.runner: Optional[ProbeRunner] = None
+        self.extract_fn = extract_fn
         if lab.probes.enabled:
             if extract_fn is None or probe_batch is None:
                 raise ValueError("probes are enabled: LabHooks needs extract_fn and probe_batch")
-            reference = list(reference_reps) if reference_reps is not None else default_reference_reps(extract_fn, self.model, probe_batch)
-            self.tracker = DriftTracker(extract_fn, probe_batch, reference=reference, layers=lab.probes.layers, layer_names=layer_names)
+            was_training = self.model.training
+            self.model.eval()
+            try:
+                reference = list(reference_reps) if reference_reps is not None else default_reference_reps(extract_fn, self.model, probe_batch)
+                self.tracker = DriftTracker(extract_fn, probe_batch, reference=reference, layers=lab.probes.layers,
+                                            layer_names=layer_names, compute_device=compute_device)
+                if secondary_extract_fn is not None:
+                    self.secondary_tracker = DriftTracker(secondary_extract_fn, probe_batch, reference=self.model,
+                                                          layers=lab.probes.layers, layer_names=layer_names, compute_device=compute_device)
+            finally:
+                self.model.train(was_training)
             self.vlm_capability_fn = vlm_capability_fn
             self.runner = ProbeRunner(
-                [ProbeSchedule(lab.probes.every_n_steps, self._measure)],
+                [ProbeSchedule(lab.probes.every_n_steps, self._measure, name="drift")],
                 jsonl_path=lab.probes.jsonl_path,
             )
 
@@ -168,6 +186,11 @@ class LabHooks:
                 drift_high=lab.llrd.drift_high, drift_low=lab.llrd.drift_low,
                 down_factor=lab.llrd.down_factor, up_factor=lab.llrd.up_factor, min_scale=lab.llrd.min_scale,
             )
+
+        if self.runner is not None and lab.probes.record_initial:
+            # Reference vs. itself before any update: exactly zero unless the extractor is non-deterministic
+            # (noise-floor check). Zero drift leaves the drift-driven schedulers at their initial state.
+            self.runner.run(0)
 
     def _wrap_forward(self, model: nn.Module) -> None:
         if getattr(model, "_lab_forward_wrapped", False):
@@ -203,10 +226,20 @@ class LabHooks:
         self.model.eval()
         try:
             drift = self.tracker.update(self.model, step=step)
+            secondary = self.secondary_tracker.update(self.model, step=step) if self.secondary_tracker is not None else None
         finally:
             self.model.train(was_training)
         summary = self.tracker.summary()
         record: Dict[str, Any] = {"step": step, "time": time.time(), "drift": summary}
+        if secondary is not None:
+            record["drift_secondary"] = self.secondary_tracker.summary()
+        # QwenBackboneProbe exposes how far embed_tokens moved from the pretrained snapshot; useful next to the drift.
+        embed_stats = getattr(self.extract_fn, "embed_stats", None)
+        if embed_stats:
+            record["embed_tokens"] = dict(embed_stats)
+        token_counts = getattr(self.extract_fn, "last_token_counts", None)
+        if token_counts:
+            record["probe_tokens"] = dict(token_counts)
         if self.vlm_capability_fn is not None:
             record["vlm_capability"] = dict(self.vlm_capability_fn(self.model))
         scalar = summary.get(self.lab.probes.drift_summary, summary.get("mean"))
@@ -250,6 +283,22 @@ class LabHooks:
         return info
 
 
+def completed_updates_after(trainer: Any, step_before: int) -> int:
+    """Number of optimizer updates completed once ``_train_step`` has returned.
+
+    StarVLA increments ``completed_steps`` in ``train()`` *after* ``_train_step`` returns (and only when
+    ``accelerator.sync_gradients`` is true), so inside the wrapper the counter still shows the pre-step value;
+    other trainers (and the test double) bump it inside ``_train_step``. Either way the probe fired after this
+    call is labelled with the number of updates actually applied, so JSONL step ``k`` means "after k updates"
+    and matches the reference (``k = 0``) and StarVLA's ``Step k`` log line.
+    """
+    now = int(getattr(trainer, "completed_steps", step_before))
+    if now > step_before:
+        return now
+    synced = getattr(getattr(trainer, "accelerator", None), "sync_gradients", True)
+    return step_before + 1 if synced else step_before
+
+
 def attach_to_trainer(trainer: Any, hooks: LabHooks) -> Any:
     """Wrap ``trainer._train_step`` so hooks run around every step; returns the trainer."""
     original = trainer._train_step
@@ -258,7 +307,7 @@ def attach_to_trainer(trainer: Any, hooks: LabHooks) -> Any:
         step = int(getattr(trainer, "completed_steps", 0))
         before = hooks.before_step(step)
         metrics = original(*args, **kwargs)
-        after = hooks.after_step(step)
+        after = hooks.after_step(completed_updates_after(trainer, step))
         if isinstance(metrics, dict):
             for key in ("vlm_sample_prob", "vlm_loss_scale", "drift"):
                 if key in before:

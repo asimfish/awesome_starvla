@@ -11,7 +11,7 @@ cheaper one and can stream the feature form over row chunks for large ``N``.
 
 from __future__ import annotations
 
-from typing import Optional, Sequence, Tuple
+from typing import Optional, Sequence, Tuple, Union
 
 import torch
 from torch import Tensor
@@ -104,11 +104,21 @@ def layerwise_cka(
     reps_b: Sequence[Tensor],
     chunk_size: Optional[int] = None,
     dtype: torch.dtype = torch.float64,
+    device: Optional[Union[str, torch.device]] = None,
 ) -> Tensor:
-    """Per-layer linear CKA between two lists of representations; returns a ``[L]`` tensor."""
+    """Per-layer linear CKA between two lists of representations; returns a ``[L]`` tensor on the CPU.
+
+    ``device`` moves each layer pair there before the Gram products (one layer at a time, so the stored
+    representations can stay on the CPU): token-level CKA on ``[4096, 2560]`` matrices is a few fp64 GEMMs
+    that take ~1 min per 36-layer probe on a CPU and well under a second on an A100.
+    """
     if len(reps_a) != len(reps_b):
         raise ValueError(f"layer count mismatch: {len(reps_a)} vs {len(reps_b)}")
     if not reps_a:
         return torch.zeros(0, dtype=dtype)
-    values = [linear_cka(a, b, chunk_size=chunk_size, dtype=dtype) for a, b in zip(reps_a, reps_b)]
+    values = []
+    for a, b in zip(reps_a, reps_b):
+        if device is not None:
+            a, b = a.to(device), b.to(device)
+        values.append(linear_cka(a, b, chunk_size=chunk_size, dtype=dtype))
     return torch.stack([v.to("cpu") for v in values])

@@ -366,7 +366,7 @@ def check_lab_wiring(model, workdir: Path) -> None:
             self.completed_steps += 1
             return {"action_dit_loss": float(out["action_loss"].detach())}
 
-    def extract_fn(m, batch):  # mirrors starvla_lab.train.train_starvla_lab.qwen_layer_extract_fn
+    def extract_fn(m, batch):  # simplified mean-pool view of starvla_lab.probes.QwenBackboneProbe on the tiny VLM
         inputs = m.qwen_vl_interface.build_qwenvl_inputs([ex["image"] for ex in batch], m._prepare_instructions(batch))
         with torch.no_grad():
             out = m.qwen_vl_interface.model(**inputs, output_hidden_states=True)
@@ -386,7 +386,10 @@ def check_lab_wiring(model, workdir: Path) -> None:
     assert seen_heads <= {"oft", "gr00t", "pi"} and len(seen_heads) >= 2, f"head dropout did not rotate heads: {seen_heads}"
     assert abs(cfg["trainer"]["loss_scale"]["vlm"] - metrics["lab/vlm_loss_scale"]) < 1e-9, "aux scheduler must write loss_scale.vlm back"
     records = read_jsonl(workdir / "probes.jsonl")
-    assert len(records) == steps // 2, f"expected {steps // 2} probe records, got {len(records)}"
+    # step = completed updates: the initial reference-vs-itself record (step 0, drift 0) plus one every 2 updates
+    expected_steps = [0] + list(range(2, steps + 1, 2))
+    assert [r["step"] for r in records] == expected_steps, f"expected probe steps {expected_steps}, got {[r['step'] for r in records]}"
+    assert records[0]["drift"]["mean"] == 0.0, "reference vs. itself must have zero drift"
     assert all("drift" in r for r in records) and hooks.last_drift is not None and hooks.last_drift >= 0
     assert "llrd_multipliers" in records[-1], "drift-driven LLRD did not act on the probe"
 

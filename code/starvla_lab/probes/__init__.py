@@ -14,8 +14,12 @@ from .action_probe import (
 from .cka import layerwise_cka, linear_cka
 from .drift import DriftRecord, DriftTracker, ExtractFn, drift_to_llrd_decay
 from .hooks import ProbeRunner, ProbeSchedule, install_hook_example, read_jsonl, to_jsonable
+from .qwen_extract import QwenBackboneProbe, gather_probe_batch, stratified_probe_batch
 
 __all__ = [
+    "QwenBackboneProbe",
+    "gather_probe_batch",
+    "stratified_probe_batch",
     "LinearProbe",
     "MLPProbe",
     "ProbeReport",

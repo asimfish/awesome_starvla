@@ -101,6 +101,26 @@ class ProbesConfig:
     layers: Optional[List[int]] = None
     drift_summary: str = "mean"        # which DriftTracker summary scalar drives the schedulers
     calibrate_only: bool = False       # record drift but do not act on it (threshold calibration run)
+    record_initial: bool = True        # measure once before the first update (expected drift 0 = noise floor)
+    # Representation fed to CKA (see probes/qwen_extract.py). "token": every valid token is a sample, the
+    # primary metric after F0; "pooled": per-sample masked mean, kept as a secondary view in the JSONL.
+    representation: str = "token"
+    secondary_representation: Optional[str] = "pooled"
+    token_subset: str = "all"          # all | image | text
+    max_tokens: int = 4096
+    restore_pretrained_embeddings: bool = True   # swap the pretrained embed_tokens in while probing (F0 finding)
+    # Probe batch: drawn from `probe_data_mix` (StarVLA mixture name or inline `dir:robot,...`, see
+    # data/mixtures.py) when set, else from the training loader; round-robin over instructions when stratified.
+    probe_data_mix: Optional[str] = None
+    stratify_by_instruction: bool = True
+    pool_factor: int = 4
+
+    def __post_init__(self) -> None:
+        # OmegaConf/YAML `null` is dropped by _fill (it means "keep the default"), so "none" is the explicit off switch.
+        if self.secondary_representation is not None and str(self.secondary_representation).lower() in ("none", "null", ""):
+            self.secondary_representation = None
+        if self.probe_data_mix is not None and str(self.probe_data_mix).strip() == "":
+            self.probe_data_mix = None
 
 
 @dataclass
@@ -139,3 +159,15 @@ class LabConfig:
             raise ValueError("trainer.lab.aux_scheduler.strategy=drift requires trainer.lab.probes.enabled")
         if self.probes.enabled and self.probes.every_n_steps <= 0:
             raise ValueError("trainer.lab.probes.every_n_steps must be positive")
+        if self.probes.enabled:
+            reps = ("token", "pooled")
+            if self.probes.representation not in reps:
+                raise ValueError(f"trainer.lab.probes.representation must be one of {reps}")
+            if self.probes.secondary_representation not in (None, *reps):
+                raise ValueError(f"trainer.lab.probes.secondary_representation must be null or one of {reps}")
+            if self.probes.secondary_representation == self.probes.representation:
+                raise ValueError("trainer.lab.probes.secondary_representation must differ from representation (or be null)")
+            if self.probes.token_subset not in ("all", "image", "text"):
+                raise ValueError("trainer.lab.probes.token_subset must be all | image | text")
+            if self.probes.probe_batch_size < 2:
+                raise ValueError("trainer.lab.probes.probe_batch_size must be >= 2")

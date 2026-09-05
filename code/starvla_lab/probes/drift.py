@@ -29,7 +29,9 @@ class DriftTracker:
 
     ``reference`` is either a model (representations are extracted once with ``extract_fn``) or a
     precomputed sequence of per-layer tensors. ``layers`` selects indices from the list returned by
-    ``extract_fn`` (default: all). Representations are moved to ``device`` (cpu by default) before CKA.
+    ``extract_fn`` (default: all). Representations are stored on ``device`` (cpu by default); the CKA of each
+    layer pair is computed on ``compute_device`` (default: wherever the tensors are), so a GPU can do the
+    fp64 Gram products while the reference stays in host memory.
     """
 
     def __init__(
@@ -41,12 +43,14 @@ class DriftTracker:
         layer_names: Optional[Sequence[str]] = None,
         chunk_size: Optional[int] = None,
         device: Union[str, torch.device] = "cpu",
+        compute_device: Optional[Union[str, torch.device]] = None,
     ) -> None:
         self.extract_fn = extract_fn
         self.probe_batch = probe_batch
         self.layers = list(layers) if layers is not None else None
         self.chunk_size = chunk_size
         self.device = torch.device(device)
+        self.compute_device = torch.device(compute_device) if compute_device is not None else None
         self.history: List[DriftRecord] = []
 
         if isinstance(reference, (list, tuple)):
@@ -80,7 +84,7 @@ class DriftTracker:
         current = self._extract(model)
         if len(current) != self.num_layers:
             raise ValueError(f"extract_fn returned {len(current)} layers, reference has {self.num_layers}")
-        cka = layerwise_cka(self.reference, current, chunk_size=self.chunk_size)
+        cka = layerwise_cka(self.reference, current, chunk_size=self.chunk_size, device=self.compute_device)
         drift = (1.0 - cka).clamp(0.0, 1.0)
         self.history.append(DriftRecord(step=step, drift=drift))
         return drift

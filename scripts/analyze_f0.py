@@ -72,12 +72,24 @@ def summarise_run(name: str, metrics: List[Dict], probes: List[dict], out: Path)
 
     drift_rows = []
     for rec in probes:
-        row = {"step": rec["step"], "mean": rec["drift"]["mean"], "max": rec["drift"]["max"], "max_layer": rec["drift"]["max_layer"]}
-        row.update(rec["drift"]["per_layer"])
+        per_layer = rec["drift"]["per_layer"]
+        values = list(per_layer.values())
+        n_frozen = min(18, len(values))  # F0 freezes LLM layers 0-17
+        row = {
+            "step": rec["step"], "mean": rec["drift"]["mean"], "max": rec["drift"]["max"], "max_layer": rec["drift"]["max_layer"],
+            "frozen_mean": sum(values[:n_frozen]) / max(n_frozen, 1),
+            "trainable_mean": sum(values[n_frozen:]) / max(len(values) - n_frozen, 1),
+            "secondary_mean": rec.get("drift_secondary", {}).get("mean", float("nan")),
+            "secondary_max": rec.get("drift_secondary", {}).get("max", float("nan")),
+            "embed_changed_rows": rec.get("embed_tokens", {}).get("changed_rows", float("nan")),
+            "embed_rel_change": rec.get("embed_tokens", {}).get("relative_frobenius_change", float("nan")),
+        }
+        row.update(per_layer)
         drift_rows.append(row)
     if drift_rows:
         layer_keys = [k for k in drift_rows[0] if k.startswith("layer_")]
-        write_csv(out / f"{name}_drift.csv", drift_rows, ["step", "mean", "max", "max_layer"] + layer_keys)
+        head = ["step", "mean", "max", "max_layer", "frozen_mean", "trainable_mean", "secondary_mean", "secondary_max", "embed_changed_rows", "embed_rel_change"]
+        write_csv(out / f"{name}_drift.csv", drift_rows, head + layer_keys)
 
     loss_key = "action_dit_loss"
     losses = [(r["step"], r[loss_key]) for r in metrics if loss_key in r]
@@ -88,16 +100,23 @@ def summarise_run(name: str, metrics: List[Dict], probes: List[dict], out: Path)
         return sum(vals) / len(vals) if vals else float("nan")
 
     last = max(s for s, _ in losses) if losses else 0
+    # timing/model of a logged step includes the probe forward passes when a probe fired at that step, so the
+    # per-step cost is the median; the probe overhead is reported separately from the steps that carry it.
+    step_times = sorted(r["timing/model"] for r in metrics if "timing/model" in r and 1 <= r["step"] <= last)
+    median_step = step_times[len(step_times) // 2] if step_times else float("nan")
+    probe_steps = {p["step"] for p in probes}
+    probe_times = [r["timing/model"] - median_step for r in metrics if "timing/model" in r and r["step"] in probe_steps and r["step"] > 0]
     summary = {
         "name": name,
         "steps_logged": len(losses),
         "loss_first": losses[0][1] if losses else float("nan"),
         "loss_steps_1_50": window(losses, 1, 50),
         "loss_last_50": window(losses, max(1, last - 49), last),
-        "sec_per_step": window([(r["step"], r["timing/model"]) for r in metrics if "timing/model" in r], 1, last),
+        "sec_per_step": median_step,
+        "probe_overhead_s": sum(probe_times) / len(probe_times) if probe_times else float("nan"),
         "mse_last": next((r["mse_score"] for r in sorted(metrics, key=lambda r: -r["step"]) if "mse_score" in r), float("nan")),
         "head_losses_last_50": {k: window(v, max(1, last - 49), last) for k, v in head_losses.items()},
-        "drift": [(r["step"], round(r["mean"], 4), round(r["max"], 4), r["max_layer"]) for r in drift_rows],
+        "drift": [(r["step"], r["mean"], r["max"], r["max_layer"], r["frozen_mean"], r["trainable_mean"], r["secondary_mean"], r["embed_changed_rows"]) for r in drift_rows],
     }
     return summary
 
@@ -108,7 +127,8 @@ def plot(runs: Dict[str, Dict], out: Path) -> Optional[Path]:
 
         matplotlib.use("Agg")
         import matplotlib.pyplot as plt
-    except ImportError:
+    except Exception as exc:  # missing, or a matplotlib/numpy ABI mismatch: the tables are still written
+        print(f"[warn] matplotlib unavailable ({type(exc).__name__}); skipping f0_curves.png")
         return None
     fig, axes = plt.subplots(1, 3, figsize=(15, 4))
     for name, (metrics, probes) in runs.items():
@@ -118,13 +138,16 @@ def plot(runs: Dict[str, Dict], out: Path) -> Optional[Path]:
         for k in sorted({k for r in metrics for k in r if k.startswith("lab/loss_")}):
             axes[1].plot([r["step"] for r in metrics if k in r], [r[k] for r in metrics if k in r], label=f"{name}:{k[4:]}", alpha=0.85)
         if probes:
-            axes[2].plot([p["step"] for p in probes], [p["drift"]["mean"] for p in probes], marker="o", label=f"{name} mean")
-            axes[2].plot([p["step"] for p in probes], [p["drift"]["max"] for p in probes], marker="x", linestyle="--", label=f"{name} max")
+            steps = [p["step"] for p in probes]
+            axes[2].plot(steps, [p["drift"]["mean"] for p in probes], marker="o", label=f"{name} mean")
+            axes[2].plot(steps, [p["drift"]["max"] for p in probes], marker="x", linestyle="--", label=f"{name} max")
+            if all("drift_secondary" in p for p in probes):
+                axes[2].plot(steps, [p["drift_secondary"]["mean"] for p in probes], marker=".", linestyle=":", alpha=0.7, label=f"{name} secondary mean")
     axes[0].set_title("action loss (logged every 10 steps)"); axes[0].set_xlabel("step"); axes[0].legend()
     axes[1].set_title("per-head losses (QwenMultiHead)"); axes[1].set_xlabel("step")
     if axes[1].lines:
         axes[1].legend(fontsize=8)
-    axes[2].set_title("representation drift 1-CKA vs. pretrained VLM"); axes[2].set_xlabel("probe step"); axes[2].legend(fontsize=8)
+    axes[2].set_title("backbone drift 1-CKA vs. pretrained VLM"); axes[2].set_xlabel("completed updates"); axes[2].set_yscale("symlog", linthresh=1e-4); axes[2].legend(fontsize=7)
     fig.tight_layout()
     path = out / "f0_curves.png"
     fig.savefig(path, dpi=130)
@@ -146,14 +169,19 @@ def main() -> int:
         runs[name] = (metrics, probes)
         summaries.append(summarise_run(name, metrics, probes, out))
 
-    lines = ["| run | logged pts | loss steps 1-50 | loss last 50 | in-train MSE (last) | s/step | per-head loss (last 50) |", "|---|---:|---:|---:|---:|---:|---|"]
+    lines = ["| run | logged pts | loss steps 1-50 | loss last 50 | in-train MSE (last) | s/step (median) | probe overhead s | per-head loss (last 50) |",
+             "|---|---:|---:|---:|---:|---:|---:|---|"]
     for s in summaries:
         heads = ", ".join(f"{k[9:]}={v:.3f}" for k, v in s["head_losses_last_50"].items()) or "-"
-        lines.append(f"| {s['name']} | {s['steps_logged']} | {s['loss_steps_1_50']:.3f} | {s['loss_last_50']:.3f} | {s['mse_last']:.4f} | {s['sec_per_step']:.2f} | {heads} |")
-    lines += ["", "| run | probe step | drift mean | drift max | max layer |", "|---|---:|---:|---:|---|"]
+        po = f"{s['probe_overhead_s']:.1f}" if s["probe_overhead_s"] == s["probe_overhead_s"] else "-"
+        lines.append(f"| {s['name']} | {s['steps_logged']} | {s['loss_steps_1_50']:.3f} | {s['loss_last_50']:.3f} | {s['mse_last']:.4f} | {s['sec_per_step']:.2f} | {po} | {heads} |")
+    lines += ["", "| run | updates | drift mean | frozen L0-17 | trainable L18-35 | max (layer) | secondary mean | embed rows changed |",
+              "|---|---:|---:|---:|---:|---|---:|---:|"]
     for s in summaries:
-        for step, mean, mx, layer in s["drift"]:
-            lines.append(f"| {s['name']} | {step} | {mean:.4f} | {mx:.4f} | {layer} |")
+        for step, mean, mx, layer, frozen, trainable, secondary, rows in s["drift"]:
+            sec = f"{secondary:.5f}" if secondary == secondary else "-"
+            emb = f"{int(rows)}" if rows == rows else "-"
+            lines.append(f"| {s['name']} | {step} | {mean:.5f} | {frozen:.5f} | {trainable:.5f} | {mx:.5f} ({layer}) | {sec} | {emb} |")
     (out / "summary.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
     print("\n".join(lines))
     fig = plot(runs, out)
