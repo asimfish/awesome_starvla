@@ -1,10 +1,16 @@
 #!/usr/bin/env python3
-"""Generate experiments/run_matrix.csv from starvla_lab/configs (protocol_f1.yaml + matrix_R0_R9.yaml).
+"""Generate the downstream run matrices from starvla_lab/configs (protocol_f1.yaml + matrix_R0_R9.yaml).
+
+Outputs (under experiments/):
+  run_matrix.csv            main matrix, downstream head = protocol head (OFT), tiered seeds / GR1 fractions
+  run_matrix_<head>.csv     cross-head matrices for the heads listed in the core tier
+  budget.md                 pre-training + downstream GPU-hour budget
 
 Usage: python3 scripts/build_run_matrix.py [--print-commands N]
 """
 import argparse
 import sys
+from dataclasses import replace
 from pathlib import Path
 
 import yaml
@@ -12,46 +18,101 @@ import yaml
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "code"))
 
-from starvla_lab.bench import BackboneSpec, BenchmarkSpec, Protocol, build_runs, render_commands, varying_keys, write_matrix_csv  # noqa: E402
+from starvla_lab.bench import (  # noqa: E402
+    BackboneSpec, BenchmarkSpec, Protocol, build_runs, render_commands, total_gpu_hours, varying_keys, write_matrix_csv,
+)
 
 
-def main() -> None:
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--print-commands", type=int, default=0, help="print the first N train/eval commands")
-    args = ap.parse_args()
-
-    cfg_dir = ROOT / "code" / "starvla_lab" / "configs"
-    f1 = yaml.safe_load((cfg_dir / "protocol_f1.yaml").read_text(encoding="utf-8"))
-    matrix = yaml.safe_load((cfg_dir / "matrix_R0_R9.yaml").read_text(encoding="utf-8"))
-
+def load_protocol(f1: dict) -> Protocol:
     p = f1["protocol"]
-    protocol = Protocol(
+    return Protocol(
         head=p["head"], max_steps=p["max_steps"], per_device_batch_size=p["per_device_batch_size"],
         learning_rate_backbone=float(p["learning_rate_backbone"]), learning_rate_head=float(p["learning_rate_head"]),
         seeds=tuple(p["seeds"]), checkpoint_rule=p["checkpoint_rule"], train_script=p["train_script"],
         accelerate_config=p["accelerate_config"], run_root_dir=p["run_root_dir"],
     )
-    benchmarks = [
-        BenchmarkSpec(b["name"], b["train_yaml"], b["eval_script"], tuple(b.get("metric_keys", ["success_rate"])),
-                      tuple(b.get("data_fractions", [1.0])), int(b.get("num_gpus", 8)))
-        for b in f1["benchmarks"]
-    ]
+
+
+def load_benchmarks(f1: dict) -> list:
+    out = []
+    for b in f1["benchmarks"]:
+        out.append(BenchmarkSpec(
+            b["name"], b["train_yaml"], b["eval_script"], tuple(b.get("metric_keys", ["success_rate"])),
+            tuple(b.get("data_fractions", [1.0])), int(b.get("num_gpus", 8)), {},
+            b.get("eval_cmd_template", "bash {eval_script} {checkpoint_dir}"), float(b.get("est_gpu_hours_per_run", 0.0)),
+        ))
+    return out
+
+
+def build_tiered_runs(protocol, benchmarks, matrix):
+    """Core-tier backbones get the full GR1 fraction curve and all seeds; extra-tier a reduced set."""
+    tiers = matrix["tiers"]
     ckpt_glob = matrix["pretrain_common"]["checkpoint_glob"]
-    backbones = []
+    runs = []
     for rid, v in matrix["variants"].items():
         if v.get("protocol") == "eventvla":
-            continue  # R9 uses the EventVLA protocol, not F1
+            continue
+        tier = tiers[v.get("tier", "extra")]
         init = v.get("backbone_init") or ckpt_glob.format(run_id=f"pretrain_{rid}")
-        backbones.append(BackboneSpec(rid, init))
+        backbone = BackboneSpec(rid, init, seeds=tuple(tier["seeds"]))
+        benches = []
+        for b in benchmarks:
+            if b.name == "robocasa_gr1":
+                benches.append(replace(b, data_fractions=tuple(tier["gr1_fractions"])))
+            else:
+                benches.append(b)
+        runs.extend(build_runs(protocol, [backbone], benches))
+    return runs
 
-    runs = build_runs(protocol, backbones, benchmarks)
-    out = write_matrix_csv(runs, ROOT / "experiments" / "run_matrix.csv")
-    pre_hours = sum(int(v.get("est_gpu_hours", 0)) for v in matrix["variants"].values())
-    print(f"wrote {out} with {len(runs)} downstream runs "
-          f"({len(backbones)} backbones x {sum(len(b.data_fractions) for b in benchmarks)} benchmark settings x {len(protocol.seeds)} seeds)")
-    print(f"pre-training budget (16xA100 GPU-hours, from matrix): {pre_hours}")
-    print("keys that vary across runs:", varying_keys(runs))
-    for r in runs[: args.print_commands]:
+
+def main() -> None:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--print-commands", type=int, default=0)
+    args = ap.parse_args()
+
+    cfg_dir = ROOT / "code" / "starvla_lab" / "configs"
+    f1 = yaml.safe_load((cfg_dir / "protocol_f1.yaml").read_text(encoding="utf-8"))
+    matrix = yaml.safe_load((cfg_dir / "matrix_R0_R9.yaml").read_text(encoding="utf-8"))
+    protocol = load_protocol(f1)
+    benchmarks = load_benchmarks(f1)
+    out_dir = ROOT / "experiments"
+
+    main_runs = build_tiered_runs(protocol, benchmarks, matrix)
+    write_matrix_csv(main_runs, out_dir / "run_matrix.csv")
+    print(f"run_matrix.csv: {len(main_runs)} downstream runs ({protocol.head}); varying keys: {varying_keys(main_runs)}")
+
+    # cross-head matrices: only core-tier variants, one seed, LIBERO-plus + RoboTwin Base
+    cross_runs = {}
+    core_heads = matrix["tiers"]["core"].get("cross_heads", [])
+    for head in core_heads:
+        proto_h = replace(protocol, head=head, run_root_dir=f"{protocol.run_root_dir}_{head}")
+        bbs = [BackboneSpec(rid, (v.get("backbone_init") or matrix["pretrain_common"]["checkpoint_glob"].format(run_id=f"pretrain_{rid}")), seeds=(0,))
+               for rid, v in matrix["variants"].items() if v.get("tier") == "core" and v.get("protocol") != "eventvla"]
+        benches = [b for b in benchmarks if b.name in ("libero_plus", "robotwin_base")]
+        runs = build_runs(proto_h, bbs, benches)
+        write_matrix_csv(runs, out_dir / f"run_matrix_{head}.csv")
+        cross_runs[head] = runs
+        print(f"run_matrix_{head}.csv: {len(runs)} cross-head runs")
+
+    pre_hours = {rid: int(v.get("est_gpu_hours", 0)) for rid, v in matrix["variants"].items()}
+    down_main = total_gpu_hours(main_runs)
+    down_cross = sum(total_gpu_hours(r) for r in cross_runs.values())
+    total = sum(pre_hours.values()) + down_main + down_cross
+    lines = [
+        "# GPU-hour budget (16 x A100-class; generated by scripts/build_run_matrix.py)", "",
+        "| item | GPU-hours | runs |", "|---|---:|---:|",
+        f"| pre-training R1-R8 | {sum(pre_hours.values()):,.0f} | {sum(1 for v in pre_hours.values() if v > 0)} |",
+        f"| downstream, main head ({protocol.head}) | {down_main:,.0f} | {len(main_runs)} |",
+    ]
+    for head, runs in cross_runs.items():
+        lines.append(f"| downstream, cross-head {head} | {total_gpu_hours(runs):,.0f} | {len(runs)} |")
+    lines += [f"| **total** | **{total:,.0f}** | |", "",
+              f"At 16 GPUs continuously: about {total / 16 / 24:.0f} days. Per-run downstream estimates come from "
+              "protocol_f1.yaml (30k steps at StarVLA's measured 1.77 s/step on 8xA100 with batch 16)."]
+    (out_dir / "budget.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+    print("\n".join(lines[2:]))
+
+    for r in main_runs[: args.print_commands]:
         c = render_commands(r, protocol, starvla_root="<StarVLA>")
         print(f"\n# {r.run_id}\n{c['train']}\n{c['eval']}")
 

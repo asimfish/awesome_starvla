@@ -5,8 +5,8 @@
 ![reports](https://img.shields.io/badge/reports-11-red)
 ![zh-PDF](https://img.shields.io/badge/zh--PDF-7-green)
 ![slides](https://img.shields.io/badge/slides-29p_beamer_%2B_18p_pptx-orange)
-![full report](https://img.shields.io/badge/full_report-55p-8a2be2)
-![code](https://img.shields.io/badge/code-vlact__ext_61_%2B_starvla__lab_95_tests-brightgreen)
+![full report](https://img.shields.io/badge/full_report-62p-8a2be2)
+![code](https://img.shields.io/badge/code-vlact__ext_61_%2B_starvla__lab_110_tests-brightgreen)
 ![license](https://img.shields.io/badge/license-CC_BY_4.0-8a2be2)
 
 ![Figure 1 · Timeline](assets/fig1_timeline.svg)
@@ -19,13 +19,13 @@
 
 围绕 **StarVLA 代码库生态**与 **VLA（Vision-Language-Action）持续预训练 / 动作头 / 跨本体表示学习**的论文与资源列表 + 系统性调研仓库（2026-09 完成）。核心对象是三篇同一团队、同一骨干（Qwen3-VL-4B）、同一代码库的工作：[StarVLA 技术报告](https://arxiv.org/abs/2604.05014)（基础设施）、[StarVLA-α](https://arxiv.org/abs/2604.11757)（去混杂的对照基线）、[VLAct](https://arxiv.org/abs/2608.27550)（表示中心的持续预训练配方）。与一般 awesome 列表不同，本仓库同时提供：
 
-- **11 份中文深度报告**（`reports/`）：VLAct 精读、StarVLA 代码库逐文件解析（含 VLAct 配方在代码中"已有 / 部分 / 缺失"的对照与 diff 级改动建议）、StarVLA-α 与技术报告解读、动作头综合对比、13 个基准的评测生态、研究路线图（6 类 18 个方向 + 六个月执行计划）、**四种动作头（FAST / OFT / PI / GR00T）的 60 分钟讲稿**（配 20 页讲解幻灯片）、**EventVLA 解读**（StarVLA-OFT 上的稀疏视觉证据记忆，正面回应 Memory 短板）、**改进方案**（4 个研究问题、8 个工作包、R0–R9 实验矩阵、4 个决策门）
+- **11 份中文深度报告**（`reports/`）：VLAct 精读、StarVLA 代码库逐文件解析（含 VLAct 配方在代码中"已有 / 部分 / 缺失"的对照与 diff 级改动建议）、StarVLA-α 与技术报告解读、动作头综合对比、13 个基准的评测生态、研究路线图（6 类 18 个方向 + 六个月执行计划）、**四种动作头（FAST / OFT / PI / GR00T）的 60 分钟讲稿**（配 20 页讲解幻灯片）、**EventVLA 解读**（StarVLA-OFT 上的稀疏视觉证据记忆，正面回应 Memory 短板）、**改进方案 v2**（4 个研究问题、10 个工作包、分级 R0–R9 实验矩阵与 21,000 GPU 小时预算、4 个决策门、设计评审修订记录）
 - **7 篇论文英文原版 + 保版式中文翻译 PDF**（`papers/`，翻译由 [super_translate](https://github.com/asimfish/super_translate) 生成）：StarVLA 三篇、四个动作头的源论文中的 FAST、OpenVLA-OFT、GR00T N1，以及 EventVLA（七篇均为 CC BY 4.0；π0 为 arXiv 非独占许可，仓库只放链接）
 - **EventVLA 代码与 RoboTwin-MeM 基准**（`code/EventVLA/`，git 子模块）
 - **29 页 Beamer 幻灯片**（`report/awesome_starvla_slides.pdf`，XeLaTeX 源码同目录）+ **18 页原生可编辑 PPTX**（`report/awesome_starvla_slides.pptx`，由 [ppt-master](https://github.com/hugohe3/ppt-master) Quick Generate 生成，全部为原生形状与表格）+ **44 页合订全文报告**（`report/awesome_starvla_full_report.pdf`，10 份报告 + 两张总览图）
 - **120 篇文献编目**（第 4 节，113 条 arXiv 链接经 arXiv API 逐条核验标题，其余 7 条为无 arXiv 的官方技术博客 / 模型卡 / 数据集页）
 - **VLAct 缺失组件的 StarVLA 扩展代码**（`code/vlact_ext/`，约 1,600 行）：多头共监督框架 `QwenMultiHead`、wrap-aware L1、20 维部分统一动作布局 transform、正则 / 区间冻结规则，附 61 个 CPU 单元测试与完整的 VLAct 预训练示例 yaml；不改 StarVLA 任何已有文件即可拷入使用
-- **改进方案的研究包**（`code/starvla_lab/`，约 3,600 行，95 个 CPU 测试）：骨干可复用性探针与表征漂移诊断、分层学习率衰减与漂移驱动的冻结 / 辅助数据调度、未来特征预测头与关键帧头（`QwenMultiHeadLab`）、"只换骨干"基准协议与开销测量，以及 R0–R9 实验矩阵（`experiments/run_matrix.csv`，162 次下游微调）
+- **改进方案的研究包**（`code/starvla_lab/`，约 4,800 行，110 个 CPU 测试）：骨干可复用性探针与表征漂移诊断、分层学习率衰减与漂移驱动的冻结 / 辅助数据调度、未来特征预测头与关键帧头（`QwenMultiHeadLab`）、数据比例子采样与两类辅助头的离线数据准备、把这些接进 StarVLA 训练循环的入口 `train_starvla_lab.py`、"只换骨干"基准协议与开销测量，以及分级的 R0–R9 实验矩阵与全量 GPU 预算（`experiments/`）
 
 一句话结论：**VLM 骨干是 VLA 的一阶设计变量，预训练不是双刃剑，配方决定符号**——朴素动作拟合会把机器人预训练变成负资产（OXE 预训练让 RoboCasa-GR1 24×10 从 9.8 掉到 1.2），保护 VLM 先验 + 多头共监督 + 部分统一动作空间把同样的数据源变成净收益（20% 数据超过全量 GR00T-N1.6）；下一步最值钱的是表征诊断工具、"只换骨干"的基准协议，以及所有人都接近零的 Memory 维度。
 
@@ -81,7 +81,7 @@ StarVLA 团队或直接基于 StarVLA 代码库构建的工作以 ⭐ 标记。
 | 时间预算 | 路线 |
 |---|---|
 | 15 分钟 | [`report/awesome_starvla_slides.pdf`](report/awesome_starvla_slides.pdf)（29 页 Beamer，含 4 页备份）或 [`report/awesome_starvla_slides.pptx`](report/awesome_starvla_slides.pptx)（18 页精简版，PowerPoint 可编辑） |
-| 通读 | [`report/awesome_starvla_full_report.pdf`](report/awesome_starvla_full_report.pdf)（55 页 A4，10 份报告合订 + 图 1 时间线 / 图 2 设计空间）· [HTML 版](report/awesome_starvla_full_report.html) |
+| 通读 | [`report/awesome_starvla_full_report.pdf`](report/awesome_starvla_full_report.pdf)（62 页 A4，10 份报告合订 + 图 1 时间线 / 图 2 设计空间）· [HTML 版](report/awesome_starvla_full_report.html) |
 | 1 小时 | [01 · VLAct 精读](reports/01_vlact_deep_dive.md) → [05 · 动作头与动作表示](reports/05_action_heads_and_representation.md) → [07 · 研究路线图](reports/07_research_roadmap.md) |
 | 动手做改进 | [10 · 改进方案](reports/10_improvement_plan.md)（研究问题 → 工作包 → 实验矩阵 → 决策门） → [`code/starvla_lab/README.md`](code/starvla_lab/README.md)（怎么接进 StarVLA） → [`experiments/README.md`](experiments/README.md)（运行清单与结果台账）；动 EventVLA 之前先读 [11 · EventVLA 代码审计](reports/11_eventvla_code_audit.md)（论文 vs 代码差异、复现坑、改进落点） |
 | 搞懂四个动作头 | [08 · 讲稿：FAST / OFT / PI / GR00T](reports/08_action_heads_lecture.md)（60 分钟组会讲稿，含直觉、公式、训练/推理、StarVLA 实现、选型问答）+ [讲解幻灯片](report/action_heads_lecture_slides.pdf)（20 页）+ 四篇源论文中译（`papers/zh/`） |
@@ -128,7 +128,7 @@ _Johan Bjorck et al._（NVIDIA）— 双系统：Eagle-2 VLM（第 12 层特征�
 | 05 | [动作头与动作表示](reports/05_action_heads_and_representation.md) | 四种头的形式化、三篇论文全部对照数字、动作空间设计证据、选型指南 | ~120 |
 | 06 | [基准生态](reports/06_benchmarks_landscape.md) | 13 个仿真基准 + 5 个真机流程逐个拆解（协议、数字、入口脚本、已知问题）、评测公平性、真机协议、**面向持续预训练研究的基准选择建议**、没有好基准的维度 | ~310 |
 | 07 | [研究路线图](reports/07_research_roadmap.md) | 三篇论文留下的地图、6 类 18 个方向（问题 / 证据 / 做法 / 代码落点 / 评测 / 风险）、优先级矩阵、六个月执行计划、风险与对策 | ~180 |
-| 10 | [改进方案](reports/10_improvement_plan.md) | 四个研究问题与假设（可复用性能否直接度量、头多样性能否推到非动作头、先验保护能否自动化、骨干配方与记忆是否叠加）、八个工作包与验收标准、R0–R9 实验矩阵与 GPU 预算、六个月里程碑与四个决策门、代码组织规范、阶段 A 交付清单 | ~110 |
+| 10 | [改进方案 v2](reports/10_improvement_plan.md) | 四个研究问题与预注册的假设、十个工作包（含数据准备与训练集成）与验收标准、分级 R0–R9 实验矩阵与全量 GPU 预算、六个月里程碑与四个决策门、已知偏差与解释约束、设计评审的 13 条修订记录 | ~165 |
 | 11 | [EventVLA 代码审计](reports/11_eventvla_code_audit.md) | 逐文件核对 `code/EventVLA`：输入序列（12 张锚点图 + ≤4 张记忆图、组标签）、MLP-L1 头与关键帧头、raised-cosine 软标签 + pos_weight BCE、训练单事件 / 推理 NMS + 冷却 + 单 pending、有状态的 teacher→student 训练循环；关键帧标签是脚本 oracle 而非 Qwen3-VL；评测协议（100 集、unseen、LargeView、缺失的步数上限、首 chunk 随机 replan、只在前 3 次 commit 后 replan）；**论文 vs 代码 17 项对照表**、上游 16 个 issue 的复现坑、P0–P2 十条改进落点 | ~170 |
 | 09 | [EventVLA 解读](reports/09_eventvla.md) | 非马尔可夫操作任务、规则视觉锚点 + 关键帧证据记忆头（与动作头并联、从同一隐状态预测未来 H 步的关键帧概率、原图写入有界 FIFO）、RoboTwin-MeM 基准（n=1–5 可控）、RMBench 67.8 / RoboTwin-MeM 3.8→75.2 / 真机 60–90、局限与可直接做的叠加实验 | ~100 |
 | 08 | [讲稿：四种动作头](reports/08_action_heads_lecture.md) | FAST（DCT + BPE 时间序列压缩）、OFT（并行解码 + L1 回归）、PI（flow matching 动作专家）、GR00T（双系统 DiT）各一节：要解决的问题、核心机制、训练与推理、论文结果、StarVLA 实现；横向对比、选型问答、阅读顺序、公式速查 | ~300 |

@@ -58,7 +58,19 @@ def test_render_commands_contains_overrides_and_eval():
     cmd = render_commands(run, PROTO, starvla_root="/opt/starVLA")
     assert cmd["train"].startswith("cd /opt/starVLA && accelerate launch")
     assert "--framework.name QwenOFT" in cmd["train"] and f"--run_id {run.run_id}" in cmd["train"]
-    assert cmd["eval"].endswith(f"{PROTO.run_root_dir}/{run.run_id} 0")
+    assert cmd["eval"] == f"cd /opt/starVLA && bash {run.eval_script} {PROTO.run_root_dir}/{run.run_id}"
+
+
+def test_eval_template_and_per_backbone_seeds():
+    bench = BenchmarkSpec("robotwin_base", "x.yaml", "examples/simBenchmarks/Robotwin/eval_files/eval.sh",
+                          eval_cmd_template="CKPT={checkpoint_dir} SEED={seed} bash {eval_script}", est_gpu_hours_per_run=120.0)
+    tiered = [BackboneSpec("core", "/c.pt"), BackboneSpec("extra", "/e.pt", seeds=(0,))]
+    runs = build_runs(PROTO, tiered, [bench])
+    assert [r.seed for r in runs if r.backbone == "core"] == [0, 1] and [r.seed for r in runs if r.backbone == "extra"] == [0]
+    cmd = render_commands(runs[0], PROTO, starvla_root="/opt/starVLA")
+    assert cmd["eval"] == f"cd /opt/starVLA && CKPT={PROTO.run_root_dir}/{runs[0].run_id} SEED=0 bash {bench.eval_script}"
+    from starvla_lab.bench import total_gpu_hours
+    assert total_gpu_hours(runs) == pytest.approx(360.0)
 
 
 def test_csv_roundtrip(tmp_path: Path):

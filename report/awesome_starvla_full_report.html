@@ -37,10 +37,10 @@ img{max-width:100%}
 <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script></head><body>
 <div class="cover">
   <div class="t1">从 StarVLA 到 VLAct：<br>VLA 持续预训练的表示中心路线<br>调研全文报告</div>
-  <div class="t2">三篇论文（StarVLA 技术报告 · StarVLA-α · VLAct）+ 一个代码库的系统调研：10 份深度报告合订<br>核心论点——VLM 骨干是 VLA 的一阶设计变量，预训练不是双刃剑，配方决定符号</div>
+  <div class="t2">三篇论文（StarVLA 技术报告 · StarVLA-α · VLAct）+ 一个代码库的系统调研：11 份深度报告合订<br>核心论点——VLM 骨干是 VLA 的一阶设计变量，预训练不是双刃剑，配方决定符号</div>
   <div class="meta">构建日期：2026-09-05<br>材料范围：arXiv 2604.05014 · 2604.11757 · 2608.27550；StarVLA 代码库快照 starVLA_dev @ d81fc66；120 篇文献编目<br>配套材料：7 篇英文 PDF · 7 篇中译 PDF · 29 页 Beamer 幻灯片 · 图 1 时间线 / 图 2 设计空间（assets/）· VLAct 缺失组件的 StarVLA 扩展代码（code/vlact_ext/）<br>仓库：github.com/asimfish/awesome_starvla · 许可：CC BY 4.0</div>
 </div>
-<div class="toc"><h1 class="first" style="page-break-before:avoid">目录</h1><ol><li>01 · VLAct 精读：以表示为中心的 VLA 持续预训练</li><li>StarVLA 代码库深度分析报告</li><li>03 · StarVLA-α 解读：把 VLA 系统的复杂度降下来</li><li>04 · StarVLA 技术报告解读：一个乐高式 VLA 代码库的设计契约</li><li>05 · 动作头与动作表示：原理、证据与选型</li><li>06 · StarVLA 支持的评测基准全景与 VLAct 评测协议</li><li>07 · 研究路线图：在 StarVLA / VLAct 之上做什么</li><li>08 · 讲稿：四种动作头（FAST / OFT / PI / GR00T）到底是什么</li><li>09 · EventVLA 解读：给 StarVLA-OFT 装上稀疏视觉证据记忆</li><li>10 · 改进方案：在 StarVLA / VLAct 之上搭一条可复现的研究线</li></ol></div>
+<div class="toc"><h1 class="first" style="page-break-before:avoid">目录</h1><ol><li>01 · VLAct 精读：以表示为中心的 VLA 持续预训练</li><li>StarVLA 代码库深度分析报告</li><li>03 · StarVLA-α 解读：把 VLA 系统的复杂度降下来</li><li>04 · StarVLA 技术报告解读：一个乐高式 VLA 代码库的设计契约</li><li>05 · 动作头与动作表示：原理、证据与选型</li><li>06 · StarVLA 支持的评测基准全景与 VLAct 评测协议</li><li>07 · 研究路线图：在 StarVLA / VLAct 之上做什么</li><li>08 · 讲稿：四种动作头（FAST / OFT / PI / GR00T）到底是什么</li><li>09 · EventVLA 解读：给 StarVLA-OFT 装上稀疏视觉证据记忆</li><li>10 · 改进方案：在 StarVLA / VLAct 之上搭一条可复现的研究线</li><li>11 · EventVLA 代码审计：论文与实现的差异、复现坑与改进落点</li></ol></div>
 <div class="figpage"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2680 836" font-family="PingFang SC, Hiragino Sans GB, Noto Sans CJK SC, Helvetica, sans-serif">
 <rect width="2680" height="836" fill="#ffffff"/>
 <text x="250" y="28" font-size="17" font-weight="700" fill="#1a2332">图 1 · 120 篇文献的时间线（按 arXiv 首版年月定位，11 个分类分泳道；★ = StarVLA 团队或基于 StarVLA 的工作）</text>
@@ -6298,7 +6298,9 @@ Memory 分接近零：不是骨干不够强，是根本没看到需要的帧。<
 <li>缓冲有界（作者自述）：超过 10
 分钟、事件密集的任务会饱和并淘汰早期证据；层次化或压缩记忆是下一步。</li>
 <li>关键帧真值依赖 Qwen3-VL 离线标注，标注质量的上限决定 KEM
-的上限；论文没有报告标注错误率。</li>
+的上限；论文没有报告标注错误率。开源实现里训练标签实际是仿真脚本专家打的
+oracle 关键帧，标注管线未发布，见 <a href="https://github.com/asimfish/awesome_starvla/blob/main/reports/11_eventvla_code_audit.md">11
+· 代码审计</a> §3。</li>
 <li>只在 OFT 头上验证。KEM 与 flow-matching 头（PI /
 GR00T）共存时，隐状态 <span class="math inline">\(h_t\)</span>
 的语义是否仍然"包含未来计划"，需要实验。</li>
@@ -6318,14 +6320,19 @@ href="https://github.com/asimfish/awesome_starvla/blob/main/reports/06_benchmark
 Qwen3-VL 初始化，其余不变，看 RoboTwin-MeM 是否叠加提升；以及把 KEM
 头加进 <a href="https://github.com/asimfish/awesome_starvla/blob/main/code/vlact_ext/"><code>code/vlact_ext</code></a> 的
 <code>QwenMultiHead</code>，检验多头共监督下 KEM 的预测是否更准。</li>
+<li><strong>代码层核对</strong>：论文与开源实现的差异（N_max 4 vs 5、λ
+1.0 vs 0.1、NMS / 冷却 20 vs 8 / 10、课程只在 10k–40k
+步过渡、锚点在前记忆在后、每 chunk 最多 1 个事件、评测客户端只在前 3
+次写入后 replan）与第三方复现坑，见 <a
+href="https://github.com/asimfish/awesome_starvla/blob/main/reports/11_eventvla_code_audit.md">11 · EventVLA 代码审计</a>。</li>
 <li><strong>代码入口</strong>：<code>code/EventVLA/EventVLA/</code>（模型与训练）、<code>code/EventVLA/RoboTwin-Mem/</code>（基准）；模型
 checkpoint 与 StarVLA <code>from_pretrained</code> 兼容。</li>
 </ul>
 </article><article id="ch10"><h1 id="10--改进方案在-starvla--vlact-之上搭一条可复现的研究线">10 ·
 改进方案：在 StarVLA / VLAct 之上搭一条可复现的研究线</h1>
 <blockquote>
-<p>这是执行计划，不是综述。它把 <a href="https://github.com/asimfish/awesome_starvla/blob/main/reports/07_research_roadmap.md">07 ·
-路线图</a>
+<p>这是执行计划，不是综述。<strong>v2（2026-09-05，设计评审后修订）</strong>：修订内容见文末「评审修订记录」。它把
+<a href="https://github.com/asimfish/awesome_starvla/blob/main/reports/07_research_roadmap.md">07 · 路线图</a>
 里的方向收敛成四个研究问题、八个工作包、一张实验矩阵和四个决策门，并规定代码放在哪、怎么验收。方案分两个阶段：<strong>阶段
 A（无
 GPU，当前）</strong>——把所有诊断工具、训练策略、辅助头、评测协议写成 CPU
@@ -6366,13 +6373,16 @@ href="https://github.com/asimfish/awesome_starvla/blob/main/reports/09_eventvla.
 <tr>
 <td>Q1</td>
 <td>骨干的"可复用性"能不能不跑下游微调就直接度量？</td>
-<td><strong>H1</strong>：在冻结骨干上训练的跨头线性 / 小 MLP
-探针误差，以及各层相对 VLM 初始权重的 CKA
-漂移，与"换头微调成功率"强相关（Spearman ρ &gt; 0.7）。</td>
-<td>对 ≥ 6 个预训练变体（无 / OFT 单头 / 三头 / 三头 + 冻结 / 三头 +
-caption / VLAct
-全配方）同时计算探针指标与跨头微调成功率，做相关分析。</td>
-<td>WP1</td>
+<td><strong>H1</strong>：<strong>主指标</strong>（预注册）：冻结骨干上、以
+OFT 动作查询位隐状态拟合的跨头线性探针
+R²；<strong>辅指标</strong>：各层相对 VLM 初始权重的 CKA
+漂移均值。主指标与"换头微调成功率"的 Spearman ρ &gt; 0.7，且 95%
+自助置信区间下界 &gt; 0.4。</td>
+<td>样本点 = 变体（R0–R8）× 每个变体保存的 5 个中间 checkpoint（20k–100k
+步）× seed（核心变体 3 个），约 90
+个点；每个点都跑同头与跨头微调。<strong>n=6
+的变体级相关不作为判据。</strong></td>
+<td>WP1、WP5</td>
 </tr>
 <tr>
 <td>Q2</td>
@@ -6465,6 +6475,22 @@ lr=0；调度器在给定漂移序列下输出确定的 lr 轨迹</td>
 <td>A</td>
 </tr>
 <tr>
+<td>WP3b</td>
+<td>数据准备 <code>starvla_lab.data</code></td>
+<td>(a) <code>data/future_features.py</code>：冻结特征提取器（SigLIP /
+DINO，注入的 callable）逐轨迹缓存 <code>[T, d_feat]</code>，训练期
+<code>FutureFeatureTransform</code> 按
+<code>(trajectory_id, step)</code> 附加 <code>future_features</code> 与
+mask；(b) <code>data/keyframe_labels.py</code>：夹爪阈值穿越 +
+停顿的启发式关键帧标注（无标注基线）、<code>FunctionLabeler</code>
+接任意 VLM 标注函数、<code>KeyframeLabelTransform</code>
+转成块内相对步</td>
+<td>单测：缓存复用不重算、缺帧
+mask=0、启发式事件位置正确、块外事件被裁掉</td>
+<td>WP3</td>
+<td>A</td>
+</tr>
+<tr>
 <td>WP4</td>
 <td>辅助数据调度器 <code>starvla_lab.schedules.aux</code></td>
 <td>VLM 数据采样比与 <code>loss_scale.vlm</code> 的三种策略：固定 /
@@ -6504,6 +6530,23 @@ dropout（每步随机只激活一个头）作为降本选项</td>
 <td>配置能被 EventVLA 代码加载（dry-run）</td>
 <td>WP0、EventVLA</td>
 <td>A（配置）/ B</td>
+</tr>
+<tr>
+<td>WP9</td>
+<td>训练循环集成 <code>starvla_lab.train</code></td>
+<td><code>train_starvla_lab.py</code>：镜像 StarVLA 的
+<code>train_starvla.py</code> / <code>train_starvla_cotrain.py</code>
+主流程，只替换三处——<code>datasets.vla_data.data_fraction &lt; 1</code>
+时按轨迹子采样（<code>install_fraction_hook</code>）、<code>trainer.lab.llrd.enabled</code>
+时用分层衰减参数组建优化器、<code>_train_step</code> 外包一层
+<code>LabHooks</code>（辅助数据调度写回
+<code>trainer.loss_scale.vlm</code>、头 dropout 设
+<code>active_heads</code>、每 N 步探针 → 漂移 → 驱动 LLRD /
+调度器、JSONL 记录）；配置统一在 <code>trainer.lab.*</code></td>
+<td>单测：mock 训练器下三种钩子按步生效、<code>calibrate_only</code>
+只记录不干预、LLRD 与 <code>LambdaLR</code> 协同、模式选择</td>
+<td>WP1、WP2、WP4、vlact_ext</td>
+<td>A（接线）/ B（真实运行）</td>
 </tr>
 <tr>
 <td>WP8</td>
@@ -6606,9 +6649,73 @@ batch 固定；checkpoint 规则固定为"最后一个"；3 seeds 报均值 ±
 </tr>
 </tbody>
 </table>
-<p>R0–R8 全部计算 WP1 的探针指标，回答 Q1。总预训练约 7,200 GPU 小时（16
-卡约 19 天连续），下游微调另计；若预算不足，先跑 R0 / R1 / R3 / R7 / R9
-五组。</p>
+<p>R0–R8 全部计算 WP1 的探针指标，回答 Q1。</p>
+<p><strong>分级设计与全量预算（评审后修订）。</strong>
+上一版只算了预训练。按 StarVLA 报告实测的 1.77 s/步（8×A100，batch
+16），一次 30k 步下游微调约 120–130 GPU 小时，原设计 162 次 × 3 种头 ≈
+58,000 GPU 小时，不可行。现改为两级：</p>
+<table>
+<thead>
+<tr>
+<th>级别</th>
+<th>变体</th>
+<th>seeds</th>
+<th>GR1 数据比例</th>
+<th>跨头微调</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>core</td>
+<td>R0、R1、R3、R8</td>
+<td>0、1、2</td>
+<td>10 / 20 / 50 / 100%</td>
+<td>PI、GR00T 各 1 seed，只在 LIBERO-Plus + RoboTwin Base</td>
+</tr>
+<tr>
+<td>extra</td>
+<td>R2、R4、R5、R6、R7</td>
+<td>0</td>
+<td>20 / 100%</td>
+<td>不做</td>
+</tr>
+</tbody>
+</table>
+<p>由 <code>scripts/build_run_matrix.py</code>
+生成，<code>experiments/budget.md</code> 为权威数字：</p>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th style="text-align: right;">GPU 小时</th>
+<th style="text-align: right;">次数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>预训练 R1–R8</td>
+<td style="text-align: right;">7,300</td>
+<td style="text-align: right;">8</td>
+</tr>
+<tr>
+<td>下游微调（OFT 头）</td>
+<td style="text-align: right;">11,790</td>
+<td style="text-align: right;">92</td>
+</tr>
+<tr>
+<td>跨头微调 PI / GR00T</td>
+<td style="text-align: right;">2,000</td>
+<td style="text-align: right;">16</td>
+</tr>
+<tr>
+<td><strong>合计</strong></td>
+<td style="text-align: right;"><strong>约 21,000</strong></td>
+<td style="text-align: right;"></td>
+</tr>
+</tbody>
+</table>
+<p>16 卡连续约 55 天。预算不足时的最小子集：R0 / R1 / R3 / R9 +
+核心级下游（约 9,000 GPU 小时）。</p>
 <h2 id="4-里程碑与决策门">4. 里程碑与决策门</h2>
 <table>
 <thead>
@@ -6621,14 +6728,19 @@ batch 固定；checkpoint 规则固定为"最后一个"；3 seeds 报均值 ±
 <tbody>
 <tr>
 <td>1</td>
-<td>WP0 复现 + WP1 / WP5 / WP6 上线，跑 R0、R1、R3</td>
-<td><strong>G1</strong>：R3 与论文差距 ≤ 2 点，否则先修复现再往下走</td>
+<td>WP0 复现 + WP9 接线验证 + WP5 / WP6 上线，跑 R0、R1、R3（R3 开
+<code>probes.calibrate_only</code> 记录漂移曲线，据此标定 LLRD /
+调度器的阈值）</td>
+<td><strong>G1</strong>：R3 与论文差距 ≤ 2 点，否则先修复现再往下走；R3
+的漂移曲线必须完整（每 2k 步一条）</td>
 </tr>
 <tr>
 <td>2</td>
-<td>R2、R4、R5；Q1 相关分析（用 R0–R5 六个变体）</td>
-<td><strong>G2</strong>：探针指标与跨头成功率 ρ &gt; 0.7 →
-后续实验用探针做早停与筛选；否则探针只作辅助报告</td>
+<td>R2、R4、R5；Q1 相关分析（变体 × 5 个中间 checkpoint × seed，约 90
+个点）</td>
+<td><strong>G2</strong>：预注册主指标（跨头线性探针 R²）与跨头成功率 ρ
+&gt; 0.7 且置信下界 &gt; 0.4 →
+后续实验用探针做早停与筛选；否则探针只作辅助报告，Q1 记负结果</td>
 </tr>
 <tr>
 <td>3</td>
@@ -6657,18 +6769,22 @@ batch 固定；checkpoint 规则固定为"最后一个"；3 seeds 报均值 ±
 </table>
 <h2 id="5-代码组织与规范">5. 代码组织与规范</h2>
 <pre><code>code/
-├── vlact_ext/                 # 已有：VLAct 配方（不再大改，只修 bug）
-└── starvla_lab/               # 本方案的研究包
+├── vlact_ext/                 # 已有：VLAct 配方（只修 bug；本轮加了 active_heads 头 dropout 开关）
+└── starvla_lab/               # 本方案的研究包（110 个 CPU 测试）
     ├── probes/                #   WP1：action_probe.py, cka.py, drift.py, hooks.py
     ├── schedules/             #   WP2 / WP4：llrd.py, aux_scheduler.py
     ├── heads/                 #   WP3：feature_prediction_head.py, keyframe_head.py, register.py
+    ├── data/                  #   WP3b / F1：subsample.py, future_features.py, keyframe_labels.py
+    ├── train/                 #   WP9：lab_config.py, integration.py, train_starvla_lab.py
     ├── bench/                 #   WP5 / WP6：backbone_bench.py, overhead_bench.py
-    ├── configs/               #   实验矩阵 R0–R9 的 yaml 与 sweep 定义
-    ├── tests/                 #   全部 CPU 可跑
+    ├── configs/               #   protocol_f1.yaml（真实 StarVLA 路径与评测命令模板）、matrix_R0_R9.yaml（分级 + trainer.lab.*）
+    ├── tests/
     └── README.md
 experiments/
-├── run_matrix.csv             # R0–R9 × 基准 × seed 的运行清单（状态列）
-└── results/                   # 每次运行一个 JSON，由 bench 脚本汇总成表</code></pre>
+├── run_matrix.csv             # 主矩阵（OFT 头，92 次）
+├── run_matrix_QwenPI_v3.csv / run_matrix_QwenGR00T.csv   # 跨头矩阵（各 8 次）
+├── budget.md                  # 全量 GPU 小时预算（脚本生成）
+└── results/                   # 每次运行一个 JSON</code></pre>
 <p>规范：与 <code>vlact_ext</code> 一致——不修改 StarVLA
 源码；依赖注入便于 mock；类型标注；每个模块 ≥ 1
 个边界测试；含中文的文件用 heredoc 写入；实验结果只进
@@ -6704,38 +6820,739 @@ experiments/
 <td>基准噪声淹没差异</td>
 <td>3 seeds；LIBERO-Plus 10,030 实例作主指标；SimplerEnv 不作主指标</td>
 </tr>
+<tr>
+<td>漂移控制阈值无依据</td>
+<td>M1 的 R3 以 <code>calibrate_only</code> 跑出漂移曲线后再定
+<code>drift_high / drift_low</code>；阈值写进 R5
+的配置并在报告里给出标定图</td>
+</tr>
+<tr>
+<td>度量口径不一致</td>
+<td>固定探测批：VLA 训练集前 64
+个样本（<code>probes.probe_batch_size</code>），逐层 mean-pool 隐状态算
+CKA，OFT 查询位隐状态拟合探针；所有变体共用同一批与同一
+<code>extract_fn</code></td>
+</tr>
+<tr>
+<td>评测脚本参数约定各异</td>
+<td>每个基准的评测命令是 <code>protocol_f1.yaml</code>
+里的模板字符串（<code>{ckpt_file}</code>、<code>{seed}</code>、<code>{run_id}</code>
+占位），与 StarVLA 真实脚本的参数一一对应</td>
+</tr>
 </tbody>
 </table>
-<h2 id="7-阶段-a-本轮交付清单">7. 阶段 A 本轮交付清单</h2>
+<h2 id="7-阶段-a-交付清单评审后更新">7. 阶段 A
+交付清单（评审后更新）</h2>
 <ul class="task-list">
-<li><label><input type="checkbox" checked="" />本方案</label></li>
+<li><label><input type="checkbox" checked="" />本方案（v2）</label></li>
 <li><label><input type="checkbox"
 checked="" /><code>starvla_lab/probes</code>：跨头探针（闭式岭回归 +
 MLP）、线性 CKA、<code>DriftTracker</code>、<code>ProbeRunner</code>
-钩子 + 23 个测试</label></li>
+钩子</label></li>
 <li><label><input type="checkbox"
 checked="" /><code>starvla_lab/schedules</code>：<code>layerwise_lr_decay_groups</code>（复用
-freeze_rules）、<code>DriftDrivenLLRD</code>、<code>AuxDataScheduler</code>
-+ 12 个测试</label></li>
+freeze_rules）、<code>DriftDrivenLLRD</code>、<code>AuxDataScheduler</code></label></li>
 <li><label><input type="checkbox"
 checked="" /><code>starvla_lab/heads</code>：<code>FutureFeaturePredictionHead</code>、<code>KeyframeHead</code>（软标签
-BCE、NMS / 冷却写入策略、课程）、<code>QwenMultiHeadLab</code> + 51
-个测试</label></li>
+BCE、NMS /
+冷却写入策略、课程）、<code>QwenMultiHeadLab</code></label></li>
 <li><label><input type="checkbox"
-checked="" /><code>starvla_lab/bench</code>：<code>backbone_bench</code>（只换骨干协议、命令渲染、变化键审计、结果聚合）、<code>overhead_bench</code>（秒/步、samples/s、峰值显存、头
-dropout）+ 9 个测试</label></li>
+checked="" /><code>starvla_lab/data</code>：<code>TrajectorySubset</code>
++ <code>install_fraction_hook</code>（数据比例曲线）、未来特征缓存与
+transform、启发式 / 可插拔关键帧标注与 transform</label></li>
 <li><label><input type="checkbox"
-checked="" /><code>starvla_lab/configs</code>（<code>protocol_f1.yaml</code>、<code>matrix_R0_R9.yaml</code>）+
+checked="" /><code>starvla_lab/train</code>：<code>trainer.lab.*</code>
+配置、LLRD 优化器构建、<code>LabHooks</code> +
+<code>attach_to_trainer</code>、<code>train_starvla_lab.py</code>（单 /
+双 loader 两种模式）</label></li>
+<li><label><input type="checkbox"
+checked="" /><code>starvla_lab/bench</code>：只换骨干协议（评测命令模板、<code>{ckpt_file}</code>
+占位、分级 seeds、GPU 小时合计）、开销测量、头 dropout（已接进
+<code>QwenMultiHead.active_heads</code>）</label></li>
+<li><label><input type="checkbox"
+checked="" /><code>starvla_lab/configs</code> +
 <code>scripts/build_run_matrix.py</code> →
-<code>experiments/run_matrix.csv</code>（162 次下游微调，预训练预算
-7,300 GPU 小时）</label></li>
+<code>experiments/run_matrix*.csv</code> +
+<code>experiments/budget.md</code></label></li>
 <li><label><input type="checkbox"
 checked="" /><code>starvla_lab/README.md</code>、<code>experiments/README.md</code></label></li>
 </ul>
 <p>阶段 A 完成：<code>python3 -m pytest code/starvla_lab/tests -q</code>
-→ 95 passed。下一步是阶段 B 的 WP0（需要 16 GPU），入口见 <a
-href="https://github.com/asimfish/awesome_starvla/blob/main/code/starvla_lab/README.md"><code>code/starvla_lab/README.md</code></a>
-与 <a
-href="https://github.com/asimfish/awesome_starvla/blob/main/experiments/README.md"><code>experiments/README.md</code></a>。</p>
+→ 110 passed；<code>python3 -m pytest code/vlact_ext/tests -q</code> →
+60 passed, 1 skipped。</p>
+<h2 id="8-已知偏差与解释约束">8. 已知偏差与解释约束</h2>
+<ul>
+<li><code>vlact_ext</code> 的 GR00T 头以 <code>state_dim: 0</code>
+构建、本体状态改走文本，与 GR00T 论文"状态进 System 1"及 StarVLA 原生
+<code>QwenGR00T</code> 不同；比较时须注明，它不是同一个头。</li>
+<li>R2 起 <code>mask_oft_queries_for_fm_heads: true</code>，PI / GR00T
+头看不到 OFT 的查询位；R1 / R0 不涉及。跨头结论只在此设定下成立。</li>
+<li><code>QwenMultiHeadLab</code> 通过覆写 <code>_encode</code>
+缓存骨干输出再在 <code>forward</code> 中取用；这依赖
+<code>vlact_ext</code> 父类的私有方法签名，父类改动时需同步。</li>
+<li>只换骨干协议里下游统一用
+<code>starvla_lab.train.train_starvla_lab</code>（<code>trainer.lab.mode: single</code>），与
+StarVLA 原生 <code>train_starvla.py</code>
+的差别仅在数据比例钩子；比例为 1 时行为一致。</li>
+</ul>
+<h2 id="9-评审修订记录2026-09-05">9. 评审修订记录（2026-09-05）</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>评审发现</th>
+<th>处理</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>探针 / 调度器是库，未接进训练循环；<code>trainer.llrd.*</code>
+等键无消费者</td>
+<td>新增 WP9 <code>starvla_lab.train</code>；配置键统一为
+<code>trainer.lab.*</code>，由 <code>train_starvla_lab.py</code>
+消费</td>
+</tr>
+<tr>
+<td>2</td>
+<td>协议引用的 yaml / 评测脚本是占位名</td>
+<td><code>protocol_f1.yaml</code>
+改为真实路径；评测命令改为每基准模板（LIBERO-plus 环境变量、RoboTwin
+<code>start_eval.sh -m demo_clean/demo_randomized</code>、GR1
+位置参数）</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>data_fraction</code> 无实现</td>
+<td><code>data/subsample.py</code>：按轨迹的确定性子集 +
+<code>install_fraction_hook</code> 挂到
+<code>make_LeRobotSingleDataset</code></td>
+</tr>
+<tr>
+<td>4</td>
+<td>预训练脚本未指定、<code>datasets.vlm_data: null</code> 不可用</td>
+<td>矩阵每个变体增加 <code>train_script</code>；R1 / R2 用单 loader
+脚本</td>
+</tr>
+<tr>
+<td>5</td>
+<td>下游算力未预算</td>
+<td>分级设计；<code>budget.md</code> 给出 21,000 GPU 小时全量与 9,000
+的最小子集</td>
+</tr>
+<tr>
+<td>6</td>
+<td>G2 统计功效不足、指标未预注册</td>
+<td>Q1 改为约 90 个点（变体 × checkpoint ×
+seed）、预注册主指标、置信下界判据</td>
+</tr>
+<tr>
+<td>7</td>
+<td>WP3 缺数据流水线</td>
+<td>新增 WP3b <code>starvla_lab.data</code>（特征缓存、关键帧标注）</td>
+</tr>
+<tr>
+<td>8</td>
+<td>FM 头默认看到 OFT 查询位</td>
+<td>R2+ 设 <code>mask_oft_queries_for_fm_heads: true</code></td>
+</tr>
+<tr>
+<td>9</td>
+<td>GR00T 头语义偏离</td>
+<td>写入 §8 已知偏差</td>
+</tr>
+<tr>
+<td>10</td>
+<td><code>QwenMultiHeadLab</code> 侧信道缓存</td>
+<td>保留，写入 §8；父类改动时同步</td>
+</tr>
+<tr>
+<td>11</td>
+<td>头 dropout 未接线</td>
+<td><code>QwenMultiHead</code> 增加
+<code>active_heads</code>，<code>LabHooks</code> 每步设置</td>
+</tr>
+<tr>
+<td>12</td>
+<td>漂移阈值无依据</td>
+<td>M1 的 R3 以 <code>calibrate_only</code> 标定；写入 §6</td>
+</tr>
+<tr>
+<td>13</td>
+<td>度量粒度未定</td>
+<td>§6 固定探测批与
+<code>extract_fn</code>（<code>train_starvla_lab.qwen_layer_extract_fn</code>：逐层
+mean-pool）</td>
+</tr>
+</tbody>
+</table>
+</article><article id="ch11"><h1 id="11--eventvla-代码审计论文与实现的差异复现坑与改进落点">11 ·
+EventVLA 代码审计：论文与实现的差异、复现坑与改进落点</h1>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>审计对象</td>
+<td><a href="https://github.com/asimfish/awesome_starvla/blob/main/code/EventVLA/"><code>code/EventVLA</code></a>
+子模块，commit <code>108a0f3</code>（上游 <a
+href="https://github.com/InternRobotics/EventVLA">InternRobotics/EventVLA</a>
+main，2026-08-30），fork 于 <a
+href="https://github.com/asimfish/EventVLA">asimfish/EventVLA</a></td>
+</tr>
+<tr>
+<td>规模</td>
+<td><code>EventVLA/</code> 105 个 <code>.py</code>（核心
+<code>eventvla/model/framework/EventVLA.py</code> 2,104
+行、<code>dataloader/gr00t_lerobot/datasets.py</code> 3,345
+行、评测客户端
+<code>examples/RoboTwin-Mem/eval_files/model2robotwin_mem_interface.py</code>
+1,144 行）；<code>RoboTwin-Mem/</code> 644 个 <code>.py</code>（RoboTwin
+2.0 fork + 8 个记忆任务）</td>
+</tr>
+<tr>
+<td>上游状态</td>
+<td>10 个 commit（2026-06-17 → 08-30）；16 个 issue，9 个 open，其中 4
+个是复现失败或配置缺失</td>
+</tr>
+<tr>
+<td>已发布</td>
+<td>RoboTwin-MeM 训练 / 评测代码、<code>steps_100000</code>
+checkpoint、LeRobot 2.1 数据（带 oracle 关键帧）；RMBench
+checkpoint（无对应配置，#13 /
+#14）；真机推理客户端。<strong>未发布</strong>：论文 §3.3 的 Qwen3-VL
+自动标注管线（#11）、真机训练配置与权重（README To Do）、Table 2
+下半部分的消融变体</td>
+</tr>
+<tr>
+<td>配套</td>
+<td><a href="https://github.com/asimfish/awesome_starvla/blob/main/reports/09_eventvla.md">09 · EventVLA 解读</a>
+讲论文；本篇只讲代码。行号以子模块 <code>108a0f3</code> 为准，路径相对
+<code>code/EventVLA/</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="0-一句话">0. 一句话</h2>
+<p>EventVLA 的代码是 StarVLA 的一个早期 fork，主干做法与论文一致：MLP-L1
+动作头旁边并联一个逐 action token 的关键帧 MLP 头，raised-cosine 软标签
+BCE，阈值 → 1D NMS → 冷却 → FIFO 的写入链，teacher → student
+课程。但有三类事实与论文不符或论文没写，会直接影响复现和我们下一步的改动：<strong>(1)
+超参数</strong>——N_max = 4 而非 5、λ = 1.0 而非 0.1、BCE 带 pos_weight =
+7、NMS 半径 20 / 冷却 20 而非 8 / 10、课程只在第 10k–40k
+步之间过渡、发布的 checkpoint 训了 100k 步而非 80k；<strong>(2)
+标签</strong>——关键帧真值是仿真脚本专家在采集时按手写规则打的
+oracle，论文所称的 Qwen3-VL 自动标注管线不在仓库里；<strong>(3)
+评测协议</strong>——每次推理最多提交 1 个事件、只在前 3 次写入后立即
+replan（注释明说"第 4 个关键帧是最后一个 inspect 锚点"）、训练与评测都是
+3 视角 × 4 锚点 = 12 张图 + ≤ 4 张记忆图。第三方按作者补充的配置复现，8
+个任务里 7 个与论文基本一致，Pick Objects in Order 只到 56%（论文
+90%，#4 open）。</p>
+<h2 id="1-仓库结构starvla-的-fork-加两块新东西">1. 仓库结构：StarVLA 的
+fork 加两块新东西</h2>
+<pre><code>code/EventVLA/
+├── EventVLA/                          # 模型与训练，目录与 StarVLA 同构（starVLA/ → eventvla/）
+│   ├── eventvla/model/framework/
+│   │   ├── EventVLA.py                # 本体：记忆输入拼接、关键帧头、事件选择、runtime 记忆库（2,104 行）
+│   │   ├── pi05_keyframe_mixin.py     # KEM 抽成 mixin，接 π0.5（PaliGemma）做真机
+│   │   ├── Pi05MEM.py                 # πMEM 基线复现（656 行）
+│   │   └── QwenPI.py / QwenGR00T.py / QwenFast.py / LangForce.py / M1.py …   # StarVLA 原文件，未改
+│   ├── eventvla/model/memory_ablation.py          # 只剩一种模式 pure_image_keyframe_memory（L6–13）
+│   ├── eventvla/dataloader/sequence_sampler.py    # 按 episode 连续采样、保持 batch slot（519 行）
+│   ├── eventvla/dataloader/gr00t_lerobot/datasets.py   # 软标签、teacher 记忆图、exact fetch（关键帧相关约 350 行）
+│   ├── eventvla/training/train_eventvla.py        # 有状态训练循环（1,027 行）
+│   ├── examples/RoboTwin-Mem/{train_files,eval_files,eval_batch}/
+│   └── tests/                         # 2 个文件：采样器 slot、runtime 记忆
+└── RoboTwin-Mem/                      # RoboTwin 2.0 fork
+    ├── envs/{cover_blocks_hard,pick_the_unhidden_block,…}.py   # 8 个任务，含 oracle 关键帧打点
+    ├── policy/{ACT,DP,DP3,RDT,pi0,pi05,openvla-oft,X-VLA,Mem-0,…}/   # 基线接入
+    └── script/eval_policy.py          # 每任务 100 集，seed 起点 100000×(1+seed)（L167–169）</code></pre>
+<p>与 <a href="https://github.com/asimfish/awesome_starvla/blob/main/reports/02_starvla_codebase_analysis.md">02 · StarVLA
+代码库解析</a>
+的对应关系：<code>eventvla/model/framework/base_framework.py</code>
+的两条契约（<code>forward → {"action_loss"}</code>、<code>predict_action → {"normalized_actions"}</code>）原样保留，EventVLA
+只是在返回 dict 里多塞了
+<code>total_loss</code>、<code>chunk_keyframe_prob</code>、<code>pred_event_offset</code>、<code>should_trigger_event</code>
+等键（<code>EventVLA.py</code> L1253–1292、L1479–1493）。checkpoint 是
+StarVLA 格式，但发布的 <code>config.yaml</code> 写着
+<code>framework.name: QwenOFT</code>，当前
+<code>FRAMEWORK_REGISTRY</code> 里没有这个名字，加载前要改成
+<code>EventVLA</code>（#3 / #10，作者确认权重逐键匹配）。</p>
+<h2 id="2-模型论文公式在代码里的落点">2.
+模型：论文公式在代码里的落点</h2>
+<h3 id="21-输入序列">2.1 输入序列</h3>
+<p>一次前向送进 Qwen3-VL 的内容（<code>QWen3.py</code>
+L64–78；<code>EventVLA.py</code> L1101–1106、L1502–1507）：</p>
+<pre><code>Temporal observation images: [o_0 ×3 视角] [o_{t-30} ×3] [o_{t-15} ×3] [o_t ×3]
+Past keyframe images:        [k_1] … [k_≤4]                      （只有 cam_high）
+&lt;instruction&gt; Please predict the next 50 robot actions and estimate which future
+observation positions inside this chunk are key events: &lt;action&gt;🔍×50&lt;action&gt;.</code></pre>
+<ul>
+<li><strong>顺序</strong>：论文 Eq. (4) 写
+<code>concatenate([A_t, E_{t-1}, o_t])</code>，按时间排成一列；代码是锚点（含当前帧）在前、记忆帧在后（<code>keyframe_image_position: after_anchor_images_before_action</code>，<code>eventvla_robotwin_mem.yaml</code>
+L53；<code>EventVLA.py</code>
+L1105–1106），也没有逐帧时间标注，只有两个组标签
+<code>"Temporal observation images:"</code> /
+<code>"Past keyframe images:"</code>（<code>QWen3.py</code>
+L74）。模型只能靠位置推断每张图是什么时候的。</li>
+<li><strong>视角</strong>：训练数据有 3
+路视频（<code>train_files/modality.json</code>：<code>cam_high</code>、<code>cam_left_wrist</code>、<code>cam_right_wrist</code>），4
+个锚点各带 3 视角（<code>_fallback_image_metas_for_sample</code> 按 4 帧
+× 视角数展开，<code>EventVLA.py</code> L983–1015；评测端
+<code>deploy_policy.yml</code> 的 <code>temporal_view_names</code> 也是
+3 个）。记忆帧只取头部相机（yaml L128–131
+<code>include_names: [cam_high, head, main]</code>、<code>exclude_name_patterns: [wrist]</code>、<code>strict_single_view: true</code>；评测端
+L482–508）。所以每次前向最多 12 + 4 = 16 张 224×224 图，这是论文 Table 9
+吞吐从 2.91 Hz 掉到 0.94 Hz 的直接原因，论文正文没写视角数。</li>
+<li><strong>动作 token</strong>：50 个
+<code>🔍</code>（<code>EventVLA.py</code> L59、L1503），与 StarVLA
+QwenOFT 相同；prompt 后缀比 StarVLA 多了一句"estimate which future
+observation positions … are key events"。</li>
+</ul>
+<h3 id="22-动作头与关键帧头">2.2 动作头与关键帧头</h3>
+<ul>
+<li>动作头：<code>from …MLP_ActionHeader import get_action_model</code>（L28）→
+<code>L1RegressionActionHead</code>（<code>MLP_ActionHeader.py</code>
+L57–84：LayerNorm → Linear(2048, 4096) → 2 个 ResNet block → Linear(·,
+14)），L1 回归（L189、L1248）。这就是论文说的 OFT 头。yaml 里
+<code>action_model_type: DiT-B</code> 和随后 20 行 diffusion
+参数（L21–46）在 <code>get_action_model</code>
+中被忽略（<code>MLP_ActionHeader.py</code> L99–111 只读
+<code>action_dim</code> 与窗口长度），是 StarVLA
+模板残留，不影响运行。</li>
+<li>关键帧头：<code>LayerNorm(2048) → Linear(2048, 2048) → GELU → Linear(2048, 1)</code>（L300–305），作用在
+50 个 action token 的最后一层 hidden 上，得到 <code>[B, 50]</code> 的
+logits（L1156），sigmoid 后即论文 Eq. (3) 的 <span
+class="math inline">\(\hat{\mathbf p}_t\)</span>。与论文一致。</li>
+</ul>
+<h3 id="23-标签与损失">2.3 标签与损失</h3>
+<ul>
+<li>软标签（<code>datasets.py</code> L2376–2393）：对 chunk
+内每个位置取到<strong>最近一个关键帧</strong>的距离 <span
+class="math inline">\(d\)</span>，<span class="math inline">\(d \le R =
+8\)</span> 时 <span class="math inline">\(y = 0.5(1 + \cos(\pi d /
+8))\)</span>，否则 0。与论文 A.1
+一致；注意距离是对该轨迹<strong>全部</strong>关键帧算的，chunk 起点前 8
+步内的关键帧会通过头部渗入当前 chunk 的标签。</li>
+<li>teacher 事件（L2400–2403）：对 offset ≥ 1 的软标签取 argmax，值 ≥
+0.55 才算 <code>teacher_should_commit</code>。</li>
+<li>损失（<code>EventVLA.py</code>
+L1544–1553）：<code>F.binary_cross_entropy_with_logits(logits, y, pos_weight=7.0)</code>，逐元素平均。论文
+A.1 的 Eq. (6) 是不带权的 BCE，<code>pos_weight = 7.0</code>
+论文没写（yaml L58；代码默认值 L193）。</li>
+<li>总损失（L1249–1251）：<code>L1 + keyframe_loss_weight × L_kem</code>，<code>keyframe_loss_weight = 1.0</code>（yaml
+L56；默认值 L192）。论文 Table 6 / 7 是 λ = 0.1。</li>
+</ul>
+<h3 id="24-事件选择">2.4 事件选择</h3>
+<ul>
+<li><strong>训练</strong>：<code>_select_chunk_event</code> 对 offset ≥
+<code>event_future_min_offset</code> = 1 的概率取 argmax，≥
+<code>event_commit_threshold</code> = 0.55 才
+commit（L1589–1602）。每个样本每个 chunk <strong>最多登记 1
+个</strong>待写入事件（L908–966）。</li>
+<li><strong>推理</strong>：<code>_select_chunk_event_candidates</code>
+先按阈值筛，再按置信度降序做贪心 1D NMS，半径
+<code>keyframe_nms_window</code> = 20（yaml
+L64；L1624–1650）；<code>_select_inference_chunk_event</code>
+再对候选逐个检查与
+<code>last_committed_step</code>、<code>pending_step</code>
+的冷却（<code>keyframe_cooldown_steps</code> = 20，yaml
+L65），接受第一个就 <code>break</code>（L1725–1774）。所以论文 A.2
+里的集合 <span class="math inline">\(\mathcal K_t\)</span>
+在代码里<strong>每次推理最多产出 1
+个事件</strong>；评测客户端也只保留一个
+pending，新响应直接覆盖（<code>model2robotwin_mem_interface.py</code>
+L644–666）。一个 50 步 chunk 里若有两个真事件（Press Button Keyframe
+连按两次），只能靠 commit 后立即 replan 补救（§4）。</li>
+<li>论文 Table 6 / 7 写 NMS 半径 <span class="math inline">\(w =
+8\)</span>、冷却 <span class="math inline">\(C =
+10\)</span>；代码两处都是 20。</li>
+</ul>
+<h3 id="25-记忆-buffer">2.5 记忆 buffer</h3>
+<p>服务端 <code>_append_runtime_keyframe_entry</code>：按 step
+去重、排序，只留最后 <code>max_keyframe_images</code>
+张（L624–640）；评测客户端同样（L541–546）。<code>max_keyframe_images</code>
+= 4（yaml L54、L124；上游 README L282
+<code>max_keyframes: 4</code>）。论文 Table 6 / 7 写 <span
+class="math inline">\(N_{\max} = 5\)</span>。</p>
+<h3 id="26-训练时的-student-记忆一个有状态的训练循环">2.6 训练时的
+student 记忆：一个有状态的训练循环</h3>
+<p>论文 A.1 用一句"scheduled teacher-to-student
+curriculum"带过，代码里这是最复杂、最脆弱的部分：</p>
+<ol type="1">
+<li><strong>采样器</strong>（<code>sequence_sampler.py</code>）：每条轨迹展开成锚点流
+<code>[0, r, r+50, r+100, …]</code>，<code>r ∈ [1, 50]</code> 由
+<code>(seed, epoch, dataset_index, trajectory_id)</code>
+哈希决定（L95–102、L117–124）；<code>sampling_interval: 50</code>（yaml
+L111）。<code>preserve_episode_batch_slots: true</code>（yaml
+L107）让同一 episode 始终占同一个 batch slot，因为模型的 runtime 记忆按
+slot 索引（<code>EventVLA.py</code> L295–298）。上游 PR
+#8（2026-07-24）修的就是 slot 错位（#7）。</li>
+<li><strong>登记与取回</strong>：<code>forward</code>
+里模型按自己的预测登记 pending 写入
+<code>{slot, trajectory_id, target_step = t + offset}</code>（L908–966）。下一个
+batch 到来时，trainer 调
+<code>collect_due_predict_exact_fetch_requests</code> 找出
+<code>target_step ≤ 当前 step</code>
+的请求（L877–906），在<strong>主进程同步解码视频帧</strong>（<code>train_eventvla.py</code>
+L736–756，<code>dataset.get_memory_image_at_step</code>），塞回
+<code>examples[0]["runtime_memory_exact_fetches"]</code>，模型
+<code>_consume_runtime_memory_exact_fetches</code> 入库（L671–734）。新
+episode 进入 slot 时 <code>reset_memory_by_mask</code>
+清空（<code>train_eventvla.py</code> L779–815）。</li>
+<li><strong>teacher / student 混合</strong>：每个样本按
+<code>teacher_prob</code>
+独立二选一（<code>keyframe_schedule_mix_granularity: sample</code>）：teacher
+= 数据集给的 GT 关键帧图（≤ 当前步、最近 4 张，<code>datasets.py</code>
+L2560–2621）；student = runtime 库（<code>EventVLA.py</code>
+L814–875）。<code>teacher_prob</code> 调度：前 10k 步 1.0，10k → 40k
+线性降到 0，之后 40k 步纯 student（yaml L74–77；<code>EventVLA.py</code>
+L1802–1821；未配置时默认 12.5% / 37.5%，L1797 / L1799）。论文写"α
+在整个训练过程中从 1 线性衰减到 0"。</li>
+</ol>
+<p>后果：(a) 一个 GPU 的 8 个 slot 各跑一条 episode 的锚点流，step
+级别不能 shuffle；(b) exact fetch 在主进程做，是吞吐瓶颈；(c) 每个 chunk
+只能写 1 帧；(d) 一条 1,544 步的 episode（Cover Blocks Hard，论文 Table
+4）只产生约 33 个训练样本，50 集 × 8 任务 ≈ 1.3
+万样本，<code>max_train_steps: 80000</code> × 8（yaml L133、L147）≈ 50
+个 epoch。</p>
+<h2 id="3-关键帧标签脚本-oracle不是-vlm">3. 关键帧标签：脚本
+oracle，不是 VLM</h2>
+<ul>
+<li>数据侧 <code>datasets.py</code> L851–858 从 LeRobot episode 元数据读
+<code>keyframe_steps</code>；<code>RoboTwin-Mem/policy/GO1/scripts/process_data.py</code>
+L10 / L63 / L102 把采集时 <code>episode_info.json</code> 里的
+<code>keyframe_steps</code> 映射到处理后的帧号。</li>
+<li>采集侧每个任务的脚本专家在 <code>play_once</code>
+里显式打点。<code>envs/cover_blocks_hard.py</code> L110–138：在一次
+inspect 段内逐帧追踪 cover 与 block 的 xy
+距离，取距离最大的那一帧（盖子掀到最开的瞬间）；<code>press_button_keyframe.py</code>
+L88–94、<code>reproduce_route.py</code>
+L121–127、<code>rearrange_blocks_hard.py</code>
+L105–110：在脚本阶段切换点调
+<code>_append_keyframe_step</code>。环境还暴露
+<code>get_keyframe_oracle_info</code>（<code>cover_blocks_hard.py</code>
+L140）供评测期 oracle 使用。</li>
+<li>论文 §3.3 与 A.3 说训练标签来自 Qwen3-VL-235B 的离线标注，并称仿真里
+VLM 标签与引擎 GT 的平均误差 &lt; 10 步。仓库里没有这条管线，issue #11
+问了没有回复；HF 数据集 <code>ganlinyang/RoboTwin-MeM</code>
+里带的就是脚本
+oracle。论文"自动标注可扩展"的主张在开源版本中无法验证。对我们来说这反而是干净的上界：先用
+oracle 复现，再单独研究标签噪声。</li>
+</ul>
+<h2 id="4-评测协议里论文没写的部分">4. 评测协议里论文没写的部分</h2>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>代码</th>
+<th>出处</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>每任务 episode 数</td>
+<td>100，seed 起点 <code>100000 × (1 + seed)</code></td>
+<td><code>RoboTwin-Mem/script/eval_policy.py</code> L167–169</td>
+</tr>
+<tr>
+<td>指令</td>
+<td><code>instruction_type: unseen</code></td>
+<td><code>deploy_policy.yml</code>；#3 作者回复</td>
+</tr>
+<tr>
+<td>相机</td>
+<td><code>camera=LargeView</code>（fovy 50）</td>
+<td>#3 作者回复；第三方从 HDF5 反推内参一致</td>
+</tr>
+<tr>
+<td>步数上限</td>
+<td><code>task_config/_eval_step_limit.yml</code> 未随代码发布；作者给出
+put_back_block_hard 1800、rearrange_blocks_hard
+1200，pick_objects_in_order 用 1500</td>
+<td>#3、#4、#9、#10</td>
+</tr>
+<tr>
+<td>归一化键</td>
+<td><code>deploy_policy.yml</code> 写
+<code>unnorm_key: robotwin_mem</code>，发布的
+<code>dataset_statistics.json</code> 只有
+<code>new_embodiment</code></td>
+<td>#10</td>
+</tr>
+<tr>
+<td>checkpoint 配置</td>
+<td><code>framework.name: QwenOFT</code>，需改
+<code>EventVLA</code></td>
+<td>#3、#10</td>
+</tr>
+<tr>
+<td>首个 chunk</td>
+<td>第一次规划后在 <code>[1, 50]</code> 内随机一步强制 replan（seed
+42），与训练锚点流的随机 <code>r</code> 对齐</td>
+<td>客户端 L587–608；采样器 L117–124</td>
+</tr>
+<tr>
+<td>commit 后 replan</td>
+<td>写入第 1–3 个关键帧后立即 replan，第 4 个不 replan</td>
+<td>客户端 L710–714</td>
+</tr>
+<tr>
+<td>pending</td>
+<td>只保留一个，新响应覆盖旧的</td>
+<td>客户端 L644–666</td>
+</tr>
+<tr>
+<td>落盘</td>
+<td>每次 commit 把原图存到 eval 目录</td>
+<td>客户端 L704–709、L931</td>
+</tr>
+<tr>
+<td>动作重排</td>
+<td><code>[0..5, 12, 6..11, 13]</code>（数据集 14 维顺序 → RoboTwin
+顺序）</td>
+<td>客户端 L383</td>
+</tr>
+</tbody>
+</table>
+<p>"只在前 3 次 commit 后 replan"的注释原文：<em>"The fourth keyframe is
+the last inspect anchor, so let the current chunk finish and replan at
+the next natural chunk boundary instead of interrupting
+mid-retreat."</em>（L710–713）。这是把 Cover Blocks Hard（4
+个盖子）的任务结构写进了通用评测客户端；对 n 可达 5 的 Press Button
+Keyframe，第 4 次之后的事件都要等 chunk 结束才进上下文。所有 baseline
+都没有"commit 即 replan"的机制，比较时它是一个必须报告的变量。</p>
+<p>第三方复现现状（上游 issues）：#3 修好资产索引冲突（RoboTwin 2.0 与
+RoboTwin-MeM
+物体编号重叠）、<code>assets/embodiments/aloha-agilex/curobo_*.yml</code>
+里的绝对路径、framework 名、websocket
+<code>ping_interval</code>、<code>ACTION_MODE="'abs'"</code>
+的引号之后，press_button_keyframe 58/97 ≈ 60%（论文
+48%），put_back_block_hard 10/10；#4 pick_objects_in_order 28/50 =
+56%（论文 90%），作者本地 5/9，open；#9 π0.5 基线配方未公开，第三方用
+LoRA 复现 rearrange_blocks_hard 得 0/30（论文 20%）。</p>
+<h2 id="5-论文-vs-代码对照表">5. 论文 vs 代码对照表</h2>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>论文</th>
+<th>代码</th>
+<th>出处</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>动作头</td>
+<td>OFT</td>
+<td><code>L1RegressionActionHead</code>（MLP + L1）；yaml 的 DiT-B
+段无效</td>
+<td><code>EventVLA.py</code> L28；<code>MLP_ActionHeader.py</code>
+L90–113</td>
+</tr>
+<tr>
+<td><span class="math inline">\(N_{\max}\)</span></td>
+<td>5（Table 6 / 7）</td>
+<td>4</td>
+<td>yaml L54、L124；README L282</td>
+</tr>
+<tr>
+<td>λ</td>
+<td>0.1（Table 6 / 7）</td>
+<td>1.0</td>
+<td>yaml L56</td>
+</tr>
+<tr>
+<td>BCE</td>
+<td>无权（Eq. 6）</td>
+<td><code>pos_weight = 7.0</code></td>
+<td>yaml L58；L1544–1553</td>
+</tr>
+<tr>
+<td>NMS 半径 <span class="math inline">\(w\)</span> / 冷却 <span
+class="math inline">\(C\)</span></td>
+<td>8 / 10</td>
+<td>20 / 20</td>
+<td>yaml L64–65</td>
+</tr>
+<tr>
+<td><span class="math inline">\(\tau_{\text{commit}}\)</span></td>
+<td>0.55</td>
+<td>0.55</td>
+<td>yaml L62</td>
+</tr>
+<tr>
+<td>软标签</td>
+<td>raised cosine，R = 8</td>
+<td>一致</td>
+<td>yaml L112–113；<code>datasets.py</code> L2386–2391</td>
+</tr>
+<tr>
+<td>课程</td>
+<td>α 全程线性 1 → 0</td>
+<td>前 10k 恒 1，10k–40k 线性到 0，后 40k 恒 0；按样本抽签</td>
+<td>yaml L74–78</td>
+</tr>
+<tr>
+<td>训练步数 / batch</td>
+<td>80k / 每卡 4</td>
+<td>yaml 80k / 每卡 8；发布 checkpoint 为 <code>steps_100000</code></td>
+<td>yaml L133、L147；README L48；#3</td>
+</tr>
+<tr>
+<td>关键帧标签</td>
+<td>Qwen3-VL-235B 自动标注</td>
+<td>仿真脚本 oracle；标注管线未发布</td>
+<td>§3；#11</td>
+</tr>
+<tr>
+<td>每 chunk 事件数</td>
+<td>集合 <span class="math inline">\(\mathcal K_t\)</span></td>
+<td>训练 1、推理 1、客户端 1 个 pending</td>
+<td>L1598–1601、L1774；客户端 L644–666</td>
+</tr>
+<tr>
+<td>图像顺序</td>
+<td><code>[A_t, E_{t-1}, o_t]</code> 按时间</td>
+<td><code>[o_0, o_{-30}, o_{-15}, o_t]</code>
+再接记忆帧；只有组标签</td>
+<td>yaml L53；L1105–1106；<code>QWen3.py</code> L74</td>
+</tr>
+<tr>
+<td>视角</td>
+<td>未写</td>
+<td>锚点 3 视角（12 张）+ 记忆帧单视角</td>
+<td><code>modality.json</code>；yaml L128–131</td>
+</tr>
+<tr>
+<td>replan</td>
+<td>未写</td>
+<td>首 chunk 随机 replan；前 3 次 commit 后立即 replan</td>
+<td>客户端 L587–608、L710–714</td>
+</tr>
+<tr>
+<td>VLM 共训</td>
+<td>未写</td>
+<td>yaml 有 <code>vlm_data</code> 与
+<code>loss_scale.vlm: 0.1</code>，但训练循环把 <code>vlm_iter</code>
+注释掉了，不生效</td>
+<td>yaml L84–95、L162–164；<code>train_eventvla.py</code> L425</td>
+</tr>
+<tr>
+<td>评测</td>
+<td>100 集</td>
+<td>100 集、unseen 指令、LargeView；步数上限文件缺失</td>
+<td><code>eval_policy.py</code> L169；#9 / #10</td>
+</tr>
+<tr>
+<td>真机</td>
+<td>π0.5 骨干</td>
+<td><code>pi05_keyframe_mixin.py</code> 存在；训练配置与权重未发布</td>
+<td>README To Do</td>
+</tr>
+</tbody>
+</table>
+<h2 id="6-代码质量观察">6. 代码质量观察</h2>
+<ul>
+<li><strong>死配置</strong>：DiT-B 段（yaml
+L21–46）、<code>vlm_data</code> 段与 <code>loss_scale.vlm</code>（yaml
+L84–95、L162–164）都不生效；<code>use_keyframe_predict_head: auto</code>
+会在没有标注的数据上自动关掉关键帧头（L501–515），这是给 RMBench
+这类无关键帧数据准备的。</li>
+<li><strong>兼容层堆叠</strong>：同一参数有三个别名（<code>keyframe_inference_nms_window</code>
+/ <code>keyframe_nms_window</code> /
+<code>keyframe_cluster_timestep_window</code>，L213–235），<code>_cfg_value</code>
+同时支持 dict 与属性两种取法（L70–82），说明配置 schema
+改过多轮；写新配置时以 yaml 里出现的键名为准。</li>
+<li><strong>测试</strong>：2 个文件，只覆盖采样器 slot 与 runtime
+记忆；没有 CI；没有对事件选择（NMS / 冷却）与软标签的单测。</li>
+<li><strong>服务端状态</strong>：cooldown 与 pending 存在 slot 0
+上（L1662–1672），一个 policy server 同时服务两个任务会串状态，作者在 #3
+确认要"一任务一服务器"。</li>
+<li><strong>硬编码</strong>：<code>&lt; 4</code> 的 replan 规则（客户端
+L714）、动作维度重排（L383）、curobo yml 绝对路径（#3）、发布 checkpoint
+的 <code>QwenOFT</code> 名（#10）。</li>
+</ul>
+<h2 id="7-改进落点">7. 改进落点</h2>
+<p>按优先级排，每条给代码位置。与 <a href="https://github.com/asimfish/awesome_starvla/blob/main/reports/10_improvement_plan.md">10 ·
+改进方案</a> 的 WP3（自实现关键帧头）和 WP7 / R9（EventVLA 换 VLAct
+骨干）对接。</p>
+<p><strong>P0 · 先把基线复现出来（需 GPU，1–2 周）</strong></p>
+<ol type="1">
+<li>补齐评测配置：<code>RoboTwin-Mem/task_config/</code>（含
+<code>_eval_step_limit.yml</code>，按 #3 / #4
+的数值）、<code>unnorm_key</code> 别名、<code>QwenOFT → EventVLA</code>
+的注册别名；打包成 PR 回上游。8 任务 × 100 集跑通，重点解释 Pick Objects
+in Order 56 vs 90。</li>
+<li>把客户端
+<code>replan_after_keyframe_commit and committed_keyframe_count &lt; 4</code>（L714）改成配置项，跑
+{不 replan、全部 replan、&lt; 4} 三组，量化这个规则的贡献；R9
+的所有对比都应报告用的是哪一组。</li>
+</ol>
+<p><strong>P1 · 协议与训练管线（对接 WP3 / WP7）</strong></p>
+<ol start="3" type="1">
+<li>多事件 / chunk：去掉服务端
+<code>break</code>（L1774）改为返回候选列表；客户端 pending 改成按 step
+排序的队列（L644–714）；训练侧 <code>_select_chunk_event</code> 支持
+top-k 登记（L1589–1602、L908–966）。预期受益任务：Press Button
+Keyframe（论文 48%）、Find Seal and Seal Stamp（63%）。</li>
+<li>显式时间编码：在
+<code>_build_image_content</code>（<code>QWen3.py</code>
+L64–78）里给每张图加相对时间文本（"30 steps ago" / "now" / "memory from
+step 412"）或 learned time
+token，替代现在的两个组标签；顺序与计数类任务受益，代价是几十个
+token。</li>
+<li>exact fetch 异步化：<code>get_memory_image_at_step</code>
+在主进程逐帧解码视频（<code>train_eventvla.py</code>
+L743–756）；改为每条 episode 预解码候选帧到共享内存，或让 dataloader
+worker 按 pending 列表预取。先用 <code>data_time</code> /
+<code>model_time</code>（<code>train_eventvla.py</code>
+L487–488）量化瓶颈。</li>
+<li>标签噪声研究：按论文 A.3 的 prompt 实现 Qwen3-VL 标注（prompt
+全文在论文 A.3），与 oracle
+标签对比训练；再试自监督替代（未来帧不可预测性、关键帧头对 GT 的
+attention rollout）。这是把 EventVLA 从"benchmark
+自带标签"推向开放任务的必经之路。</li>
+</ol>
+<p><strong>P2 · 算法</strong></p>
+<ol start="7" type="1">
+<li>淘汰策略：FIFO（L638–639）→ 按置信度 / 任务阶段 / 被 attention
+读取的频次淘汰；或分层记忆：raw 图短期 + 压缩 token 长期，解决 <span
+class="math inline">\(N_{\max}\)</span> 饱和（论文 §6 自述局限）。</li>
+<li>计数与顺序的显式化：让 VLM 生成一行文本摘要（"已按左键 2 次"）写回
+prompt，与原图记忆并存；针对 Press Button Keyframe 的 48%。</li>
+<li>解耦 chunk 消融：论文 Table 2 把 chunk 从 50 缩到 15
+时同时改了动作块和前瞻窗口。做两组：固定动作块 50、前瞻窗口 15 /
+30（关键帧头只在前 k 个 token 上算 loss）；固定前瞻 50、执行 15 / 30
+步后 replan。</li>
+<li>跨骨干：<code>pi05_keyframe_mixin.py</code> 已把 KEM 抽成
+mixin；移植到 StarVLA 主干的 <code>QwenPI</code> /
+<code>QwenGR00T</code>，验证 flow-matching 头上的 KEM（<a
+href="https://github.com/asimfish/awesome_starvla/blob/main/reports/09_eventvla.md">09</a> §5 局限 3）。WP3 的
+<code>starvla_lab.heads.KeyframeHead</code> 应直接复用 §2.3–2.5
+的数值（R = 8、τ = 0.55、pos_weight、NMS / 冷却），并把 §2.6
+的有状态训练作为设计决策点：要么照搬 slot 机制，要么改成"离线预生成
+student 记忆"的两阶段训练。</li>
+</ol>
+<h2 id="8-与仓库其他材料的关系">8. 与仓库其他材料的关系</h2>
+<ul>
+<li><a href="https://github.com/asimfish/awesome_starvla/blob/main/reports/09_eventvla.md">09 · EventVLA 解读</a>
+讲论文，本篇讲代码。09 §2.3"关键帧真值来自 Qwen3-VL 自动标注"与
+§2.2"按时间顺序排成一个图像序列"描述的是论文，开源实现里分别是脚本
+oracle（§3）和"锚点在前、记忆在后"（§2.1）。</li>
+<li><a href="https://github.com/asimfish/awesome_starvla/blob/main/reports/02_starvla_codebase_analysis.md">02 · StarVLA
+代码库解析</a>：EventVLA 是 StarVLA 的早期 fork，<code>eventvla/</code>
+与 <code>starVLA/</code> 同构，02
+的目录、契约与训练循环描述可直接套用；差异只在 §1 列出的新增文件。</li>
+<li><a href="https://github.com/asimfish/awesome_starvla/blob/main/reports/07_research_roadmap.md">07 · 路线图</a> D1、<a
+href="https://github.com/asimfish/awesome_starvla/blob/main/reports/10_improvement_plan.md">10 · 改进方案</a> WP3 / WP7：§7 的 P0–P1
+是 R9 之前必须做的前置工作。</li>
+<li><a href="https://github.com/asimfish/awesome_starvla/blob/main/reports/06_benchmarks_landscape.md">06 · 基准生态</a>
+§5.4：RoboTwin-MeM 的评测协议细节（100
+集、unseen、LargeView、步数上限）以本篇 §4 为准。</li>
+</ul>
 </article>
 </body></html>

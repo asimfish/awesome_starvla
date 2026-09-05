@@ -418,6 +418,10 @@ class Qwen_MultiHead(baseframework):
             if name in self.heads:
                 _check_fm_head(name, self.heads[name])
 
+        # Head dropout support: ``None`` = every enabled head; otherwise only the named heads contribute
+        # to ``action_loss`` for the current step (set per step by an external schedule, e.g.
+        # ``starvla_lab.bench.HeadDropoutSchedule``). An empty or foreign selection falls back to all heads.
+        self.active_heads: Optional[Sequence[str]] = None
         self.head_weights: Dict[str, float] = {
             name: float((heads_cfg.get(name) or {}).get("loss_weight", 1.0)) for name in self.heads
         }
@@ -570,6 +574,14 @@ class Qwen_MultiHead(baseframework):
         return self.wrap_period
 
     # ------------------------------------------------------------------ training
+    def _active_head_set(self) -> set:
+        """Heads that contribute to this step's loss (see ``active_heads``)."""
+        enabled = set(self.heads.keys())
+        if not self.active_heads:
+            return enabled
+        chosen = enabled & set(self.active_heads)
+        return chosen or enabled
+
     def forward(self, examples: List[dict] = None, **kwargs) -> Dict[str, torch.Tensor]:
         batch_images = [example["image"] for example in examples]
         instructions = self._prepare_instructions(examples)
@@ -588,13 +600,14 @@ class Qwen_MultiHead(baseframework):
             wrap_weight = self.fm_sample_loss_weight if self.wrap_enabled else 0.0
 
             losses: Dict[str, torch.Tensor] = {}
-            if "oft" in self.heads:
+            active_set = self._active_head_set()
+            if "oft" in active_set:
                 queries = gather_action_token_embeddings(last_hidden, inputs["input_ids"], self.action_token_id, self.chunk_len)
                 pred = self.heads["oft"].predict_action(queries).float()
                 losses["oft"] = masked_wrap_aware_l1(pred, target.float(), active, periodic, period)
 
             for name in ("gr00t", "pi"):
-                if name not in self.heads:
+                if name not in active_set:
                     continue
                 r = self.repeated_diffusion_steps[name]
                 cond = (

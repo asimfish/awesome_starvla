@@ -26,6 +26,7 @@ __all__ = [
     "read_matrix_csv",
     "summarize_results",
     "format_summary_table",
+    "total_gpu_hours",
 ]
 
 
@@ -41,6 +42,7 @@ class BackboneSpec:
     name: str
     init: str
     reload_modules: str = "qwen_vl_interface"
+    seeds: Optional[Sequence[int]] = None  # per-backbone override of ``Protocol.seeds`` (tiered designs)
 
     @property
     def is_checkpoint(self) -> bool:
@@ -58,6 +60,8 @@ class BenchmarkSpec:
     data_fractions: Sequence[float] = (1.0,)
     num_gpus: int = 8
     extra_overrides: Mapping[str, str] = field(default_factory=dict)
+    eval_cmd_template: str = "bash {eval_script} {checkpoint_dir}"
+    est_gpu_hours_per_run: float = 0.0
 
 
 @dataclass(frozen=True)
@@ -83,6 +87,7 @@ class Protocol:
             "trainer.learning_rate.qwen_vl_interface": f"{self.learning_rate_backbone:g}",
             "trainer.learning_rate.action_model": f"{self.learning_rate_head:g}",
             "trainer.freeze_modules": "",
+            "trainer.lab.mode": "single",
             "run_root_dir": self.run_root_dir,
         }
 
@@ -100,12 +105,15 @@ class RunSpec:
     num_gpus: int
     metric_keys: Sequence[str]
     status: str = "planned"
+    eval_cmd_template: str = "bash {eval_script} {checkpoint_dir}"
+    est_gpu_hours: float = 0.0
 
     def to_row(self) -> Dict[str, str]:
         row = {k: v for k, v in asdict(self).items() if k not in ("overrides", "metric_keys")}
         row["overrides"] = json.dumps(dict(self.overrides), sort_keys=True)
         row["metric_keys"] = ",".join(self.metric_keys)
         row["data_fraction"] = f"{self.data_fraction:g}"
+        row["est_gpu_hours"] = f"{self.est_gpu_hours:g}"
         return {k: str(v) for k, v in row.items()}
 
 
@@ -121,7 +129,7 @@ def build_runs(protocol: Protocol, backbones: Sequence[BackboneSpec], benchmarks
     for bench in benchmarks:
         for backbone in backbones:
             for frac in bench.data_fractions:
-                for seed in protocol.seeds:
+                for seed in (backbone.seeds if backbone.seeds is not None else protocol.seeds):
                     overrides = dict(fixed)
                     overrides.update(bench.extra_overrides)
                     overrides["seed"] = str(seed)
@@ -146,9 +154,16 @@ def build_runs(protocol: Protocol, backbones: Sequence[BackboneSpec], benchmarks
                             eval_script=bench.eval_script,
                             num_gpus=bench.num_gpus,
                             metric_keys=tuple(bench.metric_keys),
+                            eval_cmd_template=bench.eval_cmd_template,
+                            est_gpu_hours=float(bench.est_gpu_hours_per_run),
                         )
                     )
     return runs
+
+
+def total_gpu_hours(runs: Sequence[RunSpec]) -> float:
+    """Sum of the per-run downstream GPU-hour estimates."""
+    return float(sum(r.est_gpu_hours for r in runs))
 
 
 def render_commands(run: RunSpec, protocol: Protocol, starvla_root: str = ".") -> Dict[str, str]:
@@ -160,8 +175,10 @@ def render_commands(run: RunSpec, protocol: Protocol, starvla_root: str = ".") -
         f"{protocol.train_script} --config_yaml {run.train_yaml} {override_args}"
     )
     ckpt_dir = f"{protocol.run_root_dir}/{run.run_id}"
-    eval_cmd = f"cd {shlex.quote(starvla_root)} && bash {run.eval_script} {ckpt_dir} {run.seed}"
-    return {"train": train, "eval": eval_cmd, "checkpoint_dir": ckpt_dir}
+    ckpt_file = f"{ckpt_dir}/checkpoints/steps_{protocol.max_steps}_pytorch_model.pt"
+    eval_body = run.eval_cmd_template.format(eval_script=run.eval_script, checkpoint_dir=ckpt_dir, ckpt_file=ckpt_file, seed=run.seed, run_id=run.run_id)
+    eval_cmd = f"cd {shlex.quote(starvla_root)} && {eval_body}"
+    return {"train": train, "eval": eval_cmd, "checkpoint_dir": ckpt_dir, "ckpt_file": ckpt_file}
 
 
 def varying_keys(runs: Sequence[RunSpec]) -> List[str]:
@@ -175,7 +192,7 @@ def varying_keys(runs: Sequence[RunSpec]) -> List[str]:
     return out
 
 
-_CSV_FIELDS = ["run_id", "backbone", "benchmark", "data_fraction", "seed", "status", "train_yaml", "eval_script", "num_gpus", "metric_keys", "overrides"]
+_CSV_FIELDS = ["run_id", "backbone", "benchmark", "data_fraction", "seed", "status", "train_yaml", "eval_script", "eval_cmd_template", "num_gpus", "est_gpu_hours", "metric_keys", "overrides"]
 
 
 def write_matrix_csv(runs: Sequence[RunSpec], path: str | Path) -> Path:
@@ -206,6 +223,8 @@ def read_matrix_csv(path: str | Path) -> List[RunSpec]:
                     num_gpus=int(row["num_gpus"]),
                     metric_keys=tuple(row["metric_keys"].split(",")),
                     status=row.get("status", "planned"),
+                    eval_cmd_template=row.get("eval_cmd_template") or "bash {eval_script} {checkpoint_dir}",
+                    est_gpu_hours=float(row.get("est_gpu_hours") or 0.0),
                 )
             )
     return runs

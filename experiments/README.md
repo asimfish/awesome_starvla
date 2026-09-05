@@ -6,7 +6,9 @@
 
 | 文件 | 由谁生成 | 内容 |
 |---|---|---|
-| `run_matrix.csv` | `python3 scripts/build_run_matrix.py` | R0–R8 九个骨干 × F1 协议的 6 个基准设定（LIBERO-plus、RoboTwin Base、RoboCasa-GR1 的 10/20/50/100%）× 3 seeds = 162 次下游微调；每行含 `run_id`、`overrides`（JSON，StarVLA 点路径覆盖项）、`status` |
+| `run_matrix.csv` | `python3 scripts/build_run_matrix.py` | 主矩阵（OFT 头，92 次）：core 级变体（R0/R1/R3/R8）3 seeds + GR1 四个比例，extra 级 1 seed + 两个比例；每行含 `run_id`、`overrides`（JSON，StarVLA 点路径覆盖项）、`eval_cmd_template`、`est_gpu_hours`、`status` |
+| `run_matrix_QwenPI_v3.csv`、`run_matrix_QwenGR00T.csv` | 同上 | 跨头矩阵：core 级变体 × LIBERO-plus + RoboTwin Base × 1 seed（各 8 次） |
+| `budget.md` | 同上 | 预训练 + 下游的 GPU 小时合计（当前约 21,000；最小子集约 9,000） |
 | `results/<run_id>.json` | 评测脚本（人工或 CI）写入 | 一次运行一个文件，字段见下 |
 | `results/summary.md` | `python3 -c "from starvla_lab.bench import *; ..."`（见下） | 由 `summarize_results` 聚合成 mean ± std 表 |
 
@@ -46,6 +48,8 @@ PY
 ## 协议提醒（F1）
 
 - 只换骨干：`run_matrix.csv` 里各行 `overrides` 的差异只能是 `framework.qwenvl.base_vlm` / `trainer.pretrained_checkpoint` / `trainer.reload_modules` / `seed` / `run_id` / `datasets.vla_data.data_fraction`。`scripts/build_run_matrix.py` 会打印实际变化的键，多出任何键都要解释。
+- 训练入口统一是 `-m starvla_lab.train.train_starvla_lab`（`trainer.lab.mode: single`），它与 StarVLA 原生 `train_starvla.py` 的唯一差别是 `data_fraction < 1` 时按轨迹子采样；需要 `PYTHONPATH` 包含本仓库的 `code/`。
+- 评测命令由 `protocol_f1.yaml` 的模板渲染：LIBERO-plus 用 `your_ckpt=... bash eval_libero.sh`（需设 `LIBERO_HOME`），RoboTwin 用 `start_eval.sh -m demo_clean` 与 `-m demo_randomized` 各跑一次，GR1 用 `batch_eval_args.sh <ckpt> 1 720 12`。
 - checkpoint 规则固定为"最后一个"，不挑最优。
-- 每个骨干同时报"同头"（OFT）与"跨头"（PI、GR00T）——跨头微调另建两份矩阵（把 `protocol.head` 改为 `QwenPI_v3` / `QwenGR00T` 重新生成）。
+- 每个骨干同时报"同头"（OFT）与"跨头"（PI、GR00T）——跨头矩阵由脚本按 core 级自动生成（`run_matrix_QwenPI_v3.csv`、`run_matrix_QwenGR00T.csv`）。
 - R9（EventVLA × VLAct 骨干）走 EventVLA 自己的协议，不在本清单内；结果同样以 JSON 放进 `results/`，`benchmark` 写 `robotwin_mem` / `rmbench`。

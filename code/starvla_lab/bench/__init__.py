@@ -9,6 +9,7 @@ from .backbone_bench import (
     read_matrix_csv,
     render_commands,
     summarize_results,
+    total_gpu_hours,
     varying_keys,
     write_matrix_csv,
 )
@@ -16,6 +17,6 @@ from .overhead_bench import HeadDropoutSchedule, OverheadResult, compare_configs
 
 __all__ = [
     "BackboneSpec", "BenchmarkSpec", "Protocol", "RunSpec", "build_runs", "format_summary_table",
-    "read_matrix_csv", "render_commands", "summarize_results", "varying_keys", "write_matrix_csv",
+    "read_matrix_csv", "render_commands", "summarize_results", "total_gpu_hours", "varying_keys", "write_matrix_csv",
     "HeadDropoutSchedule", "OverheadResult", "compare_configs", "measure_step_overhead", "write_overhead_csv",
 ]

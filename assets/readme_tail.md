@@ -34,18 +34,20 @@ python3 -m pytest code/vlact_ext/tests -q     # 60 passed, 1 skipped（CPU，moc
 
 ### [5.2 Improvement Lab（code/starvla_lab）](#content)
 
-[10 · 改进方案](reports/10_improvement_plan.md) 阶段 A 的研究包（约 3,600 行，95 个 CPU 测试；详见 [`code/starvla_lab/README.md`](code/starvla_lab/README.md)）：
+[10 · 改进方案](reports/10_improvement_plan.md) 阶段 A 的研究包（约 4,800 行，110 个 CPU 测试；详见 [`code/starvla_lab/README.md`](code/starvla_lab/README.md)）：
 
 | 子包 | 工作包 | 内容 |
 |---|---|---|
 | `probes/` | WP1 诊断 | 跨头线性 / MLP 探针、线性 CKA、`DriftTracker` 逐层漂移、`ProbeRunner` 按步触发写 JSONL——不跑下游微调就度量骨干可复用性 |
 | `schedules/` | WP2 / WP4 | `layerwise_lr_decay_groups`（复用 `vlact_ext` 冻结规则）、`DriftDrivenLLRD`、`AuxDataScheduler`（fixed / linear / drift）——把硬冻结与固定 caption 权重变成可由漂移驱动的策略 |
 | `heads/` | WP3 | `FutureFeaturePredictionHead`、`KeyframeHead`（软标签 BCE、NMS / 冷却写入、课程）、`QwenMultiHeadLab`——把"头多样性即正则化"推到非动作头 |
-| `bench/` | WP5 / WP6 | "只换骨干"协议（命令矩阵、变化键审计、结果聚合）、开销测量与头 dropout |
-| `configs/` + `experiments/` | §3 | `protocol_f1.yaml`、`matrix_R0_R9.yaml` → `scripts/build_run_matrix.py` → `experiments/run_matrix.csv`（9 骨干 × 6 基准设定 × 3 seeds = 162 次微调；预训练预算约 7,300 GPU 小时） |
+| `data/` | WP3b / F1 | 按轨迹的确定性子采样（数据比例曲线，挂到 StarVLA 的数据集工厂）、未来帧特征缓存、启发式 / 可插拔关键帧标注 |
+| `train/` | WP9 | `trainer.lab.*` 配置、LLRD 优化器构建、每步钩子（调度写回 / 头 dropout / 探针驱动），入口 `train_starvla_lab.py` 镜像 StarVLA 单双 loader 主流程 |
+| `bench/` | WP5 / WP6 | "只换骨干"协议（真实评测命令模板、分级 seeds、GPU 小时合计）、开销测量与头 dropout（已接进 `QwenMultiHead.active_heads`） |
+| `configs/` + `experiments/` | §3 | `protocol_f1.yaml`、`matrix_R0_R9.yaml` → `scripts/build_run_matrix.py` → `experiments/run_matrix*.csv`（主矩阵 92 次 + 跨头 16 次）与 `budget.md`（预训练 7,300 + 下游 13,800 ≈ 21,000 GPU 小时） |
 
 ```bash
-python3 -m pytest code/starvla_lab/tests -q          # 95 passed
+python3 -m pytest code/starvla_lab/tests -q          # 110 passed
 python3 scripts/build_run_matrix.py --print-commands 2
 ```
 
@@ -101,11 +103,12 @@ awesome_starvla/
 │   ├── awesome_starvla_full_report.html / .pdf   # 44 页合订全文报告
 ├── code/
 │   ├── vlact_ext/                  # VLAct 缺失组件的 StarVLA 扩展（多头框架、wrap loss、统一布局、冻结规则）+ 61 个测试
-│   ├── starvla_lab/                # 改进方案研究包：probes / schedules / heads / bench / configs + 95 个测试
+│   ├── starvla_lab/                # 改进方案研究包：probes / schedules / heads / data / train / bench / configs + 110 个测试
 │   └── EventVLA/                   # git 子模块：EventVLA 模型 + RoboTwin-MeM 基准（基于 StarVLA-OFT）
 ├── experiments/
 │   ├── README.md                   # 运行清单与结果 JSON 约定
-│   ├── run_matrix.csv              # R0–R8 × F1 协议 × 3 seeds 的 162 次下游微调
+│   ├── run_matrix*.csv             # 主矩阵（92 次）与跨头矩阵（各 8 次）
+│   ├── budget.md                   # 全量 GPU 小时预算（脚本生成）
 │   └── results/                    # 每次运行一个 JSON，summarize_results 聚合
 ├── assets/
 │   ├── papers_curated.md           # 120 条文献编目（README 第 4 节的源）

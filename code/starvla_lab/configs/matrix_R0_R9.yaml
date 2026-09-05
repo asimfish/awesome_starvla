@@ -1,97 +1,139 @@
-# Pre-training variants R0-R9 (see reports/10_improvement_plan.md section 3).
-# Every variant produces one backbone checkpoint that is then evaluated under protocol_f1.yaml.
-# `base_yaml` is the vlact_ext example config; `overrides` are StarVLA dotted-path CLI overrides.
+# Pre-training variants R0-R9 (reports/10_improvement_plan.md section 3, revised after the design review).
+# Every variant yields one backbone checkpoint evaluated under protocol_f1.yaml.
+# `train_script` selects the StarVLA entry; `overrides` are StarVLA dotted-path CLI overrides applied on
+# top of `base_yaml`. Lab features live under `trainer.lab.*` and are consumed only by
+# starvla_lab.train.train_starvla_lab (they are silently ignored by the stock StarVLA scripts).
 pretrain_common:
   base_yaml: code/vlact_ext/configs/vlact_pretrain_example.yaml
   num_gpus: 16
   max_steps: 100000
   checkpoint_glob: playground/Checkpoints/{run_id}/checkpoints/steps_100000_pytorch_model.pt
+  probe_checkpoints: [20000, 40000, 60000, 80000, 100000]   # kept for the Q1 correlation analysis (G2)
+
+tiers:
+  core:  {seeds: [0, 1, 2], gr1_fractions: [0.1, 0.2, 0.5, 1.0], cross_heads: [QwenPI_v3, QwenGR00T]}
+  extra: {seeds: [0],       gr1_fractions: [0.2, 1.0],           cross_heads: []}
 
 variants:
   R0:
+    tier: core
     question: baseline
     description: no robot pre-training; downstream fine-tunes Qwen3-VL-4B directly
     pretrain: null
     backbone_init: Qwen/Qwen3-VL-4B-Instruct
     est_gpu_hours: 0
   R1:
+    tier: core
     question: control (StarVLA-alpha Table 3 double-edged sword)
-    description: single OFT head, full-parameter, action-only pre-training
+    description: single OFT head, full-parameter, action-only pre-training (no VLM loader)
+    train_script: starVLA/training/train_starvla.py
     overrides:
       framework.name: QwenOFT
       trainer.freeze_modules: ""
-      datasets.vlm_data: null
     est_gpu_hours: 600
   R2:
+    tier: extra
     question: isolate multi-head
-    description: three heads (OFT+PI+GR00T), full-parameter, no caption
+    description: three heads (OFT+PI+GR00T), full-parameter, no caption; FM heads do not see the OFT query tokens
+    train_script: starVLA/training/train_starvla.py
     overrides:
       framework.name: QwenMultiHead
+      framework.mask_oft_queries_for_fm_heads: true
       trainer.freeze_modules: ""
-      datasets.vlm_data: null
     est_gpu_hours: 900
   R3:
+    tier: core
     question: WP0 reproduction of VLAct
     description: three heads + frozen vision encoder and lower half of the LLM + caption co-training (0.5)
+    train_script: starVLA/training/train_starvla_cotrain.py
     overrides:
       framework.name: QwenMultiHead
+      framework.mask_oft_queries_for_fm_heads: true
       trainer.freeze_modules: "qwen_vl_interface.model.model.visual,llm_layers_below:18"
       trainer.loss_scale.vlm: 0.5
+      trainer.lab.probes.enabled: true          # calibration run: record drift, act on nothing
+      trainer.lab.probes.calibrate_only: true
+      trainer.lab.probes.every_n_steps: 2000
     est_gpu_hours: 900
   R4:
+    tier: extra
     question: Q3 (H3) hard freeze vs layer-wise lr decay
-    description: R3 with LLRD (decay 0.85 per layer, vision encoder at deepest decay) instead of hard freezing
+    description: R3 with LLRD (decay 0.85, vision encoder at the deepest decay) instead of hard freezing
+    train_script: code/starvla_lab/train/train_starvla_lab.py
     overrides:
       framework.name: QwenMultiHead
+      framework.mask_oft_queries_for_fm_heads: true
       trainer.freeze_modules: ""
-      trainer.llrd.enabled: true
-      trainer.llrd.decay: 0.85
       trainer.loss_scale.vlm: 0.5
+      trainer.lab.llrd.enabled: true
+      trainer.lab.llrd.decay: 0.85
+      trainer.lab.probes.enabled: true
+      trainer.lab.probes.calibrate_only: true
     est_gpu_hours: 900
   R5:
-    question: Q3 (H3) drift-driven adaptation
+    tier: extra
+    question: Q3 (H3) drift-driven adaptation (thresholds set from the R3 calibration curve)
     description: R4 plus drift-driven LLRD and drift-driven auxiliary-data scheduler
+    train_script: code/starvla_lab/train/train_starvla_lab.py
     overrides:
       framework.name: QwenMultiHead
+      framework.mask_oft_queries_for_fm_heads: true
       trainer.freeze_modules: ""
-      trainer.llrd.enabled: true
-      trainer.llrd.drift_driven: true
-      trainer.aux_scheduler.strategy: drift
-      trainer.probes.every_n_steps: 2000
+      trainer.lab.llrd.enabled: true
+      trainer.lab.llrd.decay: 0.85
+      trainer.lab.llrd.drift_driven: true
+      trainer.lab.aux_scheduler.enabled: true
+      trainer.lab.aux_scheduler.strategy: drift
+      trainer.lab.probes.enabled: true
+      trainer.lab.probes.every_n_steps: 2000
     est_gpu_hours: 900
   R6:
+    tier: extra
     question: Q2 (H2) future-feature prediction head
-    description: R3 plus FutureFeaturePredictionHead (offsets [1, 16], frozen SigLIP pooled features)
+    description: R3 plus FutureFeaturePredictionHead (offsets [1, 16], frozen SigLIP pooled features from data/future_features.py)
+    train_script: starVLA/training/train_starvla_cotrain.py
+    data_prep: [future_features]
     overrides:
       framework.name: QwenMultiHeadLab
+      framework.mask_oft_queries_for_fm_heads: true
       trainer.freeze_modules: "qwen_vl_interface.model.model.visual,llm_layers_below:18"
       trainer.loss_scale.vlm: 0.5
       framework.aux_heads.featpred.enabled: true
       framework.aux_heads.featpred.weight: 0.5
     est_gpu_hours: 1000
   R7:
+    tier: extra
     question: Q2 (H2) keyframe head
-    description: R3 plus KeyframeHead (soft-label BCE, sigma 1.5) with Qwen3-VL offline keyframe labels
+    description: R3 plus KeyframeHead (soft-label BCE, sigma 1.5); labels from data/keyframe_labels.py (heuristic baseline, VLM labeler optional)
+    train_script: starVLA/training/train_starvla_cotrain.py
+    data_prep: [keyframe_labels]
     overrides:
       framework.name: QwenMultiHeadLab
+      framework.mask_oft_queries_for_fm_heads: true
       trainer.freeze_modules: "qwen_vl_interface.model.model.visual,llm_layers_below:18"
       trainer.loss_scale.vlm: 0.5
       framework.aux_heads.keyframe.enabled: true
       framework.aux_heads.keyframe.weight: 0.5
+      framework.aux_heads.keyframe.sigma: 1.5
     est_gpu_hours: 1000
   R8:
+    tier: core
     question: Q2 (H2) both auxiliary heads
     description: R3 plus both auxiliary heads
+    train_script: starVLA/training/train_starvla_cotrain.py
+    data_prep: [future_features, keyframe_labels]
     overrides:
       framework.name: QwenMultiHeadLab
+      framework.mask_oft_queries_for_fm_heads: true
       trainer.freeze_modules: "qwen_vl_interface.model.model.visual,llm_layers_below:18"
       trainer.loss_scale.vlm: 0.5
       framework.aux_heads.featpred.enabled: true
       framework.aux_heads.keyframe.enabled: true
     est_gpu_hours: 1100
   R9:
+    tier: core
     question: Q4 (H4) memory x backbone recipe
-    description: EventVLA initialised from the R3 backbone vs from Qwen3-VL; evaluated on RoboTwin-MeM and RMBench with the EventVLA protocol (not part of F1)
+    description: EventVLA initialised from the R3 backbone vs from Qwen3-VL; RoboTwin-MeM + RMBench under the EventVLA protocol (not part of F1)
     pretrain: null
     backbone_init: "{R3_checkpoint}"
     protocol: eventvla

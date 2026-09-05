@@ -166,3 +166,8 @@ masked_wrap_aware_l1(pred, target, active_mask=None, periodic_mask=None, period=
 * §9.3：头存放在 `nn.ModuleDict` `heads.{oft,gr00t,pi}` 而非 `oft_head`/`groot_head`/`pi_head` 三个属性；输出键按任务要求为 `loss_oft/loss_pi/loss_gr00t`；`repeated_diffusion_steps` 按头从 `framework.heads.<name>.action_model` 读（不再像 QwenPI_v3 那样从 `trainer` 读）；state 走文本而非 GR00T 的 `state_encoder`；两个 FM 头的 mask 支持在框架内实现（伪代码假定改头的 `forward` 加 `action_mask`）。
 * §9.4：没有实现 `ModalityTransform` 级的 `UnifiedActionLayoutTransform`（那需要改 `_pack_sample`），改为作用于 `_pack_sample` 输出的样本级 transform + `make_dataset` 钩子 + 框架内兜底映射；`periodic_mask` 与 `action_mask` 一起由布局生成，不需要 DataConfig 声明 `periodic_action_keys`；部署侧 `PolicyNormProcessor` 未改，由 `predict_action(robot_tag=...)` 先还原原生维度。
 * §9.5：没有新增 `wrap_pi` 归一化模式（要改 `Normalizer`），用 `UnifiedActionTransform(wrap_period=...)` 代替数据侧 wrap；`period` 支持逐维数组以适配 min_max 统计归一化。
+
+## 7. 后续改动记录
+
+- 2026-09-05：`Qwen_MultiHead` 增加 `active_heads`（默认 `None` = 全部启用的头参与 loss；由 `starvla_lab.train.LabHooks` 按步设置以实现头 dropout，空或未知名称回退为全部头）；行为不变时测试不受影响（60 passed, 1 skipped）。
+- 已知偏差：GR00T 头以 `state_dim: 0` 构建、本体状态改走文本，与 GR00T 论文及 StarVLA 原生 `QwenGR00T` 的"状态进 System 1"不同；比较时须注明。

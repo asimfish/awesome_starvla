@@ -1,31 +1,38 @@
 # Fixed downstream protocol F1: only the backbone initialisation may vary between runs.
-# Consumed by scripts/build_run_matrix.py via starvla_lab.bench.backbone_bench.
+# Paths are real StarVLA files (starVLA_dev @ d81fc66). Consumed by scripts/build_run_matrix.py.
 protocol:
   head: QwenOFT                      # downstream head, freshly initialised for every run
-  max_steps: 30000
+  max_steps: 30000                   # -> checkpoint file steps_30000_pytorch_model.pt ({ckpt_file})
   per_device_batch_size: 16
   learning_rate_backbone: 1.0e-5
   learning_rate_head: 1.0e-4
-  seeds: [0, 1, 2]
-  checkpoint_rule: last              # report the last checkpoint; no cherry-picking
-  train_script: starVLA/training/train_starvla.py
+  seeds: [0, 1, 2]                   # default; tiered variants override per backbone (see matrix)
+  checkpoint_rule: last
+  train_script: -m starvla_lab.train.train_starvla_lab   # single-loader mode; honours datasets.vla_data.data_fraction (PYTHONPATH must include <awesome_starvla>/code)
   accelerate_config: starVLA/config/deepseeds/deepspeed_zero2.yaml
   run_root_dir: playground/Checkpoints/backbone_bench
 
+# est_gpu_hours_per_run: 30k steps at StarVLA's measured 1.77 s/step (8xA100, batch 16) ~ 15 h x GPUs.
 benchmarks:
-  - name: libero_plus                # primary metric: zero-shot robustness, 10,030 instances
-    train_yaml: examples/simBenchmarks/LIBERO-plus/train_files/starvla_libero_plus.yaml
-    eval_script: examples/simBenchmarks/LIBERO-plus/eval_files/run_eval.sh
+  - name: libero_plus                # trained on standard LIBERO, evaluated on the LIBERO-plus perturbation suite
+    train_yaml: examples/simBenchmarks/LIBERO/train_files/starvla_cotrain_libero.yaml
+    eval_script: examples/simBenchmarks/LIBERO-plus/eval_files/eval_libero.sh
+    eval_cmd_template: "LIBERO_HOME=$LIBERO_HOME your_ckpt={ckpt_file} output_dir=results/backbone_bench/{run_id} bash {eval_script}"
     metric_keys: [success_rate, camera, robot, language, light, background, noise, layout]
     num_gpus: 8
-  - name: robotwin_base              # 50 clean demos / task; report clean AND random
-    train_yaml: examples/simBenchmarks/Robotwin/train_files/starvla_robotwin_base.yaml
-    eval_script: examples/simBenchmarks/Robotwin/eval_files/run_eval.sh
+    est_gpu_hours_per_run: 120
+  - name: robotwin_base              # 50 clean demos / task; clean AND random evaluated
+    train_yaml: examples/simBenchmarks/Robotwin/train_files/starvla_cotrain_robotwin.yaml
+    eval_script: examples/simBenchmarks/Robotwin/eval_files/start_eval.sh
+    eval_cmd_template: "bash {eval_script} -m demo_clean -n {run_id}_clean -c {ckpt_file} -s {seed} all && bash {eval_script} -m demo_randomized -n {run_id}_random -c {ckpt_file} -s {seed} all"
     metric_keys: [success_rate_clean, success_rate_random]
     num_gpus: 16
-  - name: robocasa_gr1               # unseen humanoid embodiment; data-fraction curve
-    train_yaml: examples/simBenchmarks/Robocasa_tabletop/train_files/starvla_gr1.yaml
-    eval_script: examples/simBenchmarks/Robocasa_tabletop/eval_files/run_eval.sh
+    est_gpu_hours_per_run: 130
+  - name: robocasa_gr1               # unseen humanoid embodiment; data-fraction curve via TrajectorySubset
+    train_yaml: examples/simBenchmarks/Robocasa_tabletop/train_files/starvla_cotrain_robocasa_gr1.yaml
+    eval_script: examples/simBenchmarks/Robocasa_tabletop/eval_files/batch_eval_args.sh
+    eval_cmd_template: "bash {eval_script} {ckpt_file} 1 720 12"
     metric_keys: [success_rate]
-    data_fractions: [0.1, 0.2, 0.5, 1.0]
+    data_fractions: [0.2, 1.0]       # 0.1 / 0.5 only for the core tier (added by build_run_matrix.py)
     num_gpus: 16
+    est_gpu_hours_per_run: 130
