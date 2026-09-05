@@ -268,3 +268,17 @@ def test_select_mode_auto_single_cotrain():
     assert select_mode({"trainer": {"lab": {"mode": "single"}}, "datasets": {"vlm_data": {}}}) == "single"
     with pytest.raises(ValueError):
         select_mode({"trainer": {"lab": {"mode": "bogus"}}})
+
+
+def test_resolve_inline_mixture_keeps_names_and_registers_specs():
+    from starvla_lab.train.train_starvla_lab import resolve_inline_mixture
+
+    base = {"libero_goal": [("libero_goal_no_noops_1.0.0_lerobot", 1.0, "libero_franka")]}
+    copy = dict(base)  # StarVLA's registry.py holds a copy of the base dict
+    assert resolve_inline_mixture("libero_goal", [base, copy]) == "libero_goal"
+    name = resolve_inline_mixture("libero_spatial_no_noops_1.0.0_lerobot:libero_franka", [base, copy])
+    assert name.startswith("lab_probe_") and name in base and name in copy
+    assert base[name] == [("libero_spatial_no_noops_1.0.0_lerobot", 1.0, "libero_franka")]
+    assert resolve_inline_mixture(name, [base, copy]) == name  # generated names resolve too
+    with pytest.raises(ValueError):
+        resolve_inline_mixture("not_a_mixture_and_not_a_spec", [base, copy])

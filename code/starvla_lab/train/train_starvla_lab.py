@@ -63,6 +63,18 @@ def mixture_registries() -> List[dict]:
     return out
 
 
+def resolve_inline_mixture(data_mix: Any, registries: List[dict]) -> str:
+    """Return a registry name for ``data_mix``: unchanged when it is already a registered mixture name, otherwise the
+    inline ``dataset_dir:robot_type[,...]`` spec is registered under a synthetic name in every registry."""
+    spec = str(data_mix)
+    if any(spec in reg for reg in registries):
+        return spec
+    name = spec
+    for reg in registries:
+        name = register_mixture(spec, reg)
+    return name
+
+
 def build_probe_loader(cfg: Any, probe_data_mix: str):
     """A separate LeRobot loader for the probe batch (``trainer.lab.probes.probe_data_mix``).
 
@@ -78,10 +90,7 @@ def build_probe_loader(cfg: Any, probe_data_mix: str):
     # edits never touch the training config (nor its accessed-keys bookkeeping).
     base = cfg.unwrap() if hasattr(cfg, "unwrap") else cfg
     probe_cfg = OmegaConf.create(OmegaConf.to_container(base, resolve=True))
-    name = None
-    for registry in mixture_registries():
-        name = register_mixture(str(probe_data_mix), registry)
-    probe_cfg.datasets.vla_data.data_mix = name
+    probe_cfg.datasets.vla_data.data_mix = resolve_inline_mixture(probe_data_mix, mixture_registries())
     probe_cfg.datasets.vla_data.num_workers = 0  # one-off loader: no worker pool next to the training loader
     probe_cfg.output_dir = os.path.join(str(cfg.output_dir), "probe_data")
     os.makedirs(probe_cfg.output_dir, exist_ok=True)
@@ -132,6 +141,9 @@ def main(cfg: Any) -> None:
 
     output_dir = base.setup_directories(cfg=cfg)
     vla = base.build_framework(cfg)
+    # datasets.vla_data.data_mix may be an inline "dataset_dir:robot_type[,...]" spec (e.g. a LIBERO suite StarVLA
+    # has no named mixture for); it is registered at runtime and replaced by the generated name.
+    cfg.datasets.vla_data.data_mix = resolve_inline_mixture(cfg.datasets.vla_data.data_mix, mixture_registries())
     loaders = base.prepare_data(cfg=cfg, accelerator=base.accelerator, output_dir=output_dir)
     vla_loader, vlm_loader = (loaders if mode == "cotrain" else (loaders, None))
 
