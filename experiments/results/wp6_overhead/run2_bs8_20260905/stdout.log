@@ -1,0 +1,52 @@
+[job] host=ide-7e33a68268b54c4b9512a8ca868790c2-e64a97 user=batchcom CUDA_VISIBLE_DEVICES=0 PY=/home/dataset-assist-0/liyufeng/envs/starvla/bin/python
+0, NVIDIA A100-SXM4-80GB, 1102 MiB, 81920 MiB
+1, NVIDIA A100-SXM4-80GB, 4229 MiB, 81920 MiB
+2, NVIDIA A100-SXM4-80GB, 21161 MiB, 81920 MiB
+3, NVIDIA A100-SXM4-80GB, 20082 MiB, 81920 MiB
+4, NVIDIA A100-SXM4-80GB, 20082 MiB, 81920 MiB
+5, NVIDIA A100-SXM4-80GB, 19888 MiB, 81920 MiB
+6, NVIDIA A100-SXM4-80GB, 15378 MiB, 81920 MiB
+7, NVIDIA A100-SXM4-80GB, 15420 MiB, 81920 MiB
+[job] starVLA @ d81fc66
+[job] awesome_starvla @ 3e550d1 (rsync copy)
+[env] python 3.11.15 torch 2.6.0+cu124 cuda 12.4 transformers 4.57.0
+[env] accelerate 1.5.2
+[env] diffusers 0.39.0
+[env] timm 1.0.29
+[env] omegaconf 2.3.1
+[env] einops 0.8.2
+[env] qwen_vl_utils ok
+[env] starVLA -> /home/dataset-assist-0/liyufeng/awesome_starvla_work/starVLA/starVLA/__init__.py
+[env] gpu: NVIDIA A100-SXM4-80GB 77.8 GB free
+[env] NVIDIA A100-SXM4-80GB (79.3 GB) torch 2.6.0+cu124 transformers 4.57.0 starVLA d81fc66 awesome_starvla 3e550d1
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00, 10.22it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  9.86it/s]
+[load] heads=['oft'] in 9s | params total 4.50B, trainable 2.27B (513 tensors frozen) | heads: oft=66M | resident before load 0.0 GB, model weights 8.5 GB
+[bench] oft            1.269 s/step  6.30 samples/s  peak 15.4 GB  predict {'oft': 0.3871}
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  9.97it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  9.91it/s]
+Total number of DiT parameters:  157032448
+[load] heads=['gr00t'] in 12s | params total 4.60B, trainable 2.37B (513 tensors frozen) | heads: gr00t=161M | resident before load 0.0 GB, model weights 8.9 GB
+[bench] gr00t          1.341 s/step  5.97 samples/s  peak 15.7 GB  predict {'gr00t': 0.5302}
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  9.96it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  9.90it/s]
+Total number of DiT parameters:  532326426
+[load] heads=['pi'] in 19s | params total 5.07B, trainable 2.84B (513 tensors frozen) | heads: pi=538M | resident before load 0.0 GB, model weights 10.6 GB
+[bench] pi             1.642 s/step  4.87 samples/s  peak 22.0 GB  predict {'pi': 0.6719}
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00, 10.03it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  9.93it/s]
+Total number of DiT parameters:  157032448
+Total number of DiT parameters:  532326426
+[load] heads=['oft', 'gr00t', 'pi'] in 19s | params total 5.30B, trainable 3.06B (513 tensors frozen) | heads: oft=66M, gr00t=161M, pi=538M | resident before load 0.0 GB, model weights 11.5 GB
+[bench] three          1.952 s/step  4.10 samples/s  peak 27.2 GB
+[bench] three_dropout  1.535 s/step  5.21 samples/s  peak 25.0 GB
+[bench] three_masked   1.854 s/step  4.32 samples/s  peak 27.2 GB
+[bench] three-head predict_action latency per head: {'oft': 0.407, 'gr00t': 0.5346, 'pi': 0.6779}
+
+| config | s/step | samples/s | peak GB | weights GB | vs oft (time) |
+|---|---:|---:|---:|---:|---:|
+| oft | 1.269 | 6.30 | 15.4 | 8.5 | 1.00x |
+| gr00t | 1.341 | 5.97 | 15.7 | 8.9 | 1.06x |
+| pi | 1.642 | 4.87 | 22.0 | 10.6 | 1.29x |
+| three | 1.952 | 4.10 | 27.2 | 11.5 | 1.54x |
+| three_dropout | 1.535 | 5.21 | 25.0 | 11.5 | 1.21x |
+| three_masked | 1.854 | 4.32 | 27.2 | 11.5 | 1.46x |
+
+[done] wrote /home/dataset-assist-0/liyufeng/awesome_starvla_work/results/overhead_20260905_223336/overhead.csv and results.json
+[job] results in /home/dataset-assist-0/liyufeng/awesome_starvla_work/results/overhead_20260905_223336

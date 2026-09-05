@@ -12,3 +12,4 @@ __pycache__/
 .pytest_cache/
 .venv-starvla/
 *.egg-info/
+.git_head

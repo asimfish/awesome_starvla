@@ -26,6 +26,7 @@ Run (one GPU, ~10-15 min for the default matrix)::
 from __future__ import annotations
 
 import argparse
+import gc
 import json
 import platform
 import subprocess
@@ -108,12 +109,20 @@ def _sync(device: torch.device) -> None:
 
 
 def _empty_cache(device: torch.device) -> None:
+    # HF models hold reference cycles; without gc.collect() the previous model's weights and grads can still be
+    # resident when the next configuration is measured, inflating its peak-memory number.
+    gc.collect()
     if device.type == "cuda":
         torch.cuda.empty_cache()
 
 
+def _allocated_gb(device: torch.device) -> float:
+    return torch.cuda.memory_allocated(device) / 2**30 if device.type == "cuda" else 0.0
+
+
 def load_model(base_vlm: str, heads: List[str], args, device: torch.device, mask_queries: bool = False):
     _empty_cache(device)
+    mem_before = _allocated_gb(device)
     t0 = time.perf_counter()
     model = Qwen_MultiHead(build_config(base_vlm, heads, args, mask_queries))
     model.to(device)
@@ -123,9 +132,12 @@ def load_model(base_vlm: str, heads: List[str], args, device: torch.device, mask
         frozen = freeze_by_rules(model, VLACT_FREEZE).num_frozen
     load_s = time.perf_counter() - t0
     params = count_params(model)
+    params["mem_before_load_gb"] = round(mem_before, 2)
+    params["model_static_gb"] = round(_allocated_gb(device) - mem_before, 2)
     print(
         f"[load] heads={heads} in {load_s:.0f}s | params total {params['total'] / 1e9:.2f}B, trainable {params['trainable'] / 1e9:.2f}B "
-        f"({frozen} tensors frozen) | heads: " + ", ".join(f"{k[5:]}={v / 1e6:.0f}M" for k, v in params.items() if k.startswith("head_")),
+        f"({frozen} tensors frozen) | heads: " + ", ".join(f"{k[5:]}={v / 1e6:.0f}M" for k, v in params.items() if k.startswith("head_"))
+        + f" | resident before load {mem_before:.1f} GB, model weights {params['model_static_gb']:.1f} GB",
         flush=True,
     )
     return model, params, load_s
@@ -161,9 +173,10 @@ def predict_latency(model: Qwen_MultiHead, example: dict, device: torch.device, 
 def env_info(args) -> dict:
     def sha(path: Path) -> str:
         try:
-            return subprocess.check_output(["git", "-C", str(path), "rev-parse", "--short", "HEAD"], text=True).strip()
+            return subprocess.check_output(["git", "-C", str(path), "rev-parse", "--short", "HEAD"], text=True, stderr=subprocess.DEVNULL).strip()
         except Exception:
-            return "unknown"
+            head = path / ".git_head"  # written by scripts/cluster/sync_to_node.sh for rsync copies
+            return head.read_text().strip() if head.exists() else "unknown"
 
     import transformers
 
@@ -250,9 +263,10 @@ def main() -> int:
     (out_dir / "results.json").write_text(json.dumps({"env": info, "results": [r.to_row() for r in results], "extra": extra}, indent=2), encoding="utf-8")
 
     base = next((r for r in results if r.name == "oft"), results[0])
-    print("\n| config | s/step | samples/s | peak GB | vs oft (time) |\n|---|---:|---:|---:|---:|")
+    print("\n| config | s/step | samples/s | peak GB | weights GB | vs oft (time) |\n|---|---:|---:|---:|---:|---:|")
     for r in results:
-        print(f"| {r.name} | {r.sec_per_step:.3f} | {r.samples_per_sec:.2f} | {r.peak_mem_mb / 1024:.1f} | {r.sec_per_step / base.sec_per_step:.2f}x |")
+        static = extra.get(r.name, {}).get("params", {}).get("model_static_gb", float("nan"))
+        print(f"| {r.name} | {r.sec_per_step:.3f} | {r.samples_per_sec:.2f} | {r.peak_mem_mb / 1024:.1f} | {static:.1f} | {r.sec_per_step / base.sec_per_step:.2f}x |")
     print(f"\n[done] wrote {out_dir / 'overhead.csv'} and results.json")
     return 0
 

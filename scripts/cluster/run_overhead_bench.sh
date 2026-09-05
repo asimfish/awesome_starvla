@@ -23,18 +23,26 @@ echo "[job] host=$(hostname) user=$(whoami) CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_
 nvidia-smi --query-gpu=index,name,memory.used,memory.total --format=csv,noheader || true
 mkdir -p "$WORK" && cd "$WORK"
 
-if [ ! -d starVLA/.git ]; then
+# Code can arrive either by git (nodes with GitHub access) or by rsync from the workstation
+# (scripts/cluster/sync_to_node.sh); both layouts are accepted here.
+if [ ! -d starVLA ]; then
   git clone -q --single-branch -b starVLA_dev https://github.com/starVLA/starVLA starVLA
 fi
-git -C starVLA fetch -q origin starVLA_dev || true
-git -C starVLA checkout -q "$STARVLA_REF"
-echo "[job] starVLA @ $(git -C starVLA rev-parse --short HEAD)"
+if [ -d starVLA/.git ]; then
+  git -C starVLA fetch -q origin starVLA_dev 2>/dev/null || true
+  git -C starVLA checkout -q "$STARVLA_REF" 2>/dev/null || true
+  echo "[job] starVLA @ $(git -C starVLA rev-parse --short HEAD)"
+fi
 
-if [ ! -d awesome_starvla/.git ]; then
+if [ ! -d awesome_starvla ]; then
   git clone -q https://github.com/asimfish/awesome_starvla awesome_starvla   # no submodules needed
 fi
-git -C awesome_starvla pull -q --ff-only || true
-echo "[job] awesome_starvla @ $(git -C awesome_starvla rev-parse --short HEAD)"
+if [ -d awesome_starvla/.git ]; then
+  git -C awesome_starvla pull -q --ff-only 2>/dev/null || true
+  echo "[job] awesome_starvla @ $(git -C awesome_starvla rev-parse --short HEAD)"
+else
+  echo "[job] awesome_starvla @ $(cat awesome_starvla/.git_head 2>/dev/null || echo unknown) (rsync copy)"
+fi
 
 export PYTHONPATH="$WORK/awesome_starvla/code:$WORK/starVLA${PYTHONPATH:+:$PYTHONPATH}"
 export TOKENIZERS_PARALLELISM=false

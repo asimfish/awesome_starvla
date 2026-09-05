@@ -1,0 +1,177 @@
+{
+  "env": {
+    "gpu": "NVIDIA A100-SXM4-80GB",
+    "gpu_total_mem_gb": 79.3,
+    "torch": "2.6.0+cu124",
+    "transformers": "4.57.0",
+    "python": "3.11.15",
+    "awesome_starvla": "3e550d1",
+    "args": {
+      "base_vlm": "/home/dataset-assist-0/wangpeishuo/Pretrained_models/Qwen3-VL-4B-Instruct",
+      "out": "/home/dataset-assist-0/liyufeng/awesome_starvla_work/results/overhead_20260905_223336",
+      "configs": "oft,gr00t,pi,three,three_dropout,three_masked",
+      "batch_size": 8,
+      "steps": 10,
+      "warmup": 2,
+      "freeze": "vlact",
+      "image_size": 224,
+      "horizon": 16,
+      "action_dim": 7,
+      "repeated_diffusion_steps": 4,
+      "num_inference_timesteps": 4,
+      "predict_reps": 5,
+      "device": "cuda"
+    },
+    "starVLA": "d81fc66"
+  },
+  "results": [
+    {
+      "name": "oft",
+      "steps": "10",
+      "batch_size": "8",
+      "sec_per_step": "1.2693",
+      "samples_per_sec": "6.3027",
+      "peak_mem_mb": "15759.5601",
+      "device": "cuda"
+    },
+    {
+      "name": "gr00t",
+      "steps": "10",
+      "batch_size": "8",
+      "sec_per_step": "1.3409",
+      "samples_per_sec": "5.9662",
+      "peak_mem_mb": "16083.6685",
+      "device": "cuda"
+    },
+    {
+      "name": "pi",
+      "steps": "10",
+      "batch_size": "8",
+      "sec_per_step": "1.6422",
+      "samples_per_sec": "4.8716",
+      "peak_mem_mb": "22495.4873",
+      "device": "cuda"
+    },
+    {
+      "name": "three",
+      "steps": "10",
+      "batch_size": "8",
+      "sec_per_step": "1.9520",
+      "samples_per_sec": "4.0985",
+      "peak_mem_mb": "27836.0513",
+      "device": "cuda"
+    },
+    {
+      "name": "three_dropout",
+      "steps": "10",
+      "batch_size": "8",
+      "sec_per_step": "1.5350",
+      "samples_per_sec": "5.2118",
+      "peak_mem_mb": "25552.2168",
+      "device": "cuda"
+    },
+    {
+      "name": "three_masked",
+      "steps": "10",
+      "batch_size": "8",
+      "sec_per_step": "1.8537",
+      "samples_per_sec": "4.3157",
+      "peak_mem_mb": "27836.0513",
+      "device": "cuda"
+    }
+  ],
+  "extra": {
+    "oft": {
+      "params": {
+        "total": 4503438855,
+        "trainable": 2271336455,
+        "backbone": 4437815808,
+        "head_oft": 65623047,
+        "project_layers": 0,
+        "mem_before_load_gb": 0.0,
+        "model_static_gb": 8.51
+      },
+      "load_s": 9.350649466738105,
+      "predict_s": {
+        "oft": 0.3871
+      }
+    },
+    "gr00t": {
+      "params": {
+        "total": 4598493191,
+        "trainable": 2366390791,
+        "backbone": 4437815808,
+        "head_gr00t": 160677383,
+        "project_layers": 0,
+        "mem_before_load_gb": 0.02,
+        "model_static_gb": 8.86
+      },
+      "load_s": 11.500299867242575,
+      "predict_s": {
+        "gr00t": 0.5302
+      }
+    },
+    "pi": {
+      "params": {
+        "total": 5070029345,
+        "trainable": 2837926945,
+        "backbone": 4437815808,
+        "head_pi": 537620513,
+        "project_layers": 94593024,
+        "mem_before_load_gb": 0.02,
+        "model_static_gb": 10.62
+      },
+      "load_s": 19.200056473724544,
+      "predict_s": {
+        "pi": 0.6719
+      }
+    },
+    "three": {
+      "params": {
+        "total": 5296329775,
+        "trainable": 3064227375,
+        "backbone": 4437815808,
+        "head_oft": 65623047,
+        "head_gr00t": 160677383,
+        "head_pi": 537620513,
+        "project_layers": 94593024,
+        "mem_before_load_gb": 0.02,
+        "model_static_gb": 11.46
+      },
+      "load_s": 19.467921453528106,
+      "predict_s": {
+        "oft": 0.407,
+        "gr00t": 0.5346,
+        "pi": 0.6779
+      }
+    },
+    "three_dropout": {
+      "params": {
+        "total": 5296329775,
+        "trainable": 3064227375,
+        "backbone": 4437815808,
+        "head_oft": 65623047,
+        "head_gr00t": 160677383,
+        "head_pi": 537620513,
+        "project_layers": 94593024,
+        "mem_before_load_gb": 0.02,
+        "model_static_gb": 11.46
+      },
+      "load_s": 19.467921453528106
+    },
+    "three_masked": {
+      "params": {
+        "total": 5296329775,
+        "trainable": 3064227375,
+        "backbone": 4437815808,
+        "head_oft": 65623047,
+        "head_gr00t": 160677383,
+        "head_pi": 537620513,
+        "project_layers": 94593024,
+        "mem_before_load_gb": 0.02,
+        "model_static_gb": 11.46
+      },
+      "load_s": 19.467921453528106
+    }
+  }
+}

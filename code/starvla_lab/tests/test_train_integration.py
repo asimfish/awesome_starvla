@@ -114,6 +114,15 @@ def test_build_optimizer_llrd_groups_freeze_and_scheduler():
     assert all(g["lr"] == pytest.approx(1e-4) for g in opt.param_groups if any(id(p) in head_ids for p in g["params"]))
 
 
+def test_build_optimizer_reads_starvla_optimizer_block():
+    """StarVLA yamls carry trainer.optimizer.{betas, weight_decay, eps}; the legacy flat trainer.weight_decay must lose."""
+    model = _Framework(n=2)
+    cfg = _cfg(llrd={"enabled": True, "decay": 0.9})
+    cfg["trainer"]["optimizer"] = {"name": "AdamW", "betas": [0.9, 0.95], "eps": 1e-8, "weight_decay": 1e-3}
+    opt, _ = build_optimizer_and_scheduler(model, cfg, LabConfig.from_cfg(cfg), lambda o: torch.optim.lr_scheduler.LambdaLR(o, lambda s: 1.0))
+    assert opt.defaults["weight_decay"] == pytest.approx(1e-3) and opt.defaults["betas"] == (0.9, 0.95) and opt.defaults["eps"] == pytest.approx(1e-8)
+
+
 def test_hooks_aux_scheduler_and_head_dropout_apply_each_step():
     model = _Framework()
     cfg = _cfg(aux_scheduler={"enabled": True, "strategy": "linear", "ratio_min": 0.1, "ratio_max": 0.5, "loss_scale_min": 0.2, "loss_scale_max": 1.0},

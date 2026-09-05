@@ -71,7 +71,7 @@ StarVLA 团队或直接基于 StarVLA 代码库构建的工作以 ⭐ 标记。
 </tr>
 <tr>
 	<td>&emsp;<a href="#53-跑通与-starvla-的真实集成cpu无需权重">5.3 跑通与 StarVLA 的真实集成（CPU，无需权重）</a></td>
-	<td></td>
+	<td>&emsp;<a href="#54-gpu-实测三头共监督的训练开销wp6">5.4 GPU 实测：三头共监督的训练开销（WP6）</a></td>
 </tr>
 <tr><td colspan="2"><a href="#6-benchmarks-cheat-sheet">6. Benchmarks Cheat Sheet</a></td></tr>
 <tr><td colspan="2"><a href="#7-research-roadmap">7. Research Roadmap</a></td></tr>

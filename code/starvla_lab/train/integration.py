@@ -57,8 +57,8 @@ def build_optimizer_and_scheduler(
     """LLRD-aware replacement for StarVLA's ``setup_optimizer_and_scheduler``.
 
     With ``lab.llrd.enabled`` false the ``fallback`` (StarVLA's original function) is used unchanged.
-    Optimizer hyper-parameters mirror StarVLA: ``trainer.optimizer.{betas, eps}`` when present,
-    ``trainer.weight_decay`` default 0.0; the backbone lr is ``trainer.learning_rate.qwen_vl_interface``
+    Optimizer hyper-parameters mirror StarVLA: ``trainer.optimizer.{betas, weight_decay, eps}`` when
+    present (default weight decay 0.0); the backbone lr is ``trainer.learning_rate.qwen_vl_interface``
     (falling back to ``trainer.learning_rate.base``) and the head lr ``trainer.learning_rate.action_model``.
     """
     if not lab.llrd.enabled:
@@ -75,7 +75,10 @@ def build_optimizer_and_scheduler(
         head_lr=head_lr,
         freeze_rules_spec=cfg_get(cfg, "trainer.freeze_modules", "") or "",
     )
-    kwargs: Dict[str, Any] = {"weight_decay": float(cfg_get(cfg, "trainer.weight_decay", 0.0))}
+    # StarVLA's setup_optimizer_and_scheduler reads trainer.optimizer.{betas, weight_decay, eps}; the flat
+    # trainer.weight_decay form is kept as a fallback for hand-written configs.
+    wd = cfg_get(cfg, "trainer.optimizer.weight_decay", cfg_get(cfg, "trainer.weight_decay", 0.0))
+    kwargs: Dict[str, Any] = {"weight_decay": float(wd)}
     betas = cfg_get(cfg, "trainer.optimizer.betas", None)
     eps = cfg_get(cfg, "trainer.optimizer.eps", None)
     if betas is not None:

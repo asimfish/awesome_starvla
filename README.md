@@ -71,7 +71,7 @@ StarVLA 团队或直接基于 StarVLA 代码库构建的工作以 ⭐ 标记。
 </tr>
 <tr>
 	<td>&emsp;<a href="#53-跑通与-starvla-的真实集成cpu无需权重">5.3 跑通与 StarVLA 的真实集成（CPU，无需权重）</a></td>
-	<td></td>
+	<td>&emsp;<a href="#54-gpu-实测三头共监督的训练开销wp6">5.4 GPU 实测：三头共监督的训练开销（WP6）</a></td>
 </tr>
 <tr><td colspan="2"><a href="#6-benchmarks-cheat-sheet">6. Benchmarks Cheat Sheet</a></td></tr>
 <tr><td colspan="2"><a href="#7-research-roadmap">7. Research Roadmap</a></td></tr>
@@ -947,7 +947,20 @@ PYTHONPATH=code:../starVLA_code .venv-starvla/bin/python scripts/smoke_starvla_i
 
 `smoke_starvla_integration.py` 用 StarVLA **真实的三个头工厂**（`L1RegressionActionHead` / `FlowmatchingActionHead` / `LayerwiseFlowmatchingActionHead`，缩到 CPU 尺寸）和一个随机初始化、但模块树与 Qwen3-VL 完全一致的迷你骨干，依次验证：`QwenMultiHead` 三头前向 / 反传 / 逐头 `predict_action`；`flow_matching_loss` 与两个原头 `forward` 在同一随机种子下逐位相等（atol 1e-6）；`llm_layers_below:1` 冻结规则 + LLRD 参数组（冻结层不进优化器、层越深 lr 越大）；头 dropout 每步轮换；探针每 2 步写 JSONL 并驱动 LLRD；辅助数据调度把 `loss_scale.vlm` 写回配置。
 
-**仍需 GPU**：真实 Qwen3-VL-4B 权重 + 三头在 bf16 / DeepSpeed 下的前向与显存、真实 LeRobot 数据上的 `make_dataset` 钩子、任何训练效果数字。这些是[路线图](reports/07_research_roadmap.md)第 1 个月"复现 VLAct"的起点。
+### [5.4 GPU 实测：三头共监督的训练开销（WP6）](#content)
+
+第一组 GPU 数字（2026-09-05，1×A100-80GB，Qwen3-VL-4B-Instruct 真实权重，VLAct 冻结，batch 8，前向+反向）：
+
+| 配置 | s/step | 峰值显存 | 时间 vs OFT 单头 |
+|---|---:|---:|---:|
+| OFT 单头（≈ QwenOFT） | 1.27 | 15.4 GB | 1.00× |
+| PI 单头（≈ QwenPI_v3，538M 参数的头） | 1.64 | 22.0 GB | 1.29× |
+| 三头 OFT + GR00T + PI（VLAct (c)） | 1.95 | 27.2 GB | 1.54× |
+| 三头 + 头 dropout（每步一个头） | 1.54 | 25.0 GB | 1.21× |
+
+三头共监督的代价是单头的约 1.5 倍、而不是 3 倍（骨干前向共享，头相对骨干小），头 dropout 再省 1/5；屏蔽 OFT 查询位不增加成本。设置、逐项数字、推理延迟与两个复现坑（显存统计的顺序伪影、bf16 骨干 × fp32 头）见 [`experiments/results/wp6_overhead/README.md`](experiments/results/wp6_overhead/README.md)；脚本 `scripts/gpu_overhead_bench.py` + `scripts/cluster/{sync_to_node,setup_gpu_env,run_overhead_bench}.sh` 可在任一有 Qwen3-VL-4B 权重的单卡机器上复现（`--device cpu` 配迷你随机 checkpoint 可先在笔记本上走通流程）。
+
+**仍需 GPU**：真实 LeRobot 数据上的完整训练循环与 `make_dataset` 钩子、DeepSpeed 分片后的每卡显存、任何训练效果数字。这些是[路线图](reports/07_research_roadmap.md)第 1 个月"复现 VLAct"的起点。
 
 ## [6. Benchmarks Cheat Sheet](#content)
 

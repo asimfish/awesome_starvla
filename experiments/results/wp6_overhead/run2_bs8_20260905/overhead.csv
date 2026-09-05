@@ -1,0 +1,7 @@
+name,steps,batch_size,sec_per_step,samples_per_sec,peak_mem_mb,device
+oft,10,8,1.2693,6.3027,15759.5601,cuda
+gr00t,10,8,1.3409,5.9662,16083.6685,cuda
+pi,10,8,1.6422,4.8716,22495.4873,cuda
+three,10,8,1.9520,4.0985,27836.0513,cuda
+three_dropout,10,8,1.5350,5.2118,25552.2168,cuda
+three_masked,10,8,1.8537,4.3157,27836.0513,cuda
