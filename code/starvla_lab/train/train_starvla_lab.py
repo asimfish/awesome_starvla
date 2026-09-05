@@ -8,8 +8,10 @@ Mirrors ``starVLA/training/train_starvla.py::main`` (single VLA loader) or
 * ``VLA(M)Trainer._train_step`` is wrapped with :class:`starvla_lab.train.LabHooks`.
 
 ``trainer.lab.mode`` selects the base script: ``single`` / ``cotrain`` / ``auto`` (cotrain when
-``datasets.vlm_data`` is configured). Launch as a module from the StarVLA repo root with this package on
-``PYTHONPATH``::
+``datasets.vlm_data`` is configured). ``single`` honours StarVLA's ``STARVLA_DISABLE_DEEPSPEED=1`` for
+one-GPU runs without DeepSpeed; ``cotrain`` imports ``train_starvla_cotrain`` whose module-level
+``Accelerator(DeepSpeedPlugin())`` requires DeepSpeed. Launch as a module from the StarVLA repo root with
+this package on ``PYTHONPATH``::
 
     PYTHONPATH=<awesome_starvla>/code accelerate launch --config_file starVLA/config/deepseeds/deepspeed_zero2.yaml \\
         --num_processes 16 -m starvla_lab.train.train_starvla_lab --config_yaml <yaml> --trainer.lab.mode cotrain \\
@@ -30,19 +32,24 @@ from .lab_config import LabConfig, cfg_get
 def qwen_layer_extract_fn(model: torch.nn.Module, batch: List[dict]) -> List[torch.Tensor]:
     """Per-layer mean-pooled hidden states of a StarVLA Qwen-VL framework on raw samples.
 
-    Uses the framework's own preprocessing so the probe sees the training token layout; returns one
-    ``[N, d]`` tensor per decoder layer (embedding output excluded).
+    The probe prompt is the plain VLM prompt (images + instruction), identical for every framework and free
+    of framework-specific learnable tokens: OFT's ``<action>🔍…`` query embeddings are trained from scratch
+    and would otherwise dominate the pooled features of *frozen* layers. What is measured is therefore the
+    drift of the VLM's own visual-language representation. Returns one ``[N, d]`` tensor per decoder layer
+    (embedding output excluded).
     """
     fw = unwrap_model(model)
-    instructions = fw._prepare_instructions(batch)
+    instructions = [ex["lang"] for ex in batch]
     images = [ex["image"] for ex in batch]
     inputs = fw.qwen_vl_interface.build_qwenvl_inputs(images, instructions)
     device = fw.qwen_vl_interface.model.device
     inputs = {k: (v.to(device) if hasattr(v, "to") else v) for k, v in inputs.items()}
     with torch.no_grad():
         out = fw.qwen_vl_interface.model(**inputs, output_hidden_states=True, return_dict=True)
-    mask = inputs["attention_mask"].unsqueeze(-1).to(out.hidden_states[0].dtype)
-    return [((h * mask).sum(1) / mask.sum(1).clamp(min=1)).float().cpu() for h in out.hidden_states[1:]]
+    # Pool in fp32: the backbone emits bf16 hidden states, and a bf16 mean over ~200 tokens is rounded to ~3
+    # significant digits, which would hide small drifts and add a noise floor to 1 - CKA.
+    mask = inputs["attention_mask"].unsqueeze(-1).float()
+    return [((h.float() * mask).sum(1) / mask.sum(1).clamp(min=1.0)).cpu() for h in out.hidden_states[1:]]
 
 
 def select_mode(cfg: Any) -> str:
@@ -54,12 +61,23 @@ def select_mode(cfg: Any) -> str:
     return mode
 
 
+def register_extension_frameworks() -> None:
+    """Make ``QwenMultiHead`` / ``QwenMultiHeadLab`` visible to StarVLA's ``build_framework`` without copying
+    files into ``starVLA/model/framework/``: importing the modules registers them in ``FRAMEWORK_REGISTRY``."""
+    for module in ("vlact_ext.multihead_framework", "starvla_lab.heads.register"):
+        try:
+            __import__(module)
+        except ImportError as exc:  # vlact_ext not on PYTHONPATH: native frameworks still work
+            print(f"[starvla_lab] {module} not importable ({exc}); only StarVLA-native frameworks are available")
+
+
 def main(cfg: Any) -> None:
     mode = select_mode(cfg)
     if mode == "cotrain":
         from starVLA.training import train_starvla_cotrain as base  # StarVLA runtime only
     else:
         from starVLA.training import train_starvla as base
+    register_extension_frameworks()
 
     cfg = base.wrap_config(cfg)
     lab = LabConfig.from_cfg(cfg)
@@ -95,8 +113,14 @@ def main(cfg: Any) -> None:
     trainer.prepare_training()
 
     if lab.any_enabled():
-        # StarVLA's LeRobot collate_fn returns the raw list of sample dicts, so slicing gives a fixed probe batch.
-        probe_batch = next(iter(vla_loader))[: lab.probes.probe_batch_size] if lab.probes.enabled else None
+        probe_batch = None
+        if lab.probes.enabled:
+            # StarVLA's LeRobot collate_fn returns the raw list of sample dicts; gather loader batches until the
+            # requested probe size is reached (per-device batch is usually smaller than probe_batch_size).
+            probe_batch, it = [], iter(vla_loader)
+            while len(probe_batch) < lab.probes.probe_batch_size:
+                probe_batch.extend(next(it))
+            probe_batch = probe_batch[: lab.probes.probe_batch_size]
         hooks = LabHooks(trainer, lab, extract_fn=qwen_layer_extract_fn if lab.probes.enabled else None, probe_batch=probe_batch)
         attach_to_trainer(trainer, hooks)
     trainer.train()
@@ -110,7 +134,11 @@ def main(cfg: Any) -> None:
 
 if __name__ == "__main__":
     from omegaconf import OmegaConf
-    from starVLA.training.train_starvla_cotrain import apply_config_compat, normalize_dotlist_args
+
+    # Imported from where they are defined: importing train_starvla_cotrain here would construct its
+    # module-level Accelerator(DeepSpeedPlugin()) and fail on single-GPU machines without DeepSpeed.
+    from starVLA.model.framework.share_tools import apply_config_compat
+    from starVLA.training.trainer_utils.trainer_tools import normalize_dotlist_args
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--config_yaml", type=str, required=True)

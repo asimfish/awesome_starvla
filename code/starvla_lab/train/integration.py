@@ -121,6 +121,12 @@ class LabHooks:
         self.model = unwrap_model(trainer.model)
         self.records: List[Dict[str, Any]] = []
         self.last_drift: Optional[float] = None
+        # StarVLA's _train_step only forwards output["action_loss"] to the logs; capture the per-head /
+        # auxiliary losses (loss_oft, loss_pi, loss_gr00t, loss_featpred, ...) from the framework's output dict.
+        # StarVLA calls ``self.model.forward(batch)`` directly, which bypasses nn.Module hooks, so the bound
+        # ``forward`` is wrapped on the instance instead (also covers ``model(batch)`` and DDP wrappers).
+        self.last_losses: Dict[str, float] = {}
+        self._wrap_forward(self.model)
 
         self.aux: Optional[AuxDataScheduler] = None
         if lab.aux_scheduler.enabled:
@@ -162,6 +168,33 @@ class LabHooks:
                 drift_high=lab.llrd.drift_high, drift_low=lab.llrd.drift_low,
                 down_factor=lab.llrd.down_factor, up_factor=lab.llrd.up_factor, min_scale=lab.llrd.min_scale,
             )
+
+    def _wrap_forward(self, model: nn.Module) -> None:
+        if getattr(model, "_lab_forward_wrapped", False):
+            return
+        original = model.forward
+
+        def forward(*args, **kwargs):
+            output = original(*args, **kwargs)
+            self._capture_losses(model, args, output)
+            return output
+
+        model.forward = forward
+        model._lab_forward_wrapped = True
+
+    def _capture_losses(self, module: nn.Module, inputs: Any, output: Any) -> None:
+        if not isinstance(output, Mapping):
+            return
+        losses: Dict[str, float] = {}
+        for key, value in output.items():
+            if key == "action_loss" or not (key.startswith("loss_") or key.endswith("_loss")):
+                continue
+            if isinstance(value, torch.Tensor) and value.numel() == 1:
+                losses[key] = float(value.detach())
+            elif isinstance(value, (int, float)):
+                losses[key] = float(value)
+        if losses:
+            self.last_losses = losses
 
     # ------------------------------------------------------------------ measurement
     def _measure(self, step: int) -> Dict[str, Any]:
@@ -212,6 +245,8 @@ class LabHooks:
                 info["probe"] = fired[-1] if isinstance(fired, list) else fired
         if self.last_drift is not None:
             info["drift"] = self.last_drift
+        if self.last_losses:
+            info["losses"] = dict(self.last_losses)
         return info
 
 
@@ -232,6 +267,8 @@ def attach_to_trainer(trainer: Any, hooks: LabHooks) -> Any:
                     metrics[f"lab/{key}"] = after[key]
             if "active_heads" in before:
                 metrics["lab/active_heads"] = ",".join(before["active_heads"])
+            for key, value in after.get("losses", {}).items():
+                metrics[f"lab/{key}"] = value
         return metrics
 
     trainer._train_step = wrapped

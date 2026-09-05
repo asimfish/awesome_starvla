@@ -174,6 +174,26 @@ def test_calibrate_only_records_but_does_not_act(tmp_path: Path):
     assert len(read_jsonl(tmp_path / "c.jsonl")) == 4 and hooks.last_drift > 0
 
 
+def test_per_head_losses_from_forward_reach_the_metrics():
+    class _MultiLoss(_Framework):
+        def forward(self, x):
+            return {"action_loss": torch.tensor(1.5), "loss_oft": torch.tensor(1.0), "loss_pi": torch.tensor(0.5), "aux": "ignored"}
+
+    model = _MultiLoss()
+    cfg = _cfg(head_dropout={"enabled": True, "p_all": 1.0})
+    trainer = _Trainer(cfg, model, torch.optim.SGD(model.parameters(), lr=1e-3))
+    original = trainer._train_step
+
+    def step_with_forward(batch_vla, batch_vlm):
+        model.forward(batch_vla)  # StarVLA calls .forward directly (no nn.Module hooks)
+        return original(batch_vla, batch_vlm)
+
+    trainer._train_step = step_with_forward
+    attach_to_trainer(trainer, LabHooks(trainer, LabConfig.from_cfg(cfg)))
+    m = trainer._train_step(torch.zeros(1, 4), None)
+    assert m["lab/loss_oft"] == pytest.approx(1.0) and m["lab/loss_pi"] == pytest.approx(0.5) and "lab/action_loss" not in m
+
+
 def test_probes_enabled_requires_extract_fn():
     model = _Framework()
     cfg = _cfg(probes={"enabled": True, "every_n_steps": 10})
