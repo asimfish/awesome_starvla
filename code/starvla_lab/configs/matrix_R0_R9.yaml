@@ -1,0 +1,103 @@
+# Pre-training variants R0-R9 (see reports/10_improvement_plan.md section 3).
+# Every variant produces one backbone checkpoint that is then evaluated under protocol_f1.yaml.
+# `base_yaml` is the vlact_ext example config; `overrides` are StarVLA dotted-path CLI overrides.
+pretrain_common:
+  base_yaml: code/vlact_ext/configs/vlact_pretrain_example.yaml
+  num_gpus: 16
+  max_steps: 100000
+  checkpoint_glob: playground/Checkpoints/{run_id}/checkpoints/steps_100000_pytorch_model.pt
+
+variants:
+  R0:
+    question: baseline
+    description: no robot pre-training; downstream fine-tunes Qwen3-VL-4B directly
+    pretrain: null
+    backbone_init: Qwen/Qwen3-VL-4B-Instruct
+    est_gpu_hours: 0
+  R1:
+    question: control (StarVLA-alpha Table 3 double-edged sword)
+    description: single OFT head, full-parameter, action-only pre-training
+    overrides:
+      framework.name: QwenOFT
+      trainer.freeze_modules: ""
+      datasets.vlm_data: null
+    est_gpu_hours: 600
+  R2:
+    question: isolate multi-head
+    description: three heads (OFT+PI+GR00T), full-parameter, no caption
+    overrides:
+      framework.name: QwenMultiHead
+      trainer.freeze_modules: ""
+      datasets.vlm_data: null
+    est_gpu_hours: 900
+  R3:
+    question: WP0 reproduction of VLAct
+    description: three heads + frozen vision encoder and lower half of the LLM + caption co-training (0.5)
+    overrides:
+      framework.name: QwenMultiHead
+      trainer.freeze_modules: "qwen_vl_interface.model.model.visual,llm_layers_below:18"
+      trainer.loss_scale.vlm: 0.5
+    est_gpu_hours: 900
+  R4:
+    question: Q3 (H3) hard freeze vs layer-wise lr decay
+    description: R3 with LLRD (decay 0.85 per layer, vision encoder at deepest decay) instead of hard freezing
+    overrides:
+      framework.name: QwenMultiHead
+      trainer.freeze_modules: ""
+      trainer.llrd.enabled: true
+      trainer.llrd.decay: 0.85
+      trainer.loss_scale.vlm: 0.5
+    est_gpu_hours: 900
+  R5:
+    question: Q3 (H3) drift-driven adaptation
+    description: R4 plus drift-driven LLRD and drift-driven auxiliary-data scheduler
+    overrides:
+      framework.name: QwenMultiHead
+      trainer.freeze_modules: ""
+      trainer.llrd.enabled: true
+      trainer.llrd.drift_driven: true
+      trainer.aux_scheduler.strategy: drift
+      trainer.probes.every_n_steps: 2000
+    est_gpu_hours: 900
+  R6:
+    question: Q2 (H2) future-feature prediction head
+    description: R3 plus FutureFeaturePredictionHead (offsets [1, 16], frozen SigLIP pooled features)
+    overrides:
+      framework.name: QwenMultiHeadLab
+      trainer.freeze_modules: "qwen_vl_interface.model.model.visual,llm_layers_below:18"
+      trainer.loss_scale.vlm: 0.5
+      framework.aux_heads.featpred.enabled: true
+      framework.aux_heads.featpred.weight: 0.5
+    est_gpu_hours: 1000
+  R7:
+    question: Q2 (H2) keyframe head
+    description: R3 plus KeyframeHead (soft-label BCE, sigma 1.5) with Qwen3-VL offline keyframe labels
+    overrides:
+      framework.name: QwenMultiHeadLab
+      trainer.freeze_modules: "qwen_vl_interface.model.model.visual,llm_layers_below:18"
+      trainer.loss_scale.vlm: 0.5
+      framework.aux_heads.keyframe.enabled: true
+      framework.aux_heads.keyframe.weight: 0.5
+    est_gpu_hours: 1000
+  R8:
+    question: Q2 (H2) both auxiliary heads
+    description: R3 plus both auxiliary heads
+    overrides:
+      framework.name: QwenMultiHeadLab
+      trainer.freeze_modules: "qwen_vl_interface.model.model.visual,llm_layers_below:18"
+      trainer.loss_scale.vlm: 0.5
+      framework.aux_heads.featpred.enabled: true
+      framework.aux_heads.keyframe.enabled: true
+    est_gpu_hours: 1100
+  R9:
+    question: Q4 (H4) memory x backbone recipe
+    description: EventVLA initialised from the R3 backbone vs from Qwen3-VL; evaluated on RoboTwin-MeM and RMBench with the EventVLA protocol (not part of F1)
+    pretrain: null
+    backbone_init: "{R3_checkpoint}"
+    protocol: eventvla
+    est_gpu_hours: 0
+
+extra_benchmarks:
+  R6: [domino]
+  R7: [robotwin_mem]
+  R8: [domino, robotwin_mem]

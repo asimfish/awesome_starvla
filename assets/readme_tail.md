@@ -32,6 +32,23 @@
 python3 -m pytest code/vlact_ext/tests -q     # 60 passed, 1 skipped（CPU，mock 骨干，约 30 s）
 ```
 
+### [5.2 Improvement Lab（code/starvla_lab）](#content)
+
+[10 · 改进方案](reports/10_improvement_plan.md) 阶段 A 的研究包（约 3,600 行，95 个 CPU 测试；详见 [`code/starvla_lab/README.md`](code/starvla_lab/README.md)）：
+
+| 子包 | 工作包 | 内容 |
+|---|---|---|
+| `probes/` | WP1 诊断 | 跨头线性 / MLP 探针、线性 CKA、`DriftTracker` 逐层漂移、`ProbeRunner` 按步触发写 JSONL——不跑下游微调就度量骨干可复用性 |
+| `schedules/` | WP2 / WP4 | `layerwise_lr_decay_groups`（复用 `vlact_ext` 冻结规则）、`DriftDrivenLLRD`、`AuxDataScheduler`（fixed / linear / drift）——把硬冻结与固定 caption 权重变成可由漂移驱动的策略 |
+| `heads/` | WP3 | `FutureFeaturePredictionHead`、`KeyframeHead`（软标签 BCE、NMS / 冷却写入、课程）、`QwenMultiHeadLab`——把"头多样性即正则化"推到非动作头 |
+| `bench/` | WP5 / WP6 | "只换骨干"协议（命令矩阵、变化键审计、结果聚合）、开销测量与头 dropout |
+| `configs/` + `experiments/` | §3 | `protocol_f1.yaml`、`matrix_R0_R9.yaml` → `scripts/build_run_matrix.py` → `experiments/run_matrix.csv`（9 骨干 × 6 基准设定 × 3 seeds = 162 次微调；预训练预算约 7,300 GPU 小时） |
+
+```bash
+python3 -m pytest code/starvla_lab/tests -q          # 95 passed
+python3 scripts/build_run_matrix.py --print-commands 2
+```
+
 已在 CPU 上验证：loss 边界（+179° vs −179° 的残差 ≈ 2°）、mask 不产生 NaN、Franka 7 维 / AgileX 14 维 ↔ 20 维 round-trip、三种冻结语法与语法糖的参数集合一致、三头 loss 求和与 `predict_action` 路由、示例 yaml 与各头 DefaultConfig 的字段合并。**未在 GPU 上验证**：真实 Qwen3-VL-4B + 三个真实头在 bf16 / DeepSpeed 下的前向与显存、flow-matching loss 与原头实现的数值等价、真实 LeRobot 数据上的 `make_dataset` 钩子。这些是[路线图](reports/07_research_roadmap.md)第 1 个月"复现 VLAct"的起点。
 
 ## [6. Benchmarks Cheat Sheet](#content)
@@ -74,7 +91,7 @@ awesome_starvla/
 ├── papers/
 │   ├── en/                         # 七篇论文英文原版 PDF（arXiv，均 CC BY 4.0）
 │   └── zh/                         # 保版式中文翻译 PDF + 翻译缓存 + QA 报告
-├── reports/                        # 9 份中文深度报告（01–09）
+├── reports/                        # 10 份中文深度报告（01–10）
 ├── report/
 │   ├── awesome_starvla_slides.tex  # Beamer 源码（XeLaTeX + ctex，16:9）
 │   ├── awesome_starvla_slides.pdf  # 29 页
@@ -84,7 +101,12 @@ awesome_starvla/
 │   ├── awesome_starvla_full_report.html / .pdf   # 44 页合订全文报告
 ├── code/
 │   ├── vlact_ext/                  # VLAct 缺失组件的 StarVLA 扩展（多头框架、wrap loss、统一布局、冻结规则）+ 61 个测试
+│   ├── starvla_lab/                # 改进方案研究包：probes / schedules / heads / bench / configs + 95 个测试
 │   └── EventVLA/                   # git 子模块：EventVLA 模型 + RoboTwin-MeM 基准（基于 StarVLA-OFT）
+├── experiments/
+│   ├── README.md                   # 运行清单与结果 JSON 约定
+│   ├── run_matrix.csv              # R0–R8 × F1 协议 × 3 seeds 的 162 次下游微调
+│   └── results/                    # 每次运行一个 JSON，summarize_results 聚合
 ├── assets/
 │   ├── papers_curated.md           # 120 条文献编目（README 第 4 节的源）
 │   ├── starvla_code_facts.md       # 代码库硬事实卡片（数字、路径、接口签名）
@@ -95,6 +117,7 @@ awesome_starvla/
     ├── build_slides.sh             # 编译幻灯片
     ├── build_readme.py             # 从 head/tail 与 papers_curated.md 拼装 README
     ├── build_full_report.py        # 合订全文报告（pandoc + Chrome headless）
+    ├── build_run_matrix.py         # 从 starvla_lab/configs 生成 experiments/run_matrix.csv
     ├── make_figures.py             # 生成图 1 / 图 2
     └── translate_papers.sh         # super_translate 翻译流程
 ```
