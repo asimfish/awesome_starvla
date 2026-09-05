@@ -73,6 +73,10 @@ StarVLA 团队或直接基于 StarVLA 代码库构建的工作以 ⭐ 标记。
 	<td>&emsp;<a href="#53-跑通与-starvla-的真实集成cpu无需权重">5.3 跑通与 StarVLA 的真实集成（CPU，无需权重）</a></td>
 	<td>&emsp;<a href="#54-gpu-实测三头共监督的训练开销wp6">5.4 GPU 实测：三头共监督的训练开销（WP6）</a></td>
 </tr>
+<tr>
+	<td>&emsp;<a href="#55-真实数据微调冒烟f0三头不伤-oft-头漂移度量需要重定义">5.5 真实数据微调冒烟（F0）</a></td>
+	<td></td>
+</tr>
 <tr><td colspan="2"><a href="#6-benchmarks-cheat-sheet">6. Benchmarks Cheat Sheet</a></td></tr>
 <tr><td colspan="2"><a href="#7-research-roadmap">7. Research Roadmap</a></td></tr>
 <tr><td colspan="2"><a href="#8-repository-layout">8. Repository Layout</a></td></tr>
@@ -960,7 +964,18 @@ PYTHONPATH=code:../starVLA_code .venv-starvla/bin/python scripts/smoke_starvla_i
 
 三头共监督的代价是单头的约 1.5 倍、而不是 3 倍（骨干前向共享，头相对骨干小），头 dropout 再省 1/5；屏蔽 OFT 查询位不增加成本。设置、逐项数字、推理延迟与两个复现坑（显存统计的顺序伪影、bf16 骨干 × fp32 头）见 [`experiments/results/wp6_overhead/README.md`](experiments/results/wp6_overhead/README.md)；脚本 `scripts/gpu_overhead_bench.py` + `scripts/cluster/{sync_to_node,setup_gpu_env,run_overhead_bench}.sh` 可在任一有 Qwen3-VL-4B 权重的单卡机器上复现（`--device cpu` 配迷你随机 checkpoint 可先在笔记本上走通流程）。
 
-**仍需 GPU**：真实 LeRobot 数据上的完整训练循环与 `make_dataset` 钩子、DeepSpeed 分片后的每卡显存、任何训练效果数字。这些是[路线图](reports/07_research_roadmap.md)第 1 个月"复现 VLAct"的起点。
+### [5.5 真实数据微调冒烟（F0）：三头不伤 OFT 头，漂移度量需要重定义](#content)
+
+LIBERO-goal（LeRobot v2.1，52k 帧）上 `QwenOFT` 与 `QwenMultiHead` 各 300 步，1×A100，同一数据同一超参（2026-09-06）：
+
+| 运行 | OFT 头 L1（最后 50 步） | 其他头 | s/step | 峰值显存 |
+|---|---:|---|---:|---:|
+| `QwenOFT` | 0.244 | — | 1.86 | 29.8 GB |
+| `QwenMultiHead`（OFT + GR00T + PI） | **0.243** | pi 0.323，gr00t 0.432 | 2.70 | 47.1 GB |
+
+三头共监督在 300 步内对 OFT 头没有任何损害（VLAct 配方 (c) 的前提成立）。更重要的是一个方法学发现：训练中记录的逐层 1−CKA "漂移"几乎全部来自 `embed_tokens` 里 42–46 行 prompt 词嵌入的更新（相对变化仅 2e-5）被单场景探针批放大——换回预训练嵌入后，OFT 微调的骨干漂移只剩 0.0002，而三头模型的上层动了约 20 倍（0.0038，第 35 层 0.019；token 级 0.045）。WP1 的漂移度量因此改为"换回预训练嵌入 + token 级 CKA + 跨场景探针批"。细节、诊断表与这轮实跑修掉的 9 个问题见 [`experiments/results/f0_libero_goal_smoke/README.md`](experiments/results/f0_libero_goal_smoke/README.md)。
+
+**仍需 GPU**：LIBERO / RoboTwin 仿真评测（节点无仿真环境）、DeepSpeed 多卡下的每卡显存、WP1 跨头探针在 F0 最终模型上的首跑、任何长程（≥ 10k 步）训练效果数字。这些是[路线图](reports/07_research_roadmap.md)第 1 个月"复现 VLAct"的起点。
 
 ## [6. Benchmarks Cheat Sheet](#content)
 
