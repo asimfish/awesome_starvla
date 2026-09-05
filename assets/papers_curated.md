@@ -5,7 +5,7 @@
 
 围绕 **StarVLA 代码库生态** 与 **VLA 持续预训练 / 动作头 / 跨本体表示学习**（核心论文 VLAct, arXiv 2608.27550）编目的论文列表。⭐ 标记 StarVLA 团队或直接基于 StarVLA 代码库构建的工作。条目格式参考 [Thinklab-SJTU/awesome-ml4co](https://github.com/Thinklab-SJTU/awesome-ml4co)。
 
-## [Content](#content)
+## [Content](#contents)
 
 <table>
 <tr><td colspan="2"><a href="#starvla-family">1. StarVLA Family</a></td></tr>
@@ -21,7 +21,7 @@
 <tr><td colspan="2"><a href="#surveys">11. Surveys</a></td></tr>
 </table>
 
-### [StarVLA Family](#content)
+### [StarVLA Family](#contents)
 
 1. ⭐ **StarVLA: A Lego-like Codebase for Vision-Language-Action Model Developing.** arXiv, 2026. [paper](https://arxiv.org/abs/2604.05014), [code](https://github.com/starVLA/starVLA), [project](https://starvla.github.io)
 
@@ -101,7 +101,7 @@
 
     > 以统一接口整合多种 VLA 架构、RL 算法与异构仿真器，混合细粒度流水线分配在 ManiSkill 上带来 1.61–1.88× 训练加速；RL 后模型在 130 个 LIBERO 任务达 98.11%、25 个 ManiSkill 任务 97.66%、6 个 RoboTwin 任务平均 84.63%。2026 年 4 月 RLinf 团队将其接入 StarVLA（StarVLA × RLinf 教程），为 StarVLA 模型提供 RL 后训练。
 
-### [Generalist VLA Policies](#content)
+### [Generalist VLA Policies](#contents)
 
 1. **RT-1: Robotics Transformer for Real-World Control at Scale.** RSS, 2023. [paper](https://arxiv.org/abs/2212.06817), [code](https://github.com/google-research/robotics_transformer)
 
@@ -253,7 +253,7 @@
 
     > 单一架构无差别处理图像、文本、视频与动作，在 150 万样本的交错视觉-文本-动作数据集 EO-Data1.5M 上通过自回归解码与 flow-matching 去噪协同训练，实现多模态具身推理与多本体长时程灵巧操作的统一。
 
-### [Action Heads & Action Representation](#content)
+### [Action Heads & Action Representation](#contents)
 
 1. **FAST: Efficient Action Tokenization for Vision-Language-Action Models.** RSS, 2025. [paper](https://arxiv.org/abs/2501.09747), [PDF](papers/en/2501.09747_FAST.pdf), [PDF-zh](papers/zh/2501.09747_FAST_zh.pdf), [讲稿](reports/08_action_heads_lecture.md), [code](https://github.com/Physical-Intelligence/openpi), [project](https://www.physicalintelligence.company/research/fast)
 
@@ -303,7 +303,7 @@
 
     > 在 DINO 特征空间、以语言为条件学习「任务中心」潜动作以剔除无关动态，从跨本体视频（含人类视频）学习通用策略后用轻量解码器适配各机器人；以不到 OpenVLA 1/20 的预训练算力和 1/10 的下游数据在操作与导航多个基准上取得 SOTA。
 
-### [VLM Backbones for VLA](#content)
+### [VLM Backbones for VLA](#contents)
 
 1. **Qwen2.5-VL Technical Report.** arXiv, 2025. [paper](https://arxiv.org/abs/2502.13923), [code](https://github.com/QwenLM/Qwen2.5-VL)
 
@@ -365,7 +365,7 @@
 
     > 首个在单图、多图、视频三种场景同时刷新开源 SOTA 的单模型，并展示跨场景任务迁移能力；VLAct 把其开源训练数据（含 LLaVA-ReCap 重描述）作为 caption 混合训练的图像描述来源之一。
 
-### [Representation-Centric Pre-training & Co-training](#content)
+### [Representation-Centric Pre-training & Co-training](#contents)
 
 1. **Knowledge Insulating Vision-Language-Action Models: Train Fast, Run Fast, Generalize Better.** arXiv, 2025. [paper](https://arxiv.org/abs/2505.23705), [project](https://pi.website/research/knowledge_insulation)
 
@@ -445,7 +445,7 @@
 
     > 纯文本的开放域对话与指令跟随 SFT 数据，不含任何视觉接地或机器人控制信号；VLAct 将其作为「域外对照」辅助源：若纯语言监督也能提升下游 VLA 性能，则说明辅助共训练的收益来自维持基础模型工作状态、丰富特征更新，而非任务相关迁移。
 
-### [Cross-Embodiment & Robot Data](#content)
+### [Cross-Embodiment & Robot Data](#contents)
 
 1. **Open X-Embodiment: Robotic Learning Datasets and RT-X Models.** ICRA, 2024. [paper](https://arxiv.org/abs/2310.08864), [code](https://github.com/google-deepmind/open_x_embodiment), [project](https://robotics-transformer-x.github.io)
 
@@ -513,7 +513,7 @@
 
     > 在 ALOHA 基础上改进夹爪、重力补偿与相机以提升双臂遥操作的耐用性与人机工效，并发布 MuJoCo 仿真模型；大量双臂数据集与 RoboTwin 等双臂基准所依赖的硬件范式。
 
-### [World Models for Action](#content)
+### [World Models for Action](#contents)
 
 1. **Cosmos World Foundation Model Platform for Physical AI.** arXiv, 2025. [paper](https://arxiv.org/abs/2501.03575), [code](https://github.com/nvidia-cosmos/cosmos-predict2), [project](https://www.nvidia.com/en-us/ai/cosmos/)
 
@@ -569,7 +569,7 @@
 
     > 在感知与动作之间插入可学习潜查询作为紧凑推理接口，训练时用「未来信息」后验分支（以未来观测嵌入替换查询）与可部署的先验分支在潜空间对齐，推理时不做任何视频 rollout；六个仿真基准与真机任务 SOTA 或相当。RoboTwin 2.0 数据扩展 90.2 / 89.6，VLAct-OFT 92.5 / 90.8。
 
-### [Benchmarks & Evaluation](#content)
+### [Benchmarks & Evaluation](#contents)
 
 1. **LIBERO: Benchmarking Knowledge Transfer for Lifelong Robot Learning.** NeurIPS, 2023. [paper](https://arxiv.org/abs/2306.03310), [code](https://github.com/Lifelong-Robot-Learning/LIBERO), [project](https://libero-project.github.io)
 
@@ -661,7 +661,7 @@
 
     > 云端真机在线评测系统，首个基准 Table30 含 ARX5 / UR5 / Franka / ALOHA 四种本体的 30 个桌面任务，用户本地微调后远程提交策略统一评测并公开轨迹视频。StarVLA-α 通用模型在其上 30.0% vs π0.5 17.7%；DM0.5、StarVLA 均提供 Table30 v2 示例。
 
-### [RL Post-training for VLA](#content)
+### [RL Post-training for VLA](#contents)
 
 1. **RLinf: Flexible and Efficient Large-scale Reinforcement Learning via Macro-to-Micro Flow Transformation.** arXiv, 2025. [paper](https://arxiv.org/abs/2509.15965), [code](https://github.com/RLinf/RLinf), [project](https://rlinf.readthedocs.io)
 
@@ -699,7 +699,7 @@
 
     > 构建覆盖视觉、语义、执行三类分布偏移的 VLA 泛化基准，系统比较 RL 与 SFT：PPO 在语义理解与执行鲁棒性上显著优于 SFT、视觉鲁棒性相当，且 PPO 比 DPO、GRPO 等源自 LLM 的算法更适合 VLA，并给出高效 PPO 训练配方。
 
-### [Human Video → Robot](#content)
+### [Human Video → Robot](#contents)
 
 1. **EgoVLA: Learning Vision-Language-Action Models from Egocentric Human Videos.** arXiv, 2025. [paper](https://arxiv.org/abs/2507.12440), [project](https://rchalyang.github.io/EgoVLA/)
 
@@ -737,7 +737,7 @@
 
     > 32 个厨房中 55 小时无脚本的第一视角烹饪视频，含 39.6 千个动作片段与 45.4 万个物体框（EPIC-KITCHENS-100 后扩展至 100 小时），是手–物交互理解的标准数据集；VLAct 相关工作中列举的互联网级人类视频源之一。
 
-### [Surveys](#content)
+### [Surveys](#contents)
 
 1. **A Survey on Vision-Language-Action Models for Embodied AI.** arXiv, 2024. [paper](https://arxiv.org/abs/2405.14093), [code](https://github.com/yueen-ma/Awesome-VLA)
 

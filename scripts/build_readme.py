@@ -5,7 +5,7 @@ root = Path(__file__).resolve().parent.parent
 head = (root / "assets" / "readme_head.md").read_text(encoding="utf-8")
 tail = (root / "assets" / "readme_tail.md").read_text(encoding="utf-8")
 curated = (root / "assets" / "papers_curated.md").read_text(encoding="utf-8")
-start = curated.index("### [StarVLA Family](#content)")
+start = curated.index("### [StarVLA Family](#contents)")
 body = curated[start:].rstrip() + "\n"
 (root / "README.md").write_text(head + body + tail, encoding="utf-8")
 print(f"README.md written: {len((head + body + tail).splitlines())} lines")

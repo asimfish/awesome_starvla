@@ -4,148 +4,123 @@
 ![papers](https://img.shields.io/badge/papers-120-blue)
 ![reports](https://img.shields.io/badge/reports-11-red)
 ![zh-PDF](https://img.shields.io/badge/zh--PDF-7-green)
-![slides](https://img.shields.io/badge/slides-29p_beamer_%2B_18p_pptx-orange)
-![full report](https://img.shields.io/badge/full_report-62p-8a2be2)
-![code](https://img.shields.io/badge/code-vlact__ext_61_%2B_starvla__lab_110_tests-brightgreen)
+![tests](https://img.shields.io/badge/CPU_tests-171_passed-brightgreen)
 ![license](https://img.shields.io/badge/license-CC_BY_4.0-8a2be2)
+
+围绕 **StarVLA 代码库生态**与 **VLA 持续预训练 / 动作头 / 跨本体表示学习**的论文列表 + 调研 + 代码仓库。核心对象是同一团队、同一骨干（Qwen3-VL-4B）、同一代码库的三篇工作：[StarVLA 技术报告](https://arxiv.org/abs/2604.05014)（基础设施）、[StarVLA-α](https://arxiv.org/abs/2604.11757)（去混杂的对照基线）、[VLAct](https://arxiv.org/abs/2608.27550)（表示中心的持续预训练配方），以及基于 StarVLA 做记忆的 [EventVLA](https://arxiv.org/abs/2606.20092)。除 120 篇文献编目外，仓库还提供 11 份中文深度报告、7 篇论文的保版式中文翻译、两个不改 StarVLA 源码即可使用的扩展包（VLAct 配方 + 改进方案研究包，171 个 CPU 测试）、EventVLA 子模块，以及已经跑出来的第一批 GPU 数字。
+
+> **一句话结论**：VLM 骨干是 VLA 的一阶设计变量，预训练不是双刃剑，配方决定符号——朴素动作拟合会把机器人预训练变成负资产（OXE 预训练让 RoboCasa-GR1 24×10 从 9.8 掉到 1.2），保护 VLM 先验 + 多头共监督 + 部分统一动作空间把同样的数据源变成净收益（20% 数据超过全量 GR00T-N1.6）；下一步最值钱的是表征诊断工具、"只换骨干"的基准协议，以及所有人都接近零的 Memory 维度。
+
+*Maintained by [asimfish](https://github.com/asimfish)。欢迎 PR 与 issue，规范见 [CONTRIBUTING.md](CONTRIBUTING.md)。*
+
+## Contents
+
+- [1. Quick Start](#1-quick-start) — 按目的选入口；7 篇核心论文
+- [2. Reports](#2-reports) — 11 份中文深度报告
+- [3. Code & Experiments](#3-code--experiments) — `vlact_ext`、`starvla_lab`、EventVLA 子模块、已实测的 GPU 数字
+- [4. Papers](#4-papers) — 120 篇文献，11 个分类：[StarVLA Family](#starvla-family) · [Generalist VLA Policies](#generalist-vla-policies) · [Action Heads](#action-heads--action-representation) · [VLM Backbones](#vlm-backbones-for-vla) · [Pre-training & Co-training](#representation-centric-pre-training--co-training) · [Cross-Embodiment & Data](#cross-embodiment--robot-data) · [World Models](#world-models-for-action) · [Benchmarks](#benchmarks--evaluation) · [RL Post-training](#rl-post-training-for-vla) · [Human Video → Robot](#human-video--robot) · [Surveys](#surveys)
+- [5. Cheat Sheets](#5-cheat-sheets) — StarVLA 代码库速览、基准选择、研究路线图
+- [6. Repository Layout & Build](#6-repository-layout--build)
+- [7. License & Citation](#7-license--citation)
+
+## [1. Quick Start](#contents)
+
+| 目的 | 入口 |
+|---|---|
+| 15 分钟了解全貌 | [29 页 Beamer 幻灯片](report/awesome_starvla_slides.pdf)（XeLaTeX 源码同目录）或 [18 页 PPTX](report/awesome_starvla_slides.pptx)（PowerPoint 可编辑） |
+| 通读 | [62 页合订报告 PDF](report/awesome_starvla_full_report.pdf) · [HTML](report/awesome_starvla_full_report.html)（报告 01–10 + 两张总览图） |
+| 1 小时抓住主线 | [01 · VLAct 精读](reports/01_vlact_deep_dive.md) → [05 · 动作头与动作表示](reports/05_action_heads_and_representation.md) → [07 · 研究路线图](reports/07_research_roadmap.md) |
+| 搞懂四种动作头 | [08 · 讲稿](reports/08_action_heads_lecture.md)（60 分钟组会讲稿）+ [20 页讲解幻灯片](report/action_heads_lecture_slides.pdf) + 四篇源论文中译（`papers/zh/`） |
+| 上手 StarVLA 代码 | [02 · 代码库解析](reports/02_starvla_codebase_analysis.md)（第 9 章：VLAct 配方在代码中的落点；第 11 章：最短上手命令）→ [06 · 基准生态](reports/06_benchmarks_landscape.md)（第 5 章：基准选择）→ [`code/vlact_ext/README.md`](code/vlact_ext/README.md) → [§3.3 本地跑通](#33-本地跑通不需要-gpu-和权重) |
+| 动手做改进 | [10 · 改进方案](reports/10_improvement_plan.md)（研究问题 → 工作包 → 实验矩阵 → 决策门）→ [`code/starvla_lab/README.md`](code/starvla_lab/README.md) → [`experiments/README.md`](experiments/README.md)；动 EventVLA 之前先读 [11 · 代码审计](reports/11_eventvla_code_audit.md) |
+| 系统研读 | 按 04 → 03 → 01 → 02 → 05 → 06 → 07 → 09 → 11 → 10 的顺序读 `reports/`，配 `papers/zh/` 对照原文 |
+
+**7 篇核心论文**（英文原版与中文翻译均在 `papers/`；一句话摘要见第 4 节对应条目；⭐ = StarVLA 团队或基于 StarVLA 代码库）：
+
+| 论文 | 角色 | 链接 |
+|---|---|---|
+| ⭐ StarVLA: A Lego-like Codebase for VLA Model Developing | 基础设施 | [arXiv](https://arxiv.org/abs/2604.05014) · [code](https://github.com/starVLA/starVLA) · [PDF](papers/en/2604.05014_StarVLA_codebase.pdf) · [中译](papers/zh/2604.05014_StarVLA_codebase_zh.pdf) · [解读 04](reports/04_starvla_codebase_report.md) |
+| ⭐ StarVLA-α: Reducing Complexity in VLA Systems（ECCV 2026） | 去混杂的对照基线 | [arXiv](https://arxiv.org/abs/2604.11757) · [PDF](papers/en/2604.11757_StarVLA_alpha.pdf) · [中译](papers/zh/2604.11757_StarVLA_alpha_zh.pdf) · [解读 03](reports/03_starvla_alpha.md) |
+| ⭐ VLAct: Representation-Centric Continued Pre-training for VLA | 持续预训练配方，本仓库核心 | [arXiv](https://arxiv.org/abs/2608.27550) · [project](https://starvla.github.io/VLAct) · [PDF](papers/en/2608.27550_VLAct.pdf) · [中译](papers/zh/2608.27550_VLAct_zh.pdf) · [解读 01](reports/01_vlact_deep_dive.md) |
+| ⭐ EventVLA: Event-Driven Visual Evidence Memory | StarVLA-OFT 上的稀疏视觉记忆 | [arXiv](https://arxiv.org/abs/2606.20092) · [code](code/EventVLA)（[官方](https://github.com/InternRobotics/EventVLA)）· [PDF](papers/en/2606.20092_EventVLA.pdf) · [中译](papers/zh/2606.20092_EventVLA_zh.pdf) · [解读 09](reports/09_eventvla.md) · [代码审计 11](reports/11_eventvla_code_audit.md) |
+| FAST: Efficient Action Tokenization for VLA | 离散动作头源论文 | [arXiv](https://arxiv.org/abs/2501.09747) · [PDF](papers/en/2501.09747_FAST.pdf) · [中译](papers/zh/2501.09747_FAST_zh.pdf) |
+| OpenVLA-OFT: Fine-Tuning VLA Models — Optimizing Speed and Success | OFT 头源论文 | [arXiv](https://arxiv.org/abs/2502.19645) · [PDF](papers/en/2502.19645_OpenVLA_OFT.pdf) · [中译](papers/zh/2502.19645_OpenVLA_OFT_zh.pdf) |
+| GR00T N1: An Open Foundation Model for Generalist Humanoid Robots | GR00T DiT 头源论文 | [arXiv](https://arxiv.org/abs/2503.14734) · [PDF](papers/en/2503.14734_GR00T_N1.pdf) · [中译](papers/zh/2503.14734_GR00T_N1_zh.pdf) |
+
+π0（[arXiv 2410.24164](https://arxiv.org/abs/2410.24164)，PI 头源论文）为 arXiv 非独占许可，只放链接不放 PDF。
+
+## [2. Reports](#contents)
+
+全部为中文，遵循[写作规范](CONTRIBUTING.md#2-报告写作规范)：直接陈述、每个数字有出处（论文表号 / 代码行号）、术语保留英文。
+
+| # | 报告 | 一句话 | 行数 |
+|---|---|---|---|
+| 01 | [VLAct 精读](reports/01_vlact_deep_dive.md) | 问题设定、decoder lock-in、三组件配方与微调协议、主结果与消融、8 条局限、可复现性 | ~170 |
+| 02 | [StarVLA 代码库解析](reports/02_starvla_codebase_analysis.md) | 逐目录解析（配置 / 数据 / 四头 / 训练 / 部署 / 25 个 examples）、VLAct 六项配方在代码中"已有 / 部分 / 缺失"与 diff 级改动建议、5 处已核实 bug、上手路径 | ~660 |
+| 03 | [StarVLA-α 解读](reports/03_starvla_alpha.md) | 最简基线、三个"常识"的重新检验（表 2/3/4）、generalist 评测范式、真机、局限 | ~110 |
+| 04 | [StarVLA 技术报告解读](reports/04_starvla_codebase_report.md) | 两条契约、四种实例、三种训练模式、server–client 评测、LIBERO 基线的步数 / epoch、计算效率 | ~140 |
+| 05 | [动作头与动作表示](reports/05_action_heads_and_representation.md) | 四种头的形式化、三篇论文全部对照数字、动作空间设计证据、选型指南 | ~120 |
+| 06 | [基准生态](reports/06_benchmarks_landscape.md) | 13 个仿真基准 + 5 个真机流程逐个拆解、评测公平性、面向持续预训练研究的基准选择、没有好基准的维度 | ~310 |
+| 07 | [研究路线图](reports/07_research_roadmap.md) | 6 类 18 个方向（问题 / 证据 / 做法 / 代码落点 / 评测 / 风险）、优先级矩阵、六个月计划 | ~180 |
+| 08 | [讲稿：四种动作头](reports/08_action_heads_lecture.md) | FAST / OFT / PI / GR00T 各一节（问题、机制、训练与推理、结果、StarVLA 实现）、横向对比、选型问答、公式速查 | ~300 |
+| 09 | [EventVLA 解读](reports/09_eventvla.md) | 非马尔可夫任务、视觉锚点 + 关键帧证据记忆头、RoboTwin-MeM 基准、RMBench 67.8 / RoboTwin-MeM 3.8→75.2 / 真机 60–90、可直接做的叠加实验 | ~100 |
+| 10 | [改进方案 v2](reports/10_improvement_plan.md) | 四个研究问题与预注册假设、十个工作包与验收标准、分级 R0–R9 实验矩阵与 GPU 预算、四个决策门、设计评审的 13 条修订 | ~165 |
+| 11 | [EventVLA 代码审计](reports/11_eventvla_code_audit.md) | 逐文件核对 `code/EventVLA`：论文 vs 代码 17 项对照（N_max、λ、NMS / 冷却、课程、图像顺序、每 chunk 事件数）、oracle 标签、评测协议里的硬编码、上游 16 个 issue 的复现坑、P0–P2 改进落点 | ~170 |
+
+## [3. Code & Experiments](#contents)
+
+三个代码目录都**不修改 StarVLA 源码**：前两个是拷入即用的扩展包，第三个是子模块。
+
+| 目录 | 内容 | 验证 |
+|---|---|---|
+| [`code/vlact_ext/`](code/vlact_ext/) | VLAct 六项配方里 StarVLA 缺失 / 半支持的四项：`QwenMultiHead` 多头共监督框架（OFT + GR00T + PI 三头，`action_loss = Σ w_h·L_h`，`predict_action(head=…)` 路由）、wrap-aware L1、20 维部分统一动作布局 transform、正则 / 区间冻结规则；附完整的 VLAct 预训练示例 yaml | 61 个 CPU 测试，mock 骨干，约 30 s |
+| [`code/starvla_lab/`](code/starvla_lab/) | [10 · 改进方案](reports/10_improvement_plan.md) 阶段 A 的研究包：`probes/`（跨头探针、CKA、漂移追踪）、`schedules/`（分层学习率衰减、漂移驱动的冻结与辅助数据调度）、`heads/`（未来特征预测头、关键帧头、`QwenMultiHeadLab`）、`data/`（按轨迹子采样、辅助头离线数据）、`train/`（`train_starvla_lab.py` 入口）、`bench/`（"只换骨干"协议、开销测量、头 dropout）、`configs/`（R0–R9 矩阵） | 110 个 CPU 测试 |
+| [`code/EventVLA/`](code/EventVLA/) | git 子模块 → [asimfish/EventVLA](https://github.com/asimfish/EventVLA)（fork 自官方）：EventVLA 模型、训练与评测代码 + RoboTwin-MeM 基准（8 个记忆任务）。审计见 [报告 11](reports/11_eventvla_code_audit.md) | 上游 2 个测试文件 |
+| [`experiments/`](experiments/) | 运行清单与结果台账：`run_matrix*.csv`（主矩阵 92 次 + 跨头 16 次）、`budget.md`（预训练 7,300 + 下游 13,800 ≈ 21,000 GPU 小时）、`results/<run>/`（每次运行一个 JSON + README） | — |
+
+### 3.1 已实测的数字
+
+| 实验 | 结论 | 详情 |
+|---|---|---|
+| WP6 · 三头共监督的训练开销（1×A100-80GB，Qwen3-VL-4B 真实权重，batch 8） | OFT 单头 1.27 s/step / 15.4 GB；PI 单头 1.64 / 22.0；三头 OFT + GR00T + PI 1.95 / 27.2（1.54× 单头，不是 3×）；三头 + 头 dropout 1.54 / 25.0 | [`experiments/results/wp6_overhead/`](experiments/results/wp6_overhead/README.md) |
+| F0 · LIBERO-goal 真实数据微调冒烟（各 300 步，1×A100） | `QwenMultiHead` 的 OFT 头 L1 0.243 vs `QwenOFT` 0.244——三头不伤单头；训练中记录的逐层 1−CKA"漂移"几乎全部来自 `embed_tokens` 里 prompt 词嵌入的更新被单场景探针批放大，WP1 的漂移度量因此改为"换回预训练嵌入 + token 级 CKA + 跨场景探针批" | [`experiments/results/f0_libero_goal_smoke/`](experiments/results/f0_libero_goal_smoke/README.md) |
+| CPU · 与真实 StarVLA 的集成 | `QwenMultiHead` 用 StarVLA 真实的三个头工厂前向 / 反传 / 逐头预测；`flow_matching_loss` 与原头逐位相等（atol 1e-6）；冻结规则 + LLRD 参数组、头 dropout、探针驱动调度全部走通 | `scripts/smoke_starvla_integration.py` |
+
+仍需 GPU：LIBERO / RoboTwin 仿真评测、DeepSpeed 多卡显存、WP1 跨头探针在 F0 最终模型上的首跑、任何 ≥ 10k 步的训练效果数字——这些是 [07 · 路线图](reports/07_research_roadmap.md) 第 1 个月"复现 VLAct"的起点。
+
+### 3.2 运行测试
+
+```bash
+python3 -m pytest code/vlact_ext/tests -q        # 60 passed, 1 skipped（系统 python3.9，CPU）
+python3 -m pytest code/starvla_lab/tests -q      # 110 passed
+python3 scripts/build_run_matrix.py --print-commands 2
+```
+
+### 3.3 本地跑通（不需要 GPU 和权重）
+
+StarVLA 要求 Python ≥ 3.10，所以真实集成单独建环境；`starVLA_code/` 是 [starVLA/starVLA](https://github.com/starVLA/starVLA) 的 checkout，放在本仓库旁边：
+
+```bash
+bash scripts/setup_cpu_env.sh                          # uv 建 .venv-starvla（py3.12）+ CPU torch + StarVLA 可编辑安装
+PYTHONPATH=code:../starVLA_code .venv-starvla/bin/python -m pytest code/vlact_ext/tests code/starvla_lab/tests -q   # 169 passed, 2 skipped
+PYTHONPATH=code:../starVLA_code .venv-starvla/bin/python scripts/smoke_starvla_integration.py                       # 约 15 s
+```
+
+GPU 侧：`scripts/gpu_overhead_bench.py`、`scripts/cluster/{sync_to_node,setup_gpu_env,run_overhead_bench,run_f0_smoke}.sh` 可在任一有 Qwen3-VL-4B 权重的单卡机器上复现 §3.1 的数字。
+
+## [4. Papers](#contents)
+
+120 篇文献，11 个分类。条目格式参考 [Thinklab-SJTU/awesome-ml4co](https://github.com/Thinklab-SJTU/awesome-ml4co)：**标题.** 会议 / arXiv, 年份. 链接；斜体作者；一句中文摘要（含数字与结论）及与 StarVLA / VLAct 的关系。⭐ = StarVLA 团队或直接基于 StarVLA 代码库的工作。113 条 arXiv 链接经 arXiv API 逐条核验标题，其余 7 条为无 arXiv 的官方技术博客 / 模型卡 / 数据集页。源文件：[`assets/papers_curated.md`](assets/papers_curated.md)。
 
 ![Figure 1 · Timeline](assets/fig1_timeline.svg)
 
-*图 1 · 120 篇文献的时间线：11 个分类分泳道，按 arXiv 首版年月定位（无 arXiv 编号的 7 条官方页面未画出），★ 为 StarVLA 团队或基于 StarVLA 代码库的工作。2025 下半年到 2026 上半年集中了通用 VLA 策略与世界模型两条线的爆发。*
+*图 1 · 120 篇文献的时间线：11 个分类分泳道，按 arXiv 首版年月定位（7 条无 arXiv 编号的官方页面未画出），★ 为 StarVLA 团队或基于 StarVLA 代码库的工作。*
 
 ![Figure 2 · Taxonomy](assets/fig2_taxonomy.svg)
 
-*图 2 · VLA 持续预训练的设计空间：骨干与先验保护 / 动作头 / 动作空间 / 数据 / 训练系统 / 评测 / 开放问题七个维度，每格是三篇论文给出的一条证据（表号可在 `reports/` 中查到）。两图由 `scripts/make_figures.py` 从 `assets/papers_curated.md` 生成。*
+*图 2 · VLA 持续预训练的设计空间：骨干与先验保护 / 动作头 / 动作空间 / 数据 / 训练系统 / 评测 / 开放问题七个维度，每格是三篇论文给出的一条证据（表号见 `reports/`）。两图由 `scripts/make_figures.py` 从 `assets/papers_curated.md` 生成。*
 
-围绕 **StarVLA 代码库生态**与 **VLA（Vision-Language-Action）持续预训练 / 动作头 / 跨本体表示学习**的论文与资源列表 + 系统性调研仓库（2026-09 完成）。核心对象是三篇同一团队、同一骨干（Qwen3-VL-4B）、同一代码库的工作：[StarVLA 技术报告](https://arxiv.org/abs/2604.05014)（基础设施）、[StarVLA-α](https://arxiv.org/abs/2604.11757)（去混杂的对照基线）、[VLAct](https://arxiv.org/abs/2608.27550)（表示中心的持续预训练配方）。与一般 awesome 列表不同，本仓库同时提供：
-
-- **11 份中文深度报告**（`reports/`）：VLAct 精读、StarVLA 代码库逐文件解析（含 VLAct 配方在代码中"已有 / 部分 / 缺失"的对照与 diff 级改动建议）、StarVLA-α 与技术报告解读、动作头综合对比、13 个基准的评测生态、研究路线图（6 类 18 个方向 + 六个月执行计划）、**四种动作头（FAST / OFT / PI / GR00T）的 60 分钟讲稿**（配 20 页讲解幻灯片）、**EventVLA 解读**（StarVLA-OFT 上的稀疏视觉证据记忆，正面回应 Memory 短板）、**改进方案 v2**（4 个研究问题、10 个工作包、分级 R0–R9 实验矩阵与 21,000 GPU 小时预算、4 个决策门、设计评审修订记录）
-- **7 篇论文英文原版 + 保版式中文翻译 PDF**（`papers/`，翻译由 [super_translate](https://github.com/asimfish/super_translate) 生成）：StarVLA 三篇、四个动作头的源论文中的 FAST、OpenVLA-OFT、GR00T N1，以及 EventVLA（七篇均为 CC BY 4.0；π0 为 arXiv 非独占许可，仓库只放链接）
-- **EventVLA 代码与 RoboTwin-MeM 基准**（`code/EventVLA/`，git 子模块）
-- **29 页 Beamer 幻灯片**（`report/awesome_starvla_slides.pdf`，XeLaTeX 源码同目录）+ **18 页原生可编辑 PPTX**（`report/awesome_starvla_slides.pptx`，由 [ppt-master](https://github.com/hugohe3/ppt-master) Quick Generate 生成，全部为原生形状与表格）+ **44 页合订全文报告**（`report/awesome_starvla_full_report.pdf`，10 份报告 + 两张总览图）
-- **120 篇文献编目**（第 4 节，113 条 arXiv 链接经 arXiv API 逐条核验标题，其余 7 条为无 arXiv 的官方技术博客 / 模型卡 / 数据集页）
-- **VLAct 缺失组件的 StarVLA 扩展代码**（`code/vlact_ext/`，约 1,600 行）：多头共监督框架 `QwenMultiHead`、wrap-aware L1、20 维部分统一动作布局 transform、正则 / 区间冻结规则，附 61 个 CPU 单元测试与完整的 VLAct 预训练示例 yaml；不改 StarVLA 任何已有文件即可拷入使用
-- **改进方案的研究包**（`code/starvla_lab/`，约 4,800 行，110 个 CPU 测试）：骨干可复用性探针与表征漂移诊断、分层学习率衰减与漂移驱动的冻结 / 辅助数据调度、未来特征预测头与关键帧头（`QwenMultiHeadLab`）、数据比例子采样与两类辅助头的离线数据准备、把这些接进 StarVLA 训练循环的入口 `train_starvla_lab.py`、"只换骨干"基准协议与开销测量，以及分级的 R0–R9 实验矩阵与全量 GPU 预算（`experiments/`）
-
-一句话结论：**VLM 骨干是 VLA 的一阶设计变量，预训练不是双刃剑，配方决定符号**——朴素动作拟合会把机器人预训练变成负资产（OXE 预训练让 RoboCasa-GR1 24×10 从 9.8 掉到 1.2），保护 VLM 先验 + 多头共监督 + 部分统一动作空间把同样的数据源变成净收益（20% 数据超过全量 GR00T-N1.6）；下一步最值钱的是表征诊断工具、"只换骨干"的基准协议，以及所有人都接近零的 Memory 维度。
-
-StarVLA 团队或直接基于 StarVLA 代码库构建的工作以 ⭐ 标记。
-
-*Maintained by [asimfish](https://github.com/asimfish). 欢迎 PR 与 issue，规范见 [CONTRIBUTING.md](CONTRIBUTING.md)。*
-
-## [Content](#content)
-
-<table>
-<tr><td colspan="2"><a href="#1-start-here">1. Start Here</a></td></tr>
-<tr><td colspan="2"><a href="#2-core-readings">2. Core Readings</a></td></tr>
-<tr><td colspan="2"><a href="#3-reports">3. Reports（中文深度报告）</a></td></tr>
-<tr><td colspan="2"><a href="#4-papers">4. Papers</a></td></tr>
-<tr>
-	<td>&emsp;<a href="#starvla-family">4.1 StarVLA Family</a></td>
-	<td>&emsp;<a href="#generalist-vla-policies">4.2 Generalist VLA Policies</a></td>
-</tr>
-<tr>
-	<td>&emsp;<a href="#action-heads--action-representation">4.3 Action Heads &amp; Action Representation</a></td>
-	<td>&emsp;<a href="#vlm-backbones-for-vla">4.4 VLM Backbones for VLA</a></td>
-</tr>
-<tr>
-	<td>&emsp;<a href="#representation-centric-pre-training--co-training">4.5 Representation-Centric Pre-training &amp; Co-training</a></td>
-	<td>&emsp;<a href="#cross-embodiment--robot-data">4.6 Cross-Embodiment &amp; Robot Data</a></td>
-</tr>
-<tr>
-	<td>&emsp;<a href="#world-models-for-action">4.7 World Models for Action</a></td>
-	<td>&emsp;<a href="#benchmarks--evaluation">4.8 Benchmarks &amp; Evaluation</a></td>
-</tr>
-<tr>
-	<td>&emsp;<a href="#rl-post-training-for-vla">4.9 RL Post-training for VLA</a></td>
-	<td>&emsp;<a href="#human-video--robot">4.10 Human Video → Robot</a></td>
-</tr>
-<tr>
-	<td>&emsp;<a href="#surveys">4.11 Surveys</a></td>
-	<td></td>
-</tr>
-<tr><td colspan="2"><a href="#5-starvla-codebase-at-a-glance">5. StarVLA Codebase at a Glance</a></td></tr>
-<tr>
-	<td>&emsp;<a href="#51-vlact-extension-for-starvla-codevlact_ext">5.1 VLAct Extension for StarVLA（code/vlact_ext）</a></td>
-	<td>&emsp;<a href="#52-improvement-lab-codestarvla_lab">5.2 Improvement Lab（code/starvla_lab）</a></td>
-</tr>
-<tr>
-	<td>&emsp;<a href="#53-跑通与-starvla-的真实集成cpu无需权重">5.3 跑通与 StarVLA 的真实集成（CPU，无需权重）</a></td>
-	<td>&emsp;<a href="#54-gpu-实测三头共监督的训练开销wp6">5.4 GPU 实测：三头共监督的训练开销（WP6）</a></td>
-</tr>
-<tr>
-	<td>&emsp;<a href="#55-真实数据微调冒烟f0三头不伤-oft-头漂移度量需要重定义">5.5 真实数据微调冒烟（F0）</a></td>
-	<td></td>
-</tr>
-<tr><td colspan="2"><a href="#6-benchmarks-cheat-sheet">6. Benchmarks Cheat Sheet</a></td></tr>
-<tr><td colspan="2"><a href="#7-research-roadmap">7. Research Roadmap</a></td></tr>
-<tr><td colspan="2"><a href="#8-repository-layout">8. Repository Layout</a></td></tr>
-<tr><td colspan="2"><a href="#9-translation--build-pipeline">9. Translation &amp; Build Pipeline</a></td></tr>
-<tr><td colspan="2"><a href="#10-license--credits">10. License &amp; Credits</a></td></tr>
-</table>
-
-## [1. Start Here](#content)
-
-| 时间预算 | 路线 |
-|---|---|
-| 15 分钟 | [`report/awesome_starvla_slides.pdf`](report/awesome_starvla_slides.pdf)（29 页 Beamer，含 4 页备份）或 [`report/awesome_starvla_slides.pptx`](report/awesome_starvla_slides.pptx)（18 页精简版，PowerPoint 可编辑） |
-| 通读 | [`report/awesome_starvla_full_report.pdf`](report/awesome_starvla_full_report.pdf)（62 页 A4，10 份报告合订 + 图 1 时间线 / 图 2 设计空间）· [HTML 版](report/awesome_starvla_full_report.html) |
-| 1 小时 | [01 · VLAct 精读](reports/01_vlact_deep_dive.md) → [05 · 动作头与动作表示](reports/05_action_heads_and_representation.md) → [07 · 研究路线图](reports/07_research_roadmap.md) |
-| 动手做改进 | [10 · 改进方案](reports/10_improvement_plan.md)（研究问题 → 工作包 → 实验矩阵 → 决策门） → [`code/starvla_lab/README.md`](code/starvla_lab/README.md)（怎么接进 StarVLA） → [`experiments/README.md`](experiments/README.md)（运行清单与结果台账）；动 EventVLA 之前先读 [11 · EventVLA 代码审计](reports/11_eventvla_code_audit.md)（论文 vs 代码差异、复现坑、改进落点） |
-| 搞懂四个动作头 | [08 · 讲稿：FAST / OFT / PI / GR00T](reports/08_action_heads_lecture.md)（60 分钟组会讲稿，含直觉、公式、训练/推理、StarVLA 实现、选型问答）+ [讲解幻灯片](report/action_heads_lecture_slides.pdf)（20 页）+ 四篇源论文中译（`papers/zh/`） |
-| 准备上手代码 | [02 · StarVLA 代码库解析](reports/02_starvla_codebase_analysis.md)（第 9 章是 VLAct 配方在代码中的落点，第 11 章是最短上手命令序列） → [06 · 基准生态](reports/06_benchmarks_landscape.md)（第 5 章是基准选择建议） → [`code/vlact_ext/README.md`](code/vlact_ext/README.md)（怎么把多头 / wrap loss / 统一布局拷进 StarVLA） → [§5.3](#53-跑通与-starvla-的真实集成cpu无需权重) 用 `scripts/setup_cpu_env.sh` + `scripts/smoke_starvla_integration.py` 在笔记本上把真实 StarVLA 头跑一遍（不需要 GPU 和权重） |
-| 系统研读 | 按 04 → 03 → 01 → 02 → 05 → 06 → 07 的顺序读 `reports/`，配 `papers/zh/` 中文 PDF 对照原文 |
-
-## [2. Core Readings](#content)
-
-三篇论文与一个代码库，是本仓库全部报告的一手材料。
-
-1. ⭐ **StarVLA: A Lego-like Codebase for Vision-Language-Action Model Developing.** arXiv, 2026\. [paper](https://arxiv.org/abs/2604.05014), [code](https://github.com/starVLA/starVLA), [PDF](papers/en/2604.05014_StarVLA_codebase.pdf), [PDF-zh](papers/zh/2604.05014_StarVLA_codebase_zh.pdf), [解读](reports/04_starvla_codebase_report.md)
-_StarVLA Community & Von Neumann Institute, HKUST_ — 骨干–动作头两条契约；FAST / OFT / π / GR00T 四头 × VLM / 世界模型两类骨干；LIBERO 30K 步（9.5 epoch）达 96.6，OpenVLA-OFT 用 175K 步（223 epoch）才多 0.5；8→256 GPU 扩展效率 79%。
-2. ⭐ **StarVLA-α: Reducing Complexity in Vision-Language-Action Systems.** ECCV, 2026\. [paper](https://arxiv.org/abs/2604.11757), [PDF](papers/en/2604.11757_StarVLA_alpha.pdf), [PDF-zh](papers/zh/2604.11757_StarVLA_alpha_zh.pdf), [解读](reports/03_starvla_alpha.md)
-_Jinhui Ye, Ning Gao, Senqiao Yang, et al., Yilun Chen, Shu Liu, Jiaya Jia_ — Qwen3-VL-4B + MLP 头 + 最少数据工程的对照基线：LIBERO 98.8、GR1 53.8；三个"常识"的重新检验——连续头 ≫ 离散头且三种连续头相当、朴素动作预训练是双刃剑（OXE 把 GR1 24×10 从 9.8 打到 1.2）、数据工程收益随数据量归零；generalist 联训 + 大 batch（64→1024 使 GR1 40.0→59.2）。
-3. ⭐ **Beyond Data Scaling: Representation-Centric Continued Pre-training for Vision-Language-Action Models (VLAct).** arXiv, 2026\. [paper](https://arxiv.org/abs/2608.27550), [project](https://starvla.github.io/VLAct), [PDF](papers/en/2608.27550_VLAct.pdf), [PDF-zh](papers/zh/2608.27550_VLAct_zh.pdf), [解读](reports/01_vlact_deep_dive.md)
-_Senqiao Yang, Chengyao Wang, Yuxin Chen, et al., Hengshuang Zhao, Bei Yu, Jiaya Jia_ — 冻视觉编码器 + LLM 下半层与 caption 混训保护先验；OFT + PI + GR00T 三头共监督消除 decoder lock-in（单头预训练让 PI 微调 60.5→55.1，加一头翻正到 63.1）；20 维部分统一动作空间 + wrap-aware loss（+5 点）。只换骨干权重：LIBERO-Plus 82.6、VLA-Arena 54.8、RoboTwin 2.0 92.5、GR1 20% 数据 49.5 > 全量 GR00T-N1.6 47.6；开源数据 + 16 GPU。
-4. ⭐ **StarVLA 代码库（GitHub）.** [starVLA/starVLA](https://github.com/starVLA/starVLA)，MIT，[代码解析](reports/02_starvla_codebase_analysis.md)
-— 261 个 Python 文件 / 57.6k 行；28 个注册框架（VLM4A 20、WM4A 6、VM4A 2）；11 个动作头文件；13 个仿真基准 + 5 个真机示例；7 个测试文件、无 CI。
-
-基于 StarVLA 的后续工作（本仓库以子模块收录代码）：
-
-9. ⭐ **EventVLA: Event-Driven Visual Evidence Memory for Long-Horizon Vision-Language-Action Policies.** arXiv, 2026\. [paper](https://arxiv.org/abs/2606.20092), [code](code/EventVLA)（[官方](https://github.com/InternRobotics/EventVLA)）, [PDF](papers/en/2606.20092_EventVLA.pdf), [PDF-zh](papers/zh/2606.20092_EventVLA_zh.pdf), [解读](reports/09_eventvla.md)
-— 在 StarVLA `QwenOFT` 上加"初始帧 + 最近 K 帧"规则锚点与一个并联的关键帧证据记忆头（KEM），从动作头同一份隐状态预测未来 H 步的关键帧概率，命中即把原图写入有界 FIFO；提出 RoboTwin-MeM（8 个双臂任务，需记忆的关键帧数 n=1–5 可控）。RoboTwin-MeM 上 QwenOFT 3.8 → 75.2，RMBench 67.8，真机 ARX 双臂 60–90；常规 RoboTwin 2.0 不掉反升。
-
-四种动作头的源论文（配 [08 · 讲稿](reports/08_action_heads_lecture.md) 与 [讲解幻灯片](report/action_heads_lecture_slides.pdf) 阅读）：
-
-10. **FAST: Efficient Action Tokenization for Vision-Language-Action Models.** arXiv, 2025\. [paper](https://arxiv.org/abs/2501.09747), [PDF](papers/en/2501.09747_FAST.pdf), [PDF-zh](papers/zh/2501.09747_FAST_zh.pdf)
-_Karl Pertsch et al._（Physical Intelligence）— 分位数归一化 → 逐维 DCT → 缩放取整 → 低频优先展平 → BPE（词表 1024），1 秒动作块约 30 个 token/臂；朴素分箱在高频下每个 token 的边际信息趋零；训练 GPU 小时比 diffusion 版 π0 少约 5×，推理为自回归解码。
-11. **Fine-Tuning Vision-Language-Action Models: Optimizing Speed and Success (OpenVLA-OFT).** arXiv, 2025\. [paper](https://arxiv.org/abs/2502.19645), [PDF](papers/en/2502.19645_OpenVLA_OFT.pdf), [PDF-zh](papers/zh/2502.19645_OpenVLA_OFT_zh.pdf)
-_Moo Jin Kim, Chelsea Finn, Percy Liang_（Stanford）— 空动作嵌入 + 双向注意力实现并行解码，动作块使吞吐 ×K，MLP 直出连续动作 + L1 回归；LIBERO 76.5 → 97.1，吞吐 26×（ALOHA 25 步块 43×）；FiLM 解决多视角下忽略语言。
-12. **π0: A Vision-Language-Action Flow Model for General Robot Control.** arXiv, 2024\. [paper](https://arxiv.org/abs/2410.24164)（arXiv 非独占许可，PDF 不随仓库分发）
-_Kevin Black et al._（Physical Intelligence）— PaliGemma 3B + 从零初始化的约 3 亿参数动作专家（独立权重、MoE 式路由），flow matching 目标 $\|v_\theta - (A-\epsilon)\|^2$，τ 从偏向噪声端的 Beta 分布采样，推理 10 步欧拉；H=50、最高 50 Hz；约 1 万小时自有数据 + OXE，7 种本体 68 任务。
-13. **GR00T N1: An Open Foundation Model for Generalist Humanoid Robots.** arXiv, 2025\. [paper](https://arxiv.org/abs/2503.14734), [PDF](papers/en/2503.14734_GR00T_N1.pdf), [PDF-zh](papers/zh/2503.14734_GR00T_N1_zh.pdf)
-_Johan Bjorck et al._（NVIDIA）— 双系统：Eagle-2 VLM（第 12 层特征，≈10 Hz）作 System 2，adaLN DiT（交替 self / cross-attention，≈120 Hz，块长 16，4 步去噪）作 System 1；本体特定 MLP 编解码状态与动作；数据金字塔 + VQ-VAE 潜动作把无标签视频纳入训练；2.2B 参数。
-
-## [3. Reports](#content)
-
-| # | 报告 | 内容 | 行数 |
-|---|---|---|---|
-| 01 | [VLAct 精读](reports/01_vlact_deep_dive.md) | 问题设定、pilot study 与 decoder lock-in、三组件 + 微调协议、主结果与消融汇总、与 StarVLA-α 的对话、批判性评价（8 条局限）、可复现性 | ~170 |
-| 02 | [StarVLA 代码库解析](reports/02_starvla_codebase_analysis.md) | 目录与设计哲学、配置系统、数据管线、模型层（四头实现细节）、训练、部署、25 个 examples、agent skill、**VLAct 六项配方在代码中的状态与 diff 级改动建议**、代码质量问题（已核实的 5 处 bug 与文档漂移）、上手路径 | ~660 |
-| 03 | [StarVLA-α 解读](reports/03_starvla_alpha.md) | 最简基线设计、主结果、三个常识的重新检验（表 2/3/4）、generalist 评测范式、真机、局限 | ~110 |
-| 04 | [StarVLA 技术报告解读](reports/04_starvla_codebase_report.md) | 两条契约、四种实例、三种训练模式、server–client 评测、LIBERO 基线（含步数 / epoch）、ST4VLA 共训案例、计算效率、"广义 VLA 视角" | ~140 |
-| 05 | [动作头与动作表示](reports/05_action_heads_and_representation.md) | 四种头的形式化、三篇论文全部对照数字、动作空间设计证据、选型指南 | ~120 |
-| 06 | [基准生态](reports/06_benchmarks_landscape.md) | 13 个仿真基准 + 5 个真机流程逐个拆解（协议、数字、入口脚本、已知问题）、评测公平性、真机协议、**面向持续预训练研究的基准选择建议**、没有好基准的维度 | ~310 |
-| 07 | [研究路线图](reports/07_research_roadmap.md) | 三篇论文留下的地图、6 类 18 个方向（问题 / 证据 / 做法 / 代码落点 / 评测 / 风险）、优先级矩阵、六个月执行计划、风险与对策 | ~180 |
-| 10 | [改进方案 v2](reports/10_improvement_plan.md) | 四个研究问题与预注册的假设、十个工作包（含数据准备与训练集成）与验收标准、分级 R0–R9 实验矩阵与全量 GPU 预算、六个月里程碑与四个决策门、已知偏差与解释约束、设计评审的 13 条修订记录 | ~165 |
-| 11 | [EventVLA 代码审计](reports/11_eventvla_code_audit.md) | 逐文件核对 `code/EventVLA`：输入序列（12 张锚点图 + ≤4 张记忆图、组标签）、MLP-L1 头与关键帧头、raised-cosine 软标签 + pos_weight BCE、训练单事件 / 推理 NMS + 冷却 + 单 pending、有状态的 teacher→student 训练循环；关键帧标签是脚本 oracle 而非 Qwen3-VL；评测协议（100 集、unseen、LargeView、缺失的步数上限、首 chunk 随机 replan、只在前 3 次 commit 后 replan）；**论文 vs 代码 17 项对照表**、上游 16 个 issue 的复现坑、P0–P2 十条改进落点 | ~170 |
-| 09 | [EventVLA 解读](reports/09_eventvla.md) | 非马尔可夫操作任务、规则视觉锚点 + 关键帧证据记忆头（与动作头并联、从同一隐状态预测未来 H 步的关键帧概率、原图写入有界 FIFO）、RoboTwin-MeM 基准（n=1–5 可控）、RMBench 67.8 / RoboTwin-MeM 3.8→75.2 / 真机 60–90、局限与可直接做的叠加实验 | ~100 |
-| 08 | [讲稿：四种动作头](reports/08_action_heads_lecture.md) | FAST（DCT + BPE 时间序列压缩）、OFT（并行解码 + L1 回归）、PI（flow matching 动作专家）、GR00T（双系统 DiT）各一节：要解决的问题、核心机制、训练与推理、论文结果、StarVLA 实现；横向对比、选型问答、阅读顺序、公式速查 | ~300 |
-
-## [4. Papers](#content)
-
-条目格式参考 [Thinklab-SJTU/awesome-ml4co](https://github.com/Thinklab-SJTU/awesome-ml4co)：**标题.** 会议 / arXiv, 年份. 链接；斜体作者；一句中文摘要（含数字与结论）及与 StarVLA / VLAct 的关系。完整列表另存于 [`assets/papers_curated.md`](assets/papers_curated.md)。
-
-### [StarVLA Family](#content)
+### [StarVLA Family](#contents)
 
 1. ⭐ **StarVLA: A Lego-like Codebase for Vision-Language-Action Model Developing.** arXiv, 2026. [paper](https://arxiv.org/abs/2604.05014), [code](https://github.com/starVLA/starVLA), [project](https://starvla.github.io)
 
@@ -225,7 +200,7 @@ _Johan Bjorck et al._（NVIDIA）— 双系统：Eagle-2 VLM（第 12 层特征�
 
     > 以统一接口整合多种 VLA 架构、RL 算法与异构仿真器，混合细粒度流水线分配在 ManiSkill 上带来 1.61–1.88× 训练加速；RL 后模型在 130 个 LIBERO 任务达 98.11%、25 个 ManiSkill 任务 97.66%、6 个 RoboTwin 任务平均 84.63%。2026 年 4 月 RLinf 团队将其接入 StarVLA（StarVLA × RLinf 教程），为 StarVLA 模型提供 RL 后训练。
 
-### [Generalist VLA Policies](#content)
+### [Generalist VLA Policies](#contents)
 
 1. **RT-1: Robotics Transformer for Real-World Control at Scale.** RSS, 2023. [paper](https://arxiv.org/abs/2212.06817), [code](https://github.com/google-research/robotics_transformer)
 
@@ -377,7 +352,7 @@ _Johan Bjorck et al._（NVIDIA）— 双系统：Eagle-2 VLM（第 12 层特征�
 
     > 单一架构无差别处理图像、文本、视频与动作，在 150 万样本的交错视觉-文本-动作数据集 EO-Data1.5M 上通过自回归解码与 flow-matching 去噪协同训练，实现多模态具身推理与多本体长时程灵巧操作的统一。
 
-### [Action Heads & Action Representation](#content)
+### [Action Heads & Action Representation](#contents)
 
 1. **FAST: Efficient Action Tokenization for Vision-Language-Action Models.** RSS, 2025. [paper](https://arxiv.org/abs/2501.09747), [PDF](papers/en/2501.09747_FAST.pdf), [PDF-zh](papers/zh/2501.09747_FAST_zh.pdf), [讲稿](reports/08_action_heads_lecture.md), [code](https://github.com/Physical-Intelligence/openpi), [project](https://www.physicalintelligence.company/research/fast)
 
@@ -427,7 +402,7 @@ _Johan Bjorck et al._（NVIDIA）— 双系统：Eagle-2 VLM（第 12 层特征�
 
     > 在 DINO 特征空间、以语言为条件学习「任务中心」潜动作以剔除无关动态，从跨本体视频（含人类视频）学习通用策略后用轻量解码器适配各机器人；以不到 OpenVLA 1/20 的预训练算力和 1/10 的下游数据在操作与导航多个基准上取得 SOTA。
 
-### [VLM Backbones for VLA](#content)
+### [VLM Backbones for VLA](#contents)
 
 1. **Qwen2.5-VL Technical Report.** arXiv, 2025. [paper](https://arxiv.org/abs/2502.13923), [code](https://github.com/QwenLM/Qwen2.5-VL)
 
@@ -489,7 +464,7 @@ _Johan Bjorck et al._（NVIDIA）— 双系统：Eagle-2 VLM（第 12 层特征�
 
     > 首个在单图、多图、视频三种场景同时刷新开源 SOTA 的单模型，并展示跨场景任务迁移能力；VLAct 把其开源训练数据（含 LLaVA-ReCap 重描述）作为 caption 混合训练的图像描述来源之一。
 
-### [Representation-Centric Pre-training & Co-training](#content)
+### [Representation-Centric Pre-training & Co-training](#contents)
 
 1. **Knowledge Insulating Vision-Language-Action Models: Train Fast, Run Fast, Generalize Better.** arXiv, 2025. [paper](https://arxiv.org/abs/2505.23705), [project](https://pi.website/research/knowledge_insulation)
 
@@ -569,7 +544,7 @@ _Johan Bjorck et al._（NVIDIA）— 双系统：Eagle-2 VLM（第 12 层特征�
 
     > 纯文本的开放域对话与指令跟随 SFT 数据，不含任何视觉接地或机器人控制信号；VLAct 将其作为「域外对照」辅助源：若纯语言监督也能提升下游 VLA 性能，则说明辅助共训练的收益来自维持基础模型工作状态、丰富特征更新，而非任务相关迁移。
 
-### [Cross-Embodiment & Robot Data](#content)
+### [Cross-Embodiment & Robot Data](#contents)
 
 1. **Open X-Embodiment: Robotic Learning Datasets and RT-X Models.** ICRA, 2024. [paper](https://arxiv.org/abs/2310.08864), [code](https://github.com/google-deepmind/open_x_embodiment), [project](https://robotics-transformer-x.github.io)
 
@@ -637,7 +612,7 @@ _Johan Bjorck et al._（NVIDIA）— 双系统：Eagle-2 VLM（第 12 层特征�
 
     > 在 ALOHA 基础上改进夹爪、重力补偿与相机以提升双臂遥操作的耐用性与人机工效，并发布 MuJoCo 仿真模型；大量双臂数据集与 RoboTwin 等双臂基准所依赖的硬件范式。
 
-### [World Models for Action](#content)
+### [World Models for Action](#contents)
 
 1. **Cosmos World Foundation Model Platform for Physical AI.** arXiv, 2025. [paper](https://arxiv.org/abs/2501.03575), [code](https://github.com/nvidia-cosmos/cosmos-predict2), [project](https://www.nvidia.com/en-us/ai/cosmos/)
 
@@ -693,7 +668,7 @@ _Johan Bjorck et al._（NVIDIA）— 双系统：Eagle-2 VLM（第 12 层特征�
 
     > 在感知与动作之间插入可学习潜查询作为紧凑推理接口，训练时用「未来信息」后验分支（以未来观测嵌入替换查询）与可部署的先验分支在潜空间对齐，推理时不做任何视频 rollout；六个仿真基准与真机任务 SOTA 或相当。RoboTwin 2.0 数据扩展 90.2 / 89.6，VLAct-OFT 92.5 / 90.8。
 
-### [Benchmarks & Evaluation](#content)
+### [Benchmarks & Evaluation](#contents)
 
 1. **LIBERO: Benchmarking Knowledge Transfer for Lifelong Robot Learning.** NeurIPS, 2023. [paper](https://arxiv.org/abs/2306.03310), [code](https://github.com/Lifelong-Robot-Learning/LIBERO), [project](https://libero-project.github.io)
 
@@ -785,7 +760,7 @@ _Johan Bjorck et al._（NVIDIA）— 双系统：Eagle-2 VLM（第 12 层特征�
 
     > 云端真机在线评测系统，首个基准 Table30 含 ARX5 / UR5 / Franka / ALOHA 四种本体的 30 个桌面任务，用户本地微调后远程提交策略统一评测并公开轨迹视频。StarVLA-α 通用模型在其上 30.0% vs π0.5 17.7%；DM0.5、StarVLA 均提供 Table30 v2 示例。
 
-### [RL Post-training for VLA](#content)
+### [RL Post-training for VLA](#contents)
 
 1. **RLinf: Flexible and Efficient Large-scale Reinforcement Learning via Macro-to-Micro Flow Transformation.** arXiv, 2025. [paper](https://arxiv.org/abs/2509.15965), [code](https://github.com/RLinf/RLinf), [project](https://rlinf.readthedocs.io)
 
@@ -823,7 +798,7 @@ _Johan Bjorck et al._（NVIDIA）— 双系统：Eagle-2 VLM（第 12 层特征�
 
     > 构建覆盖视觉、语义、执行三类分布偏移的 VLA 泛化基准，系统比较 RL 与 SFT：PPO 在语义理解与执行鲁棒性上显著优于 SFT、视觉鲁棒性相当，且 PPO 比 DPO、GRPO 等源自 LLM 的算法更适合 VLA，并给出高效 PPO 训练配方。
 
-### [Human Video → Robot](#content)
+### [Human Video → Robot](#contents)
 
 1. **EgoVLA: Learning Vision-Language-Action Models from Egocentric Human Videos.** arXiv, 2025. [paper](https://arxiv.org/abs/2507.12440), [project](https://rchalyang.github.io/EgoVLA/)
 
@@ -861,7 +836,7 @@ _Johan Bjorck et al._（NVIDIA）— 双系统：Eagle-2 VLM（第 12 层特征�
 
     > 32 个厨房中 55 小时无脚本的第一视角烹饪视频，含 39.6 千个动作片段与 45.4 万个物体框（EPIC-KITCHENS-100 后扩展至 100 小时），是手–物交互理解的标准数据集；VLAct 相关工作中列举的互联网级人类视频源之一。
 
-### [Surveys](#content)
+### [Surveys](#contents)
 
 1. **A Survey on Vision-Language-Action Models for Embodied AI.** arXiv, 2024. [paper](https://arxiv.org/abs/2405.14093), [code](https://github.com/yueen-ma/Awesome-VLA)
 
@@ -887,9 +862,11 @@ _Johan Bjorck et al._（NVIDIA）— 双系统：Eagle-2 VLM（第 12 层特征�
 
     > 面向大 VLM 驱动的操作 VLA 的分类学综述：区分单系统/双系统的整体式模型与解耦规划执行的层次式模型，并系统整理与 RL、免训练优化、人类视频学习、世界模型的结合以及记忆、4D 感知、高效适配等方向。
 
-## [5. StarVLA Codebase at a Glance](#content)
+## [5. Cheat Sheets](#contents)
 
-数字来自本地快照（分支 `starVLA_dev`，HEAD `d81fc66`，2026-09-04）的实际统计，细节与行号引用见 [02 · 代码库解析](reports/02_starvla_codebase_analysis.md)。
+### 5.1 StarVLA Codebase
+
+数字来自本地快照（分支 `starVLA_dev`，HEAD `d81fc66`，2026-09-04），细节与行号见 [02 · 代码库解析](reports/02_starvla_codebase_analysis.md)。
 
 | 层 | 关键文件 | 一句话 |
 |---|---|---|
@@ -898,173 +875,100 @@ _Johan Bjorck et al._（NVIDIA）— 双系统：Eagle-2 VLM（第 12 层特征�
 | 动作头 | `starVLA/model/modules/action_model/` | 11 个文件：MLP（OFT，masked L1）、FAST（2048 个 action token 占用词表区间）、Layerwise-FM（PI，36 层 cross-DiT，4 步 Euler）、FM DiT-B（GR00T，16 层，状态前置） |
 | VLM 接口 | `starVLA/model/modules/vlm/` | `get_vlm_model` 分派 9 个分支：Qwen2.5-VL / Qwen3-VL / Qwen3.5 / Gemma-4 / Molmo2 / MiniCPM-V / Florence-2 / Cosmos-Reason2 / VILA |
 | 数据 | `starVLA/dataloader/` | GR00T LeRobot 管线移植（v2.0/v3.0，q99 / mean_std / min_max 归一化，`DATASET_NAMED_MIXTURES` 加权混合）；VLM LLaVA-json；UMI 适配 |
-| 训练 | `starVLA/training/` | `train_starvla.py`（SFT）、`train_starvla_cotrain.py`（VLA + VLM 双 loader 双 backward，`loss_scale.vlm`）、`train_starvlm.py`、`train_starvln.py`；`freeze_modules` 精确点路径；分模块 lr；只存 state_dict |
+| 训练 | `starVLA/training/` | `train_starvla.py`（SFT）、`train_starvla_cotrain.py`（VLA + VLM 双 loader，`loss_scale.vlm`）、`train_starvlm.py`、`train_starvln.py`；`freeze_modules` 精确点路径；分模块 lr；只存 state_dict |
 | 部署 | `deployment/model_server/` | WebSocket / ZMQ 策略服务器；基准侧 12 个 `model2*_interface.py` 适配器 |
 | 生态 | `examples/` | 13 仿真基准 / 5 真机 / 6 模型扩展 / 1 UMI 人类数据 |
 
-**VLAct 六项配方在代码中的状态**：(b) caption 共训与 (f) 丢头重训 **已有**；(a) 浅层冻结与 (d) 20 维部分统一布局 **部分**（冻结需列 18 条精确路径，mask 只有 OFT 头消费）；(c) 多头共监督与 (e) wrap-aware loss **缺失**。复现 VLAct 的工程量集中在一个新框架 `QwenMultiHead` 与一个动作空间 transform——两者都已在下面的扩展包里实现。
+VLAct 六项配方在 StarVLA 中的状态：(b) caption 共训与 (f) 丢头重训**已有**；(a) 浅层冻结与 (d) 20 维部分统一布局**部分**（冻结需列 18 条精确路径，mask 只有 OFT 头消费）；(c) 多头共监督与 (e) wrap-aware loss **缺失**——后四项由 [`code/vlact_ext`](code/vlact_ext/) 补齐。
 
-### [5.1 VLAct Extension for StarVLA（code/vlact_ext）](#content)
+### 5.2 Benchmarks
 
-把上面"部分 / 缺失"的四项实现为一个**不修改 StarVLA 源码**即可拷入的扩展包（详见 [`code/vlact_ext/README.md`](code/vlact_ext/README.md)）：
-
-| 配方 | 文件 | 实现 |
-|---|---|---|
-| (a) 浅层冻结 | `freeze_rules.py` | `re:<regex>`、`path.layers[lo:hi]`、`llm_layers_below:N` 三种语法，展开成 StarVLA 原生可解析的精确路径；`install_into_starvla()` 一行 monkeypatch 让 yaml 直接用新语法 |
-| (c) 多头共监督 | `multihead_framework.py` | `Qwen_MultiHead(baseframework)`，注册名 `QwenMultiHead`：一次骨干前向，OFT + GR00T + PI 三头各算 loss，`action_loss = Σ w_h·L_h`，每头可开关 / 加权，`predict_action(head=...)` 路由；复用 StarVLA 现有头的构造函数 |
-| (d) 20 维统一布局 | `unified_action_layout.py` | dict 驱动的 `robot_tag → 槽位` 映射（加新本体只改 dict），`to_unified` / `from_unified`，样本级 transform 附加 `action_mask` / `periodic_mask`，含 DataConfig `make_dataset` 钩子 |
-| (e) wrap-aware L1 | `wrap_aware_loss.py` | `wrap_to_pi`、残差 wrap、`masked_wrap_aware_l1`（torch / numpy）；对 PI / GR00T 作用于单步样本估计 `x1_hat = x_t + (1−t)·v̂` |
-| (b)(f) | `configs/vlact_pretrain_example.yaml` | 完整的 VLAct 持续预训练配置：冻结列表、`loss_scale.vlm: 0.5`、`data_mix`、三头开关与权重、动作布局、下游丢头重训写法 |
-
-```bash
-python3 -m pytest code/vlact_ext/tests -q     # 60 passed, 1 skipped（系统 python3.9 即可：CPU，mock 骨干，约 30 s）
-```
-
-### [5.2 Improvement Lab（code/starvla_lab）](#content)
-
-[10 · 改进方案](reports/10_improvement_plan.md) 阶段 A 的研究包（约 4,800 行，110 个 CPU 测试；详见 [`code/starvla_lab/README.md`](code/starvla_lab/README.md)）：
-
-| 子包 | 工作包 | 内容 |
-|---|---|---|
-| `probes/` | WP1 诊断 | 跨头线性 / MLP 探针、线性 CKA、`DriftTracker` 逐层漂移、`ProbeRunner` 按步触发写 JSONL——不跑下游微调就度量骨干可复用性 |
-| `schedules/` | WP2 / WP4 | `layerwise_lr_decay_groups`（复用 `vlact_ext` 冻结规则）、`DriftDrivenLLRD`、`AuxDataScheduler`（fixed / linear / drift）——把硬冻结与固定 caption 权重变成可由漂移驱动的策略 |
-| `heads/` | WP3 | `FutureFeaturePredictionHead`、`KeyframeHead`（软标签 BCE、NMS / 冷却写入、课程）、`QwenMultiHeadLab`——把"头多样性即正则化"推到非动作头 |
-| `data/` | WP3b / F1 | 按轨迹的确定性子采样（数据比例曲线，挂到 StarVLA 的数据集工厂）、未来帧特征缓存、启发式 / 可插拔关键帧标注 |
-| `train/` | WP9 | `trainer.lab.*` 配置、LLRD 优化器构建、每步钩子（调度写回 / 头 dropout / 探针驱动），入口 `train_starvla_lab.py` 镜像 StarVLA 单双 loader 主流程 |
-| `bench/` | WP5 / WP6 | "只换骨干"协议（真实评测命令模板、分级 seeds、GPU 小时合计）、开销测量与头 dropout（已接进 `QwenMultiHead.active_heads`） |
-| `configs/` + `experiments/` | §3 | `protocol_f1.yaml`、`matrix_R0_R9.yaml` → `scripts/build_run_matrix.py` → `experiments/run_matrix*.csv`（主矩阵 92 次 + 跨头 16 次）与 `budget.md`（预训练 7,300 + 下游 13,800 ≈ 21,000 GPU 小时） |
-
-```bash
-python3 -m pytest code/starvla_lab/tests -q          # 110 passed（系统 python3.9 即可）
-python3 scripts/build_run_matrix.py --print-commands 2
-```
-
-### [5.3 跑通与 StarVLA 的真实集成（CPU，无需权重）](#content)
-
-StarVLA 要求 Python ≥ 3.10（源码用了 `str | None` 注解），所以真实集成要单独建环境；`starVLA_code/` 是 [starVLA/starVLA](https://github.com/starVLA/starVLA) 的 checkout，放在本仓库旁边：
-
-```bash
-bash scripts/setup_cpu_env.sh                          # 一次：uv 建 .venv-starvla（py3.12）+ CPU torch + StarVLA 可编辑安装
-PYTHONPATH=code:../starVLA_code .venv-starvla/bin/python -m pytest code/vlact_ext/tests code/starvla_lab/tests -q   # 169 passed, 2 skipped
-PYTHONPATH=code:../starVLA_code .venv-starvla/bin/python scripts/smoke_starvla_integration.py                       # 约 15 s
-```
-
-`smoke_starvla_integration.py` 用 StarVLA **真实的三个头工厂**（`L1RegressionActionHead` / `FlowmatchingActionHead` / `LayerwiseFlowmatchingActionHead`，缩到 CPU 尺寸）和一个随机初始化、但模块树与 Qwen3-VL 完全一致的迷你骨干，依次验证：`QwenMultiHead` 三头前向 / 反传 / 逐头 `predict_action`；`flow_matching_loss` 与两个原头 `forward` 在同一随机种子下逐位相等（atol 1e-6）；`llm_layers_below:1` 冻结规则 + LLRD 参数组（冻结层不进优化器、层越深 lr 越大）；头 dropout 每步轮换；探针每 2 步写 JSONL 并驱动 LLRD；辅助数据调度把 `loss_scale.vlm` 写回配置。
-
-### [5.4 GPU 实测：三头共监督的训练开销（WP6）](#content)
-
-第一组 GPU 数字（2026-09-05，1×A100-80GB，Qwen3-VL-4B-Instruct 真实权重，VLAct 冻结，batch 8，前向+反向）：
-
-| 配置 | s/step | 峰值显存 | 时间 vs OFT 单头 |
-|---|---:|---:|---:|
-| OFT 单头（≈ QwenOFT） | 1.27 | 15.4 GB | 1.00× |
-| PI 单头（≈ QwenPI_v3，538M 参数的头） | 1.64 | 22.0 GB | 1.29× |
-| 三头 OFT + GR00T + PI（VLAct (c)） | 1.95 | 27.2 GB | 1.54× |
-| 三头 + 头 dropout（每步一个头） | 1.54 | 25.0 GB | 1.21× |
-
-三头共监督的代价是单头的约 1.5 倍、而不是 3 倍（骨干前向共享，头相对骨干小），头 dropout 再省 1/5；屏蔽 OFT 查询位不增加成本。设置、逐项数字、推理延迟与两个复现坑（显存统计的顺序伪影、bf16 骨干 × fp32 头）见 [`experiments/results/wp6_overhead/README.md`](experiments/results/wp6_overhead/README.md)；脚本 `scripts/gpu_overhead_bench.py` + `scripts/cluster/{sync_to_node,setup_gpu_env,run_overhead_bench}.sh` 可在任一有 Qwen3-VL-4B 权重的单卡机器上复现（`--device cpu` 配迷你随机 checkpoint 可先在笔记本上走通流程）。
-
-### [5.5 真实数据微调冒烟（F0）：三头不伤 OFT 头，漂移度量需要重定义](#content)
-
-LIBERO-goal（LeRobot v2.1，52k 帧）上 `QwenOFT` 与 `QwenMultiHead` 各 300 步，1×A100，同一数据同一超参（2026-09-06）：
-
-| 运行 | OFT 头 L1（最后 50 步） | 其他头 | s/step | 峰值显存 |
-|---|---:|---|---:|---:|
-| `QwenOFT` | 0.244 | — | 1.86 | 29.8 GB |
-| `QwenMultiHead`（OFT + GR00T + PI） | **0.243** | pi 0.323，gr00t 0.432 | 2.70 | 47.1 GB |
-
-三头共监督在 300 步内对 OFT 头没有任何损害（VLAct 配方 (c) 的前提成立）。更重要的是一个方法学发现：训练中记录的逐层 1−CKA "漂移"几乎全部来自 `embed_tokens` 里 42–46 行 prompt 词嵌入的更新（相对变化仅 2e-5）被单场景探针批放大——换回预训练嵌入后，OFT 微调的骨干漂移只剩 0.0002，而三头模型的上层动了约 20 倍（0.0038，第 35 层 0.019；token 级 0.045）。WP1 的漂移度量因此改为"换回预训练嵌入 + token 级 CKA + 跨场景探针批"。细节、诊断表与这轮实跑修掉的 9 个问题见 [`experiments/results/f0_libero_goal_smoke/README.md`](experiments/results/f0_libero_goal_smoke/README.md)。
-
-**仍需 GPU**：LIBERO / RoboTwin 仿真评测（节点无仿真环境）、DeepSpeed 多卡下的每卡显存、WP1 跨头探针在 F0 最终模型上的首跑、任何长程（≥ 10k 步）训练效果数字。这些是[路线图](reports/07_research_roadmap.md)第 1 个月"复现 VLAct"的起点。
-
-## [6. Benchmarks Cheat Sheet](#content)
-
-面向"VLA 持续预训练 / 表示学习"研究的选择（依据见 [06 · 基准生态](reports/06_benchmarks_landscape.md) 第 5 章）：
+面向"VLA 持续预训练 / 表示学习"研究的基准选择，依据见 [06 · 基准生态](reports/06_benchmarks_landscape.md) 第 5 章：
 
 | 优先级 | 基准 | 考察 | 要点 |
 |---|---|---|---|
 | 1 | LIBERO-plus | 零样本鲁棒性（Camera / Robot / Language / Light / Background / Noise / Layout） | 训练集固定为标准 LIBERO，提升只能来自骨干；10,030 实例 |
-| 2 | RoboTwin 2.0 **Base** | 少样本（50 clean/任务）+ clean→random | clean 与 random 必须同时报；Data Scaling 只作补充曲线 |
+| 2 | RoboTwin 2.0 **Base** | 少样本（50 clean / 任务）+ clean→random | clean 与 random 必须同时报；Data Scaling 只作补充曲线 |
 | 3 | RoboCasa-GR1 数据比例曲线 | 未见人形本体的样本效率 | 10% / 20% / 50% / 100%，基线也要跑同样比例点 |
-| 4 | VLA-Arena | L0→L1/L2 结构外推 + 安全代价 | 官方 30 episodes/任务，StarVLA 默认 10 |
+| 4 | VLA-Arena | L0→L1/L2 结构外推 + 安全代价 | 官方 30 episodes / 任务，StarVLA 默认 10 |
 | 5 | RoboDojo | 第三方裁判 + Generalization / Precision / Long-Horizon / Memory / Open 五维 | 适合最终报告；Memory 维度几乎人人接近零 |
+| 记忆 | RoboTwin-MeM / RMBench | 需记忆的关键帧数 n = 1–5 可控 / 持久布局记忆 | 协议细节（100 集、unseen 指令、LargeView、步数上限）见 [11 · 代码审计](reports/11_eventvla_code_audit.md) §4 |
 | 不建议 | LIBERO 标准版、SimplerEnv、MetaWorld、CALVIN D→D、BEHAVIOR-1K | | 饱和（95–98）、方差大、或评测成本极高 |
 
-报告协议：固定下游预算并写明 checkpoint 规则；≥3 seeds；区分见过 / held-out 本体（VLAct 只有 GR1 与 ARX X5 是真 held-out）；附表示层诊断（跨头迁移矩阵）。
+报告协议：固定下游预算并写明 checkpoint 规则；≥ 3 seeds；区分见过 / held-out 本体（VLAct 只有 GR1 与 ARX X5 是真 held-out）；附表示层诊断（跨头迁移矩阵）。
 
-## [7. Research Roadmap](#content)
+### 5.3 Roadmap
 
-完整版见 [07 · 研究路线图](reports/07_research_roadmap.md)。六类 18 个方向：
+完整版见 [07 · 研究路线图](reports/07_research_roadmap.md)，执行计划见 [10 · 改进方案](reports/10_improvement_plan.md)。六类 18 个方向：
 
 | 类别 | 方向 | 出发点 |
 |---|---|---|
 | A 表征诊断 | A1 骨干可复用性探针套件；A2 自动化"哪层该冻" | decoder lock-in 只能间接观察；冻结只有 3 档消融 |
 | B 预训练目标 | B1 头多样性推广（FAST / 未来帧 / 空间 QA 头）；B2 辅助数据调度；B3 潜动作 vs 多头；B4 世界模型辅助头 | 三头同头 +1.6～4.3；全混合被稀释；"广义 VLA 视角" |
 | C 动作空间 | C1 可学习的部分统一布局；C2 几何一致参数化（SO(3)）；C3 零样本本体迁移 | 20 维手工表；wrap loss +5；GR1 20% 才 49.5 |
-| D 能力短板 | D1 记忆与长程；D2 语言泛化；D3 低数据下生成式头落后 | Memory 0.66；Language −5.5；Random 下 OFT 41.5 vs GR00T 22.9 |
-| E 系统 scaling | E1 规模曲线；E2 三头开销与降本；E3 数据 × 配方 Pareto | 只有 4B；开销未量化 |
-| F 评测方法 | F1 骨干基准协议；F2 generalist × 持续预训练；F3 真机统计功效 | "只换骨干"未标准化；两条线未合并；n=10 |
+| D 能力短板 | D1 记忆与长程（EventVLA 路线）；D2 语言泛化；D3 低数据下生成式头落后 | Memory 0.66；Language −5.5；Random 下 OFT 41.5 vs GR00T 22.9 |
+| E 系统 scaling | E1 规模曲线；E2 三头开销与降本；E3 数据 × 配方 Pareto | 只有 4B；开销已量化为 1.54×（§3.1） |
+| F 评测方法 | F1 骨干基准协议；F2 generalist × 持续预训练；F3 真机统计功效 | "只换骨干"未标准化；两条线未合并；n = 10 |
 
-先做（高影响、低成本）：A1 诊断套件、F1 骨干基准脚本、E2 三头开销测量。六个月计划以 16 GPU 为前提，每月一个交付物，最后一个月整合最优组合、全基准评测并向 StarVLA 提 PR。
+先做（高影响、低成本）：A1 诊断套件、F1 骨干基准脚本、E2 三头开销测量（已完成第一组数字）。六个月计划以 16 GPU 为前提，每月一个交付物，最后一个月整合最优组合、全基准评测并向 StarVLA 提 PR。
 
-## [8. Repository Layout](#content)
+## [6. Repository Layout & Build](#contents)
 
 ```
 awesome_starvla/
-├── README.md                       # 本文件：论文列表 + 导读
+├── README.md                       # 由 scripts/build_readme.py 生成：assets/readme_head.md + papers_curated.md + readme_tail.md
 ├── CONTRIBUTING.md                 # 条目格式、核验要求、报告写作规范
 ├── LICENSE                         # CC BY 4.0（报告、README、幻灯片）
 ├── papers/
-│   ├── en/                         # 七篇论文英文原版 PDF（arXiv，均 CC BY 4.0）
+│   ├── en/                         # 7 篇论文英文原版 PDF（arXiv，均 CC BY 4.0）
 │   └── zh/                         # 保版式中文翻译 PDF + 翻译缓存 + QA 报告
 ├── reports/                        # 11 份中文深度报告（01–11）
 ├── report/
-│   ├── awesome_starvla_slides.tex  # Beamer 源码（XeLaTeX + ctex，16:9）
-│   ├── awesome_starvla_slides.pdf  # 29 页
-│   ├── awesome_starvla_slides.pptx # 18 页原生 PPTX（ppt-master 生成）
-│   ├── action_heads_lecture_slides.tex / .pdf   # 四种动作头讲解幻灯片（20 页，配 reports/08）
-│   ├── pptx_src/                   # PPTX 的 SVG 源页 + 质量报告 + 导出报告
-│   ├── awesome_starvla_full_report.html / .pdf   # 44 页合订全文报告
+│   ├── awesome_starvla_slides.tex / .pdf        # 29 页 Beamer（XeLaTeX + ctex，16:9）
+│   ├── awesome_starvla_slides.pptx              # 18 页原生 PPTX（ppt-master 生成；SVG 源页在 pptx_src/）
+│   ├── action_heads_lecture_slides.tex / .pdf   # 20 页动作头讲解幻灯片（配 reports/08）
+│   └── awesome_starvla_full_report.html / .pdf  # 62 页合订全文报告
 ├── code/
-│   ├── vlact_ext/                  # VLAct 缺失组件的 StarVLA 扩展（多头框架、wrap loss、统一布局、冻结规则）+ 61 个测试
-│   ├── starvla_lab/                # 改进方案研究包：probes / schedules / heads / data / train / bench / configs + 110 个测试
-│   └── EventVLA/                   # git 子模块：EventVLA 模型 + RoboTwin-MeM 基准（基于 StarVLA-OFT）
+│   ├── vlact_ext/                  # VLAct 配方扩展包（多头框架、wrap loss、统一布局、冻结规则）+ 61 个测试
+│   ├── starvla_lab/                # 改进方案研究包（probes / schedules / heads / data / train / bench / configs）+ 110 个测试
+│   └── EventVLA/                   # git 子模块：EventVLA 模型 + RoboTwin-MeM 基准
 ├── experiments/
 │   ├── README.md                   # 运行清单与结果 JSON 约定
 │   ├── run_matrix*.csv             # 主矩阵（92 次）与跨头矩阵（各 8 次）
 │   ├── budget.md                   # 全量 GPU 小时预算（脚本生成）
-│   └── results/                    # 每次运行一个 JSON，summarize_results 聚合
+│   └── results/                    # wp6_overhead/、f0_libero_goal_smoke/：每次运行一个 JSON + README
 ├── assets/
-│   ├── papers_curated.md           # 120 条文献编目（README 第 4 节的源）
+│   ├── papers_curated.md           # 120 条文献编目（第 4 节的源）
 │   ├── starvla_code_facts.md       # 代码库硬事实卡片（数字、路径、接口签名）
-│   ├── fig1_timeline.svg           # 图 1：120 篇文献时间线（由 make_figures.py 生成）
-│   ├── fig2_taxonomy.svg           # 图 2：设计空间分类树
-│   └── readme_head.md / readme_tail.md   # README 的非论文部分（build_readme.py 的输入）
+│   ├── fig1_timeline.svg / fig2_taxonomy.svg    # 图 1 / 图 2（make_figures.py 生成）
+│   └── readme_head.md / readme_tail.md          # README 的非论文部分
 └── scripts/
-    ├── build_slides.sh             # 编译幻灯片
-    ├── build_readme.py             # 从 head/tail 与 papers_curated.md 拼装 README
+    ├── build_readme.py             # 拼装 README
     ├── build_full_report.py        # 合订全文报告（pandoc + Chrome headless）
-    ├── build_run_matrix.py         # 从 starvla_lab/configs 生成 experiments/run_matrix.csv
+    ├── build_slides.sh             # 编译幻灯片（XeLaTeX + Fandol 字体）
+    ├── build_run_matrix.py         # 从 starvla_lab/configs 生成 experiments/run_matrix*.csv 与 budget.md
     ├── make_figures.py             # 生成图 1 / 图 2
-    └── translate_papers.sh         # super_translate 翻译流程
+    ├── translate_papers.sh         # super_translate 翻译流程
+    ├── setup_cpu_env.sh / smoke_starvla_integration.py   # §3.3 的 CPU 集成环境与冒烟
+    ├── gpu_overhead_bench.py / analyze_f0.py / probe_diagnostics.py   # §3.1 的 GPU 实验与分析
+    └── cluster/                    # sync_to_node / setup_gpu_env / run_overhead_bench / run_f0_smoke
 ```
 
-## [9. Translation & Build Pipeline](#content)
+构建与流程：
 
-- **翻译**：[super_translate](https://github.com/asimfish/super_translate) `paper-translate` skill，DeepSeek 后端，`--preserve-graphics-text`（图表内文字与公式原样保留），译后 `inspect` 视觉 QA。三篇的 QA 报告随 PDF 存放在 `papers/zh/*.inspect.json`。已知瑕疵：VLAct 中文版 p29 公式内指示函数文字保留英文、p30 一行字号偏小；StarVLA-α 中文版 p16 附录目录 9 条保留英文（带 hyperref 引用被判为保护区）；StarVLA 报告中文版 p15 一处字号偏小；GR00T N1 中文版 p22 / p25 五处图表内保留文字的渲染墨迹密度与原文略有差异（非漏译）；FAST、OpenVLA-OFT、EventVLA 中文版 QA 零问题。正文均已翻译。
+- **README**：改 `assets/readme_head.md`、`assets/readme_tail.md` 或 `assets/papers_curated.md`，然后 `python3 scripts/build_readme.py`；不要直接编辑 README.md。
+- **翻译**：[super_translate](https://github.com/asimfish/super_translate) `paper-translate` skill，DeepSeek 后端，`--preserve-graphics-text`（图表内文字与公式原样保留），译后 `inspect` 视觉 QA，报告随 PDF 存放在 `papers/zh/*.inspect.json`。已知瑕疵：VLAct 中文版 p29 公式内指示函数文字保留英文、p30 一行字号偏小；StarVLA-α 中文版 p16 附录目录 9 条保留英文（带 hyperref 引用被判为保护区）；StarVLA 报告中文版 p15 一处字号偏小；GR00T N1 中文版 p22 / p25 五处图表内保留文字的渲染墨迹密度与原文略有差异（非漏译）；EventVLA 中文版 p4 绕图排版的窄栏中文溢出到图 2 边缘。正文均已翻译。
 - **合订报告与图**：`python3 scripts/make_figures.py && python3 scripts/build_full_report.py --pdf`（需要 pandoc 与 Google Chrome；公式由 MathJax 渲染，报告源文件统一用 `$...$` / `$$...$$` 定界以兼容 GitHub）。
-- **PPTX**：用 [ppt-master](https://github.com/hugohe3/ppt-master) v6.2 的 Quick Generate 档从 Beamer 内容重排为 18 页，SVG 源页在 `report/pptx_src/`，可用其 `svg_to_pptx.py --quick-generate --native-charts-and-tables` 重新导出。字体为 Microsoft YaHei / Arial，文本框 `wrap=none`；用 LibreOffice 预览时缺少 YaHei 会出现假性折行，PowerPoint 中正常（已按真实字体度量核对：无任何一行超出页面右边距）。
-- **幻灯片**：`bash scripts/build_slides.sh`，需要 XeLaTeX 与 Fandol 字体（MiKTeX / TeX Live 均可）。遵循 [beamer-skill](https://github.com/Noi1r/beamer-skill) 规范：16:9、10pt、无 overlay、每页 ≤2 个彩色框、参考文献页 + 备份页。
-- **写作**：报告与 README 按 [anti-defensive-writing](https://github.com/Kiterlin/anti-defensive-writing) 与 [shuorenhua](https://github.com/MrGeDiao/shuorenhua) 的规则写：直接陈述、不做防御性免责、不用"值得注意的是 / 综上所述"类套话、术语保留英文、数字必须有出处。
+- **幻灯片**：`bash scripts/build_slides.sh`，需要 XeLaTeX 与 Fandol 字体，遵循 [beamer-skill](https://github.com/Noi1r/beamer-skill) 规范（16:9、10pt、无 overlay、每页 ≤ 2 个彩色框）。PPTX 由 [ppt-master](https://github.com/hugohe3/ppt-master) v6.2 Quick Generate 从 Beamer 内容重排为 18 页，可用其 `svg_to_pptx.py --quick-generate --native-charts-and-tables` 重新导出；字体 Microsoft YaHei / Arial，LibreOffice 预览缺字体时会假性折行，PowerPoint 中正常。
+- **写作**：报告与 README 按 [anti-defensive-writing](https://github.com/Kiterlin/anti-defensive-writing) 与 [shuorenhua](https://github.com/MrGeDiao/shuorenhua) 的规则：直接陈述、不做防御性免责、不用"值得注意的是 / 综上所述"类套话、术语保留英文、数字必须有出处。
 - **文献核验**：每条 arXiv 链接用 `curl "http://export.arxiv.org/api/query?id_list=<ID>"` 取回标题逐条比对；GitHub / 项目页链接经 HTTP 200 检查（2026-09-04）。
 
-## [10. License & Credits](#content)
+## [7. License & Citation](#contents)
 
-- 本仓库的报告、README、幻灯片与编目文字以 [CC BY 4.0](LICENSE) 发布；`scripts/` 下的脚本以 MIT 发布。
-- `papers/en/` 七篇论文均由作者以 CC BY 4.0 授权发布于 arXiv（[2604.05014](https://arxiv.org/abs/2604.05014)、[2604.11757](https://arxiv.org/abs/2604.11757)、[2608.27550](https://arxiv.org/abs/2608.27550)、[2501.09747](https://arxiv.org/abs/2501.09747)、[2502.19645](https://arxiv.org/abs/2502.19645)、[2503.14734](https://arxiv.org/abs/2503.14734)、[2606.20092](https://arxiv.org/abs/2606.20092)）；`papers/zh/` 是它们的翻译衍生作品，同样遵循 CC BY 4.0 并保留原作者署名。版权归原作者所有。π0（[2410.24164](https://arxiv.org/abs/2410.24164)）为 arXiv 非独占许可，本仓库不分发其 PDF 或译文，只提供链接。
-- StarVLA 代码库本身以 MIT 发布于 [starVLA/starVLA](https://github.com/starVLA/starVLA)，本仓库只分析、不分发其代码。
+- 本仓库的报告、README、幻灯片与编目文字以 [CC BY 4.0](LICENSE) 发布；`scripts/` 与 `code/vlact_ext`、`code/starvla_lab` 以 MIT 发布。
+- `papers/en/` 七篇论文均由作者以 CC BY 4.0 授权发布于 arXiv（[2604.05014](https://arxiv.org/abs/2604.05014)、[2604.11757](https://arxiv.org/abs/2604.11757)、[2608.27550](https://arxiv.org/abs/2608.27550)、[2501.09747](https://arxiv.org/abs/2501.09747)、[2502.19645](https://arxiv.org/abs/2502.19645)、[2503.14734](https://arxiv.org/abs/2503.14734)、[2606.20092](https://arxiv.org/abs/2606.20092)）；`papers/zh/` 是它们的翻译衍生作品，同样遵循 CC BY 4.0 并保留原作者署名，版权归原作者所有。π0（[2410.24164](https://arxiv.org/abs/2410.24164)）为 arXiv 非独占许可，只提供链接。
+- StarVLA 代码库以 MIT 发布于 [starVLA/starVLA](https://github.com/starVLA/starVLA)，本仓库只分析、不分发其代码；EventVLA（MIT）以子模块形式引用 [asimfish/EventVLA](https://github.com/asimfish/EventVLA)，仓库本身不含其代码副本。
 - 报告中的所有数字均注明来源（论文表号 / 页码、代码文件与行号、官方网址）。如发现错误，请开 issue。
-- 引用本仓库：
 
 ```bibtex
 @misc{awesome_starvla2026,
