@@ -32,7 +32,7 @@
 | 1 小时抓住主线 | [01 · VLAct 精读](reports/01_vlact_deep_dive.md) → [05 · 动作头与动作表示](reports/05_action_heads_and_representation.md) → [07 · 研究路线图](reports/07_research_roadmap.md) |
 | 搞懂四种动作头 | [08 · 讲稿](reports/08_action_heads_lecture.md)（60 分钟组会讲稿）+ [20 页讲解幻灯片](report/action_heads_lecture_slides.pdf) + 四篇源论文中译（`papers/zh/`） |
 | 上手 StarVLA 代码 | [02 · 代码库解析](reports/02_starvla_codebase_analysis.md)（第 9 章：VLAct 配方在代码中的落点；第 11 章：最短上手命令）→ [06 · 基准生态](reports/06_benchmarks_landscape.md)（第 5 章：基准选择）→ [`code/vlact_ext/README.md`](code/vlact_ext/README.md) → [§3.3 本地跑通](#33-本地跑通不需要-gpu-和权重) |
-| 动手做改进 | [10 · 改进方案](reports/10_improvement_plan.md)（研究问题 → 工作包 → 实验矩阵 → 决策门）→ [`code/starvla_lab/README.md`](code/starvla_lab/README.md) → [`experiments/README.md`](experiments/README.md)；动 EventVLA 之前先读 [11 · 代码审计](reports/11_eventvla_code_audit.md) |
+| 动手做改进 | [10 · 改进方案](reports/10_improvement_plan.md)（研究问题 → 工作包 → 实验矩阵 → 决策门）→ [`code/starvla_lab/README.md`](code/starvla_lab/README.md) → [`experiments/README.md`](experiments/README.md)；动 EventVLA 之前先读 [11 · 代码审计](reports/11_eventvla_code_audit.md)；要在基准上跑数字，用 [robocore](https://github.com/asimfish/robocore) 的 `robocore eval`（[BENCHMARKS.md](https://github.com/asimfish/robocore/blob/main/docs/BENCHMARKS.md)） |
 | 系统研读 | 按 04 → 03 → 01 → 02 → 05 → 06 → 07 → 09 → 11 → 10 的顺序读 `reports/`，配 `papers/zh/` 对照原文 |
 
 **7 篇核心论文**（英文原版与中文翻译均在 `papers/`；一句话摘要见第 4 节对应条目；⭐ = StarVLA 团队或基于 StarVLA 代码库）：
@@ -69,7 +69,7 @@
 
 ## [3. Code & Experiments](#contents)
 
-三个代码目录都**不修改 StarVLA 源码**：前两个是拷入即用的扩展包，第三个是子模块。
+三个代码目录都**不修改 StarVLA 源码**：前两个是拷入即用的扩展包，第三个是子模块。代码的长期归宿是 [robocore](https://github.com/asimfish/robocore)（以 StarVLA fork 为引擎的祖传具身库：StarVLA 双向桥接、`robocore eval` 基准编排与结果台账、20 个基准 × 31 条 baseline 的[支持矩阵](https://github.com/asimfish/robocore/blob/main/docs/SUPPORT_MATRIX.md)）；`vlact_ext` 与 `starvla_lab` 目前在这里开发、由 `robocore/scripts/sync_ext.py` 单向同步到 robocore 的 `ext/`，定稿后迁移。本仓库保留论文、报告与实验解读。
 
 | 目录 | 内容 | 验证 |
 |---|---|---|
@@ -967,7 +967,7 @@ awesome_starvla/
 
 - 本仓库的报告、README、幻灯片与编目文字以 [CC BY 4.0](LICENSE) 发布；`scripts/` 与 `code/vlact_ext`、`code/starvla_lab` 以 MIT 发布。
 - `papers/en/` 七篇论文均由作者以 CC BY 4.0 授权发布于 arXiv（[2604.05014](https://arxiv.org/abs/2604.05014)、[2604.11757](https://arxiv.org/abs/2604.11757)、[2608.27550](https://arxiv.org/abs/2608.27550)、[2501.09747](https://arxiv.org/abs/2501.09747)、[2502.19645](https://arxiv.org/abs/2502.19645)、[2503.14734](https://arxiv.org/abs/2503.14734)、[2606.20092](https://arxiv.org/abs/2606.20092)）；`papers/zh/` 是它们的翻译衍生作品，同样遵循 CC BY 4.0 并保留原作者署名，版权归原作者所有。π0（[2410.24164](https://arxiv.org/abs/2410.24164)）为 arXiv 非独占许可，只提供链接。
-- StarVLA 代码库以 MIT 发布于 [starVLA/starVLA](https://github.com/starVLA/starVLA)，本仓库只分析、不分发其代码；EventVLA（MIT）以子模块形式引用 [asimfish/EventVLA](https://github.com/asimfish/EventVLA)，仓库本身不含其代码副本。
+- `code/vlact_ext`、`code/starvla_lab` 以 MIT 发布，并以同一许可同步到 [robocore](https://github.com/asimfish/robocore) 的 `ext/`。StarVLA 代码库以 MIT 发布于 [starVLA/starVLA](https://github.com/starVLA/starVLA)，本仓库只分析、不分发其代码；EventVLA（MIT）以子模块形式引用 [asimfish/EventVLA](https://github.com/asimfish/EventVLA)，仓库本身不含其代码副本。
 - 报告中的所有数字均注明来源（论文表号 / 页码、代码文件与行号、官方网址）。如发现错误，请开 issue。
 
 ```bibtex

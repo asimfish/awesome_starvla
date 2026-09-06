@@ -104,7 +104,7 @@ awesome_starvla/
 
 - 本仓库的报告、README、幻灯片与编目文字以 [CC BY 4.0](LICENSE) 发布；`scripts/` 与 `code/vlact_ext`、`code/starvla_lab` 以 MIT 发布。
 - `papers/en/` 七篇论文均由作者以 CC BY 4.0 授权发布于 arXiv（[2604.05014](https://arxiv.org/abs/2604.05014)、[2604.11757](https://arxiv.org/abs/2604.11757)、[2608.27550](https://arxiv.org/abs/2608.27550)、[2501.09747](https://arxiv.org/abs/2501.09747)、[2502.19645](https://arxiv.org/abs/2502.19645)、[2503.14734](https://arxiv.org/abs/2503.14734)、[2606.20092](https://arxiv.org/abs/2606.20092)）；`papers/zh/` 是它们的翻译衍生作品，同样遵循 CC BY 4.0 并保留原作者署名，版权归原作者所有。π0（[2410.24164](https://arxiv.org/abs/2410.24164)）为 arXiv 非独占许可，只提供链接。
-- StarVLA 代码库以 MIT 发布于 [starVLA/starVLA](https://github.com/starVLA/starVLA)，本仓库只分析、不分发其代码；EventVLA（MIT）以子模块形式引用 [asimfish/EventVLA](https://github.com/asimfish/EventVLA)，仓库本身不含其代码副本。
+- `code/vlact_ext`、`code/starvla_lab` 以 MIT 发布，并以同一许可同步到 [robocore](https://github.com/asimfish/robocore) 的 `ext/`。StarVLA 代码库以 MIT 发布于 [starVLA/starVLA](https://github.com/starVLA/starVLA)，本仓库只分析、不分发其代码；EventVLA（MIT）以子模块形式引用 [asimfish/EventVLA](https://github.com/asimfish/EventVLA)，仓库本身不含其代码副本。
 - 报告中的所有数字均注明来源（论文表号 / 页码、代码文件与行号、官方网址）。如发现错误，请开 issue。
 
 ```bibtex
