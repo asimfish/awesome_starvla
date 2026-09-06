@@ -124,8 +124,13 @@ class QwenBackboneProbe:
         inputs = vlm.build_qwenvl_inputs(images=[ex["image"] for ex in batch], instructions=[ex["lang"] for ex in batch])
         device = vlm.model.device
         inputs = {k: (v.to(device) if hasattr(v, "to") else v) for k, v in inputs.items()}
-        with self._pretrained_embeddings(fw):
-            out = vlm.model(**inputs, output_hidden_states=True, return_dict=True)
+        # Same compute path as training: StarVLA wraps the backbone in bf16 autocast, which is also what makes a
+        # backbone with mixed fp32 (trainable, `backbone_fp32`) and bf16 (frozen) parameters run at all.
+        with self._pretrained_embeddings(fw), torch.autocast(device_type="cuda", dtype=torch.bfloat16, enabled=device.type == "cuda"):
+            try:  # only the hidden states are needed; skip the full-vocabulary logits when the model supports it
+                out = vlm.model(**inputs, output_hidden_states=True, return_dict=True, logits_to_keep=1)
+            except TypeError:
+                out = vlm.model(**inputs, output_hidden_states=True, return_dict=True)
         hidden = out.hidden_states[1:]
 
         valid = inputs["attention_mask"].bool()

@@ -6,7 +6,8 @@
 #   e.g. bash run_cross_head_probe.sh cross_head_f0v3 oft=f0v3_oft multihead=f0v3_multihead oft_embedfrozen=f0v3_oft_embedfrozen
 #
 # Env: PY (required), WORK, DATA_ROOT, CONFIG, DATA_MIX (probe samples; default LIBERO-goal + LIBERO-spatial),
-#      N_SAMPLES (default 2048). Uses CUDA_VISIBLE_DEVICES (default 0). Output: $WORK/results/<out_name>/.
+#      N_SAMPLES (default 2048), EXTRA_ARGS (appended verbatim, e.g. "--query_layers 33,34,35 --no_pooled --no_retention").
+#      Uses CUDA_VISIBLE_DEVICES (default 0). Output: $WORK/results/<out_name>/.
 set -euo pipefail
 
 OUT_NAME="${1:?output name}"
@@ -36,5 +37,5 @@ echo "[probe] host=$(hostname) gpu=$CUDA_VISIBLE_DEVICES out=$WORK/results/$OUT_
 cd "$WORK/starVLA"
 "$PY" "$WORK/awesome_starvla/scripts/cross_head_probe.py" \
   --config "$CONFIG" --data_root_dir "$DATA_ROOT" --data_mix "$DATA_MIX" --n_samples "$N_SAMPLES" \
-  --out "$WORK/results/$OUT_NAME" "${VARIANTS[@]}"
+  --out "$WORK/results/$OUT_NAME" "${VARIANTS[@]}" ${EXTRA_ARGS:-}
 echo "[probe] finished"
