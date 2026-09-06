@@ -1,0 +1,99 @@
+# F5 · 放大一档：LIBERO-goal + LIBERO-spatial 两套共训 2000 步（1 卡，fp32 主权重），QwenOFT vs QwenMultiHead
+#
+# 目的：检验方案 §10 的核心待检假设——"多头共监督写进骨干的动作表征，会随任务多样性变通用"。F0–F4 都是 1 套 × 300 步；
+#      这里 2 套 × 2000 步，然后 (a) 跨头探针在 goal / spatial / **object（完全未见）** 三套上测查询位可读性与跨套迁移；
+#      (b) F2 协议：冻结 F5 骨干 + 新 OFT 头在 object 上训 300 步。
+#
+# 与 F0 v3 的差别：训练混合 goal+spatial（内联 data_mix，运行时注册）、2000 步、warmup 100、探针每 100 次更新、探针批
+# 来自 goal+spatial+object（48 样本、30 条指令）、保存最终模型、fp32 主权重、冻结 embed_tokens。其余（lr、冻结、batch）不变。
+#
+# 启动：scripts/cluster/run_f5_scale.sh（含探针与 object 迁移）
+
+run_id: f5_libero_2suite_2k
+run_root_dir: /home/dataset-assist-0/liyufeng/awesome_starvla_work/checkpoints
+seed: 42
+wandb_entity: none
+wandb_project: awesome_starvla
+is_debug: false
+version_id: "0.21"
+
+framework:
+  name: QwenOFT                     # 每次运行用 --framework.name 覆盖：QwenOFT | QwenMultiHead | QwenMultiHeadLab
+  qwenvl:
+    base_vlm: /home/dataset-assist-0/wangpeishuo/Pretrained_models/Qwen3-VL-4B-Instruct
+    attn_implementation: sdpa
+  action_model:
+    action_dim: 7
+    state_dim: 7                    # QwenMultiHead 请覆盖为 0（state 走文本，GR00T 头不建 state_encoder）
+    action_horizon: 8
+  # 以下仅 QwenMultiHead 读取（QwenOFT 忽略）
+  heads:
+    oft:   {enabled: true, loss_weight: 1.0}
+    gr00t: {enabled: true, loss_weight: 1.0}
+    pi:    {enabled: true, loss_weight: 1.0}
+  predict_head: oft
+  mask_oft_queries_for_fm_heads: false
+  wrap_aware: {enabled: false}      # LIBERO 是 7 维 delta EE，无周期关节
+  unified_layout: {enabled: false}
+
+datasets:
+  vla_data:
+    dataset_py: lerobot_datasets
+    data_root_dir: /home/dataset-assist-0/liyufeng/datasets/LEROBOT_LIBERO_DATA
+    data_mix: "libero_goal_no_noops_1.0.0_lerobot:libero_franka,libero_spatial_no_noops_1.0.0_lerobot:libero_franka"
+    action_type: delta_qpos
+    sequential_step_sampling: false
+    per_device_batch_size: 8
+    load_all_data_for_training: true
+    video_backend: torchvision_av
+    obs_image_size: [224, 224]
+
+trainer:
+  max_train_steps: 2000
+  num_warmup_steps: 100
+  save_interval: 100000             # 冒烟不落盘 checkpoint（4B 骨干 ≈ 10 GB）
+  eval_interval: 200
+  learning_rate:
+    base: 2.5e-05
+    qwen_vl_interface: 1.0e-05
+    action_model: 1.0e-04
+  lr_scheduler_type: cosine_with_min_lr
+  scheduler_specific_kwargs:
+    min_lr: 1.0e-06
+  # VLAct 配方 (a)：视觉编码器 + LLM 前 18 层；等价于 vlact_ext 语法 "…visual,llm_layers_below:18"，此处展开成原生精确路径。
+  # embed_tokens 也冻结（F0 v3 消融：损失不变；探针更干净；fp32 主权重下省 6 GB）
+  freeze_modules: 'qwen_vl_interface.model.model.visual,qwen_vl_interface.model.model.language_model.embed_tokens,qwen_vl_interface.model.model.language_model.layers.0,qwen_vl_interface.model.model.language_model.layers.1,qwen_vl_interface.model.model.language_model.layers.2,qwen_vl_interface.model.model.language_model.layers.3,qwen_vl_interface.model.model.language_model.layers.4,qwen_vl_interface.model.model.language_model.layers.5,qwen_vl_interface.model.model.language_model.layers.6,qwen_vl_interface.model.model.language_model.layers.7,qwen_vl_interface.model.model.language_model.layers.8,qwen_vl_interface.model.model.language_model.layers.9,qwen_vl_interface.model.model.language_model.layers.10,qwen_vl_interface.model.model.language_model.layers.11,qwen_vl_interface.model.model.language_model.layers.12,qwen_vl_interface.model.model.language_model.layers.13,qwen_vl_interface.model.model.language_model.layers.14,qwen_vl_interface.model.model.language_model.layers.15,qwen_vl_interface.model.model.language_model.layers.16,qwen_vl_interface.model.model.language_model.layers.17'
+  loss_scale:
+    vla: 1.0
+    vlm: 0.0
+  max_grad_norm: 1.0
+  weight_decay: 0.0
+  logging_frequency: 10
+  gradient_clipping: 1.0
+  gradient_accumulation_steps: 1
+  gradient_checkpointing: true
+  optimizer:
+    name: AdamW
+    betas: [0.9, 0.95]
+    eps: 1.0e-08
+    weight_decay: 1.0e-08
+  lab:
+    mode: single
+    # F4（experiments/results/f4_fp32_master_weights）：单卡无 DeepSpeed 时 StarVLA 直接在 bf16 权重上做 AdamW 更新，lr 1e-5 的更新对多数
+    # 权重不足半个 ulp 会被舍掉（OFT 损失 0.247 vs fp32 0.183）。可训练骨干参数升 fp32、计算仍 bf16 autocast；OFT 44 GB、三头 58 GB。
+    backbone_fp32: true
+    probes:
+      enabled: true
+      every_n_steps: 100
+      calibrate_only: true
+      record_initial: true
+      probe_batch_size: 48
+      representation: token             # 主指标：token 级 CKA
+      secondary_representation: pooled  # 次指标：mean-pool（v1/v2 的口径），写入 JSONL 的 drift_secondary
+      token_subset: all
+      max_tokens: 4096
+      restore_pretrained_embeddings: true
+      probe_data_mix: "libero_goal_no_noops_1.0.0_lerobot:libero_franka,libero_spatial_no_noops_1.0.0_lerobot:libero_franka,libero_object_no_noops_1.0.0_lerobot:libero_franka"
+      stratify_by_instruction: true
+      pool_factor: 4
+      jsonl_path: /home/dataset-assist-0/liyufeng/awesome_starvla_work/checkpoints/f5_libero_2suite_2k/lab_probes.jsonl
