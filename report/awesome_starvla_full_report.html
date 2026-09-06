@@ -38,7 +38,7 @@ img{max-width:100%}
 <div class="cover">
   <div class="t1">从 StarVLA 到 VLAct：<br>VLA 持续预训练的表示中心路线<br>调研全文报告</div>
   <div class="t2">三篇论文（StarVLA 技术报告 · StarVLA-α · VLAct）+ 一个代码库的系统调研：11 份深度报告合订<br>核心论点——VLM 骨干是 VLA 的一阶设计变量，预训练不是双刃剑，配方决定符号</div>
-  <div class="meta">构建日期：2026-09-05<br>材料范围：arXiv 2604.05014 · 2604.11757 · 2608.27550；StarVLA 代码库快照 starVLA_dev @ d81fc66；120 篇文献编目<br>配套材料：7 篇英文 PDF · 7 篇中译 PDF · 29 页 Beamer 幻灯片 · 图 1 时间线 / 图 2 设计空间（assets/）· VLAct 缺失组件的 StarVLA 扩展代码（code/vlact_ext/）<br>仓库：github.com/asimfish/awesome_starvla · 许可：CC BY 4.0</div>
+  <div class="meta">构建日期：2026-09-06<br>材料范围：arXiv 2604.05014 · 2604.11757 · 2608.27550；StarVLA 代码库快照 starVLA_dev @ d81fc66；120 篇文献编目<br>配套材料：7 篇英文 PDF · 7 篇中译 PDF · 29 页 Beamer 幻灯片 · 图 1 时间线 / 图 2 设计空间（assets/）· VLAct 缺失组件的 StarVLA 扩展代码（code/vlact_ext/）<br>仓库：github.com/asimfish/awesome_starvla · 许可：CC BY 4.0</div>
 </div>
 <div class="toc"><h1 class="first" style="page-break-before:avoid">目录</h1><ol><li>01 · VLAct 精读：以表示为中心的 VLA 持续预训练</li><li>StarVLA 代码库深度分析报告</li><li>03 · StarVLA-α 解读：把 VLA 系统的复杂度降下来</li><li>04 · StarVLA 技术报告解读：一个乐高式 VLA 代码库的设计契约</li><li>05 · 动作头与动作表示：原理、证据与选型</li><li>06 · StarVLA 支持的评测基准全景与 VLAct 评测协议</li><li>07 · 研究路线图：在 StarVLA / VLAct 之上做什么</li><li>08 · 讲稿：四种动作头（FAST / OFT / PI / GR00T）到底是什么</li><li>09 · EventVLA 解读：给 StarVLA-OFT 装上稀疏视觉证据记忆</li><li>10 · 改进方案：在 StarVLA / VLAct 之上搭一条可复现的研究线</li><li>11 · EventVLA 代码审计：论文与实现的差异、复现坑与改进落点</li></ol></div>
 <div class="figpage"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2680 836" font-family="PingFang SC, Hiragino Sans GB, Noto Sans CJK SC, Helvetica, sans-serif">
@@ -6518,9 +6518,13 @@ seed，输入一组骨干 checkpoint，生成 StarVLA
 <td>单头 vs 三头 vs 三头 + 辅助头的前向 / 反向时间、峰值显存、samples/s
 的测量脚本（对齐 StarVLA issue #158 的口径）；头
 dropout（每步随机只激活一个头）作为降本选项</td>
-<td>CPU 上用 mock 骨干 smoke 通过；输出 CSV</td>
+<td>CPU 上用 mock 骨干 smoke 通过；输出 CSV。<strong>GPU
+数字已测</strong>（2026-09-05，1×A100，Qwen3-VL-4B，batch 8，VLAct
+冻结）：三头 = OFT 单头的 1.54× 时间、27.2 GB 峰值；头 dropout
+1.21×；屏蔽 OFT 查询位无额外开销；见 <a
+href="https://github.com/asimfish/awesome_starvla/blob/main/experiments/results/wp6_overhead/README.md"><code>experiments/results/wp6_overhead/</code></a></td>
 <td>vlact_ext</td>
-<td>A（数字 B）</td>
+<td>A + B（开销数字）</td>
 </tr>
 <tr>
 <td>WP7</td>
@@ -6770,7 +6774,7 @@ batch 固定；checkpoint 规则固定为"最后一个"；3 seeds 报均值 ±
 <h2 id="5-代码组织与规范">5. 代码组织与规范</h2>
 <pre><code>code/
 ├── vlact_ext/                 # 已有：VLAct 配方（只修 bug；本轮加了 active_heads 头 dropout 开关）
-└── starvla_lab/               # 本方案的研究包（110 个 CPU 测试）
+└── starvla_lab/               # 本方案的研究包（127 个 CPU 测试）
     ├── probes/                #   WP1：action_probe.py, cka.py, drift.py, hooks.py
     ├── schedules/             #   WP2 / WP4：llrd.py, aux_scheduler.py
     ├── heads/                 #   WP3：feature_prediction_head.py, keyframe_head.py, register.py
@@ -6809,7 +6813,10 @@ experiments/
 </tr>
 <tr>
 <td>探针与下游不相关（G2 失败）</td>
-<td>探针降级为报告项，不影响后续 WP；Q1 记为负结果并分析原因</td>
+<td>探针降级为报告项，不影响后续 WP；Q1 记为负结果并分析原因。F0
+首跑已表明两种探针能分开"改写了多少"（保留度）与"读出了多少"（可读性）：300
+步 regime 里三头模型顶层改写 240× 却无可读性收益、保留度低 2
+个百分点；G2 要在 R3 的 checkpoint 上看这两条曲线是否随规模分离</td>
 </tr>
 <tr>
 <td>辅助头与动作头梯度冲突</td>
@@ -6827,11 +6834,54 @@ experiments/
 的配置并在报告里给出标定图</td>
 </tr>
 <tr>
+<td><strong>单卡 bf16 路径的更新量化（F3
+实测，2026-09-06）</strong></td>
+<td>StarVLA 以 bf16 加载 VLM，<code>STARVLA_DISABLE_DEEPSPEED=1</code>
+时 AdamW 直接更新 bf16 权重（无 fp32 主权重）；lr 1e-5 的单步更新对 |w|
+&gt; 2e-3 的权重不足半个
+ulp，被舍入丢弃，梯度方向一致的头（三头、flow-matching）更容易越过门槛——F0
+里 OFT 与三头 240× 的漂移差可能部分是舍入门槛效应；LLRD 把低层 lr 压到
+1e-7 后只剩偶发整 ulp 跳变（F3a
+的锯齿漂移与更差损失）。对策：<code>trainer.lab.backbone_fp32</code>（可训练骨干参数
+fp32、计算 bf16 autocast，对应 DeepSpeed 的 fp32 主权重）。<strong>F4
+已证实</strong>：同配置下损失好
+26%、漂移大一个数量级；单卡冒烟一律开此开关，bf16 数字只作历史对照；多卡
+DeepSpeed 路径不受影响</td>
+</tr>
+<tr>
 <td>度量口径不一致</td>
-<td>固定探测批：VLA 训练集前 64
-个样本（<code>probes.probe_batch_size</code>），逐层 mean-pool 隐状态算
-CKA，OFT 查询位隐状态拟合探针；所有变体共用同一批与同一
-<code>extract_fn</code></td>
+<td>固定探测批：<code>probes.probe_data_mix</code>
+指定的跨场景混合里按指令轮询抽 64
+个样本（<code>probes.probe_batch_size</code>），纯 VLM
+prompt、换回预训练 <code>embed_tokens</code>、token 级 CKA（≤ 4096
+个固定 token 位置）为主、mean-pool 为次，OFT
+查询位隐状态拟合探针；所有变体共用同一批与同一
+<code>QwenBackboneProbe</code>；记录以已完成的更新次数为步号</td>
+</tr>
+<tr>
+<td><strong>漂移度量被 <code>embed_tokens</code> 主导（F0
+实测，2026-09-06）</strong></td>
+<td>F0 在 LIBERO-goal 上的受控诊断（<a
+href="https://github.com/asimfish/awesome_starvla/blob/main/experiments/results/f0_libero_goal_smoke/README.md"><code>experiments/results/f0_libero_goal_smoke/</code></a>
+§3）：微调只改了 <code>embed_tokens</code> 的 42–46 行（相对变化
+~2e-5），却贡献了 mean-pool CKA 漂移的
+98%，冻结层也随之"漂移"；换回预训练嵌入后 OFT 微调的骨干漂移只有
+0.0002，三头模型 0.0038（第 35 层 0.019）。修正：(a)
+探针提取时临时换回预训练 <code>embed_tokens</code>，或把
+<code>embed_tokens</code> 加入冻结集合并作为消融（VLAct 未说明）；(b)
+主指标改为 token 级 CKA（几千 token 为样本），mean-pool 只作辅助；(c)
+探针批必须跨场景 / 跨任务（≥ 64 样本，LIBERO 四套 + RoboTwin
+混合），单场景批的 Gram 矩阵近退化；(d) M1
+的阈值标定用修正后的度量重做。<strong>已落实（F0
+v3，2026-09-06）</strong>：(a)(b)(c) 实现为
+<code>starvla_lab.probes.QwenBackboneProbe</code> +
+<code>probes.probe_data_mix</code>，接进
+<code>train_starvla_lab</code>；重跑后冻结层漂移精确为 0，单头 OFT 300
+步只在第 35 层动 2e-4，三头模型第 35 层 5e-2、第 33 层以下 &lt;
+1e-4，曲线单调饱和；冻结 <code>embed_tokens</code> 的消融损失不变（0.247
+vs 0.251），读数与"探针时换回"一致。(d) 的量级：单头逐层 &lt;
+3e-4，三头只有第 34–35 层 &gt; 1e-3，库默认阈值 0.10 / 0.05
+差两个数量级，R5 起点改为 1e-2 / 1e-3</td>
 </tr>
 <tr>
 <td>评测脚本参数约定各异</td>
@@ -6844,42 +6894,125 @@ CKA，OFT 查询位隐状态拟合探针；所有变体共用同一批与同一
 <h2 id="7-阶段-a-交付清单评审后更新">7. 阶段 A
 交付清单（评审后更新）</h2>
 <ul class="task-list">
-<li><label><input type="checkbox" checked="" />本方案（v2）</label></li>
-<li><label><input type="checkbox"
+<li><p><label><input type="checkbox"
+checked="" />本方案（v2）</label></p></li>
+<li><p><label><input type="checkbox"
 checked="" /><code>starvla_lab/probes</code>：跨头探针（闭式岭回归 +
 MLP）、线性 CKA、<code>DriftTracker</code>、<code>ProbeRunner</code>
-钩子</label></li>
-<li><label><input type="checkbox"
+钩子</label></p></li>
+<li><p><label><input type="checkbox"
 checked="" /><code>starvla_lab/schedules</code>：<code>layerwise_lr_decay_groups</code>（复用
-freeze_rules）、<code>DriftDrivenLLRD</code>、<code>AuxDataScheduler</code></label></li>
-<li><label><input type="checkbox"
+freeze_rules）、<code>DriftDrivenLLRD</code>、<code>AuxDataScheduler</code></label></p></li>
+<li><p><label><input type="checkbox"
 checked="" /><code>starvla_lab/heads</code>：<code>FutureFeaturePredictionHead</code>、<code>KeyframeHead</code>（软标签
 BCE、NMS /
-冷却写入策略、课程）、<code>QwenMultiHeadLab</code></label></li>
-<li><label><input type="checkbox"
+冷却写入策略、课程）、<code>QwenMultiHeadLab</code></label></p></li>
+<li><p><label><input type="checkbox"
 checked="" /><code>starvla_lab/data</code>：<code>TrajectorySubset</code>
 + <code>install_fraction_hook</code>（数据比例曲线）、未来特征缓存与
-transform、启发式 / 可插拔关键帧标注与 transform</label></li>
-<li><label><input type="checkbox"
+transform、启发式 / 可插拔关键帧标注与 transform</label></p></li>
+<li><p><label><input type="checkbox"
 checked="" /><code>starvla_lab/train</code>：<code>trainer.lab.*</code>
 配置、LLRD 优化器构建、<code>LabHooks</code> +
 <code>attach_to_trainer</code>、<code>train_starvla_lab.py</code>（单 /
-双 loader 两种模式）</label></li>
-<li><label><input type="checkbox"
+双 loader 两种模式）</label></p></li>
+<li><p><label><input type="checkbox"
 checked="" /><code>starvla_lab/bench</code>：只换骨干协议（评测命令模板、<code>{ckpt_file}</code>
 占位、分级 seeds、GPU 小时合计）、开销测量、头 dropout（已接进
-<code>QwenMultiHead.active_heads</code>）</label></li>
-<li><label><input type="checkbox"
+<code>QwenMultiHead.active_heads</code>）</label></p></li>
+<li><p><label><input type="checkbox"
 checked="" /><code>starvla_lab/configs</code> +
 <code>scripts/build_run_matrix.py</code> →
 <code>experiments/run_matrix*.csv</code> +
-<code>experiments/budget.md</code></label></li>
-<li><label><input type="checkbox"
-checked="" /><code>starvla_lab/README.md</code>、<code>experiments/README.md</code></label></li>
+<code>experiments/budget.md</code></label></p></li>
+<li><p><label><input type="checkbox"
+checked="" /><code>starvla_lab/README.md</code>、<code>experiments/README.md</code></label></p></li>
+<li><p><label><input type="checkbox" checked="" />与真实 StarVLA 的 CPU
+集成：<code>scripts/setup_cpu_env.sh</code>（py3.12 环境）+
+<code>scripts/smoke_starvla_integration.py</code>（真实三头工厂 +
+<code>QwenMultiHead</code> + 全部 <code>LabHooks</code>
+钩子；<code>flow_matching_loss</code> 与原头 <code>forward</code>
+逐位相等）</label></p></li>
 </ul>
 <p>阶段 A 完成：<code>python3 -m pytest code/starvla_lab/tests -q</code>
-→ 110 passed；<code>python3 -m pytest code/vlact_ext/tests -q</code> →
-60 passed, 1 skipped。</p>
+→ 127 passed（含 v3 探针 15 个、F2/F4 接线 2
+个）；<code>python3 -m pytest code/vlact_ext/tests -q</code> → 60
+passed, 1 skipped（系统 python3.9，mock 骨干）；py3.12 + StarVLA
+可导入时两包合跑 → 169 passed, 2 skipped，冒烟脚本通过。</p>
+<p><strong>阶段 B 已开始（1 卡，2026-09-05/06）</strong>：</p>
+<ul class="task-list">
+<li><label><input type="checkbox" checked="" />WP6 开销数字：三头 = OFT
+单头 1.54× 时间、27.2 GB（<a
+href="https://github.com/asimfish/awesome_starvla/blob/main/experiments/results/wp6_overhead/README.md"><code>experiments/results/wp6_overhead/</code></a>）</label></li>
+<li><label><input type="checkbox" checked="" />WP9
+真实数据接线：<code>train_starvla_lab</code> + <code>QwenOFT</code> /
+<code>QwenMultiHead</code> 在 LIBERO-goal 上各 300 步跑通；三头模型里
+OFT 头损失 0.243 vs 单头 0.244；漂移度量的定义问题及修正见 <a
+href="https://github.com/asimfish/awesome_starvla/blob/main/experiments/results/f0_libero_goal_smoke/README.md"><code>experiments/results/f0_libero_goal_smoke/</code></a></label></li>
+<li><label><input type="checkbox"
+checked="" />用修正后的漂移度量重跑（F0 v3，三条运行各 300 步，1
+卡）：<code>QwenBackboneProbe</code>（换回嵌入 + token 级 CKA +
+跨场景分层探针批 + 按更新次数编号）；OFT 第 35 层 2e-4、三头
+5e-2、冻结层精确 0；<code>embed_tokens</code> 冻结消融无代价；M1
+阈值量级写进 R5（<a
+href="https://github.com/asimfish/awesome_starvla/blob/main/experiments/results/f0_libero_goal_smoke/README.md"><code>experiments/results/f0_libero_goal_smoke/</code></a>
+§3.5）</label></li>
+<li><label><input type="checkbox" checked="" />WP1 跨头线性探针在 F0 的
+5 个最终模型 + 预训练 VLM
+上首跑（<code>scripts/cross_head_probe.py</code>，1 卡 15 分钟，2,048
+样本跨两套）：预训练 VLM 已线性编码约一半动作方差（R²
+0.50），五个微调骨干都没有提高它，三头模型第 35 层反而低 0.01；token
+级保留度 OFT 99.5% vs 三头 97.6%（反向 96.7%），v2
+复现一致——顶层改写是小幅侵蚀而非写入，G2 的线性探针基线已立（<a
+href="https://github.com/asimfish/awesome_starvla/blob/main/experiments/results/f0_libero_goal_smoke/README.md"><code>experiments/results/f0_libero_goal_smoke/</code></a>
+§3.6）</label></li>
+<li><label><input type="checkbox" checked="" />F2 冻结骨干迁移（16
+条运行，1 卡）：预训练 / OFT 微调 / 三头微调 /
+OFT+冻结嵌入四种骨干全部冻结，各接全新 OFT 头与 PI 头在
+LIBERO-spatial（未见）与 LIBERO-goal（已调）上训 300 步。没有有害的
+decoder lock-in（OFT 骨干接新 PI 头 = 预训练骨干），三头骨干对同任务新
+OFT 头最好（0.216 vs 0.226 vs 0.267）但优势不迁到新场景，PI
+头对骨干不敏感（<a
+href="https://github.com/asimfish/awesome_starvla/blob/main/experiments/results/f2_frozen_backbone_transfer/README.md"><code>experiments/results/f2_frozen_backbone_transfer/</code></a>）</label></li>
+<li><label><input type="checkbox" checked="" />F3 学习率控制（2
+条运行，1 卡）：漂移驱动 LLRD 端到端工作（第 35 层越过 1e-2
+后倍率减半到下限 0.05，最终漂移 −24%，头损失代价
+0.004–0.011）但触发太晚；静态 LLRD 0.85 不硬冻结明显更差。发现单卡 bf16
+路径没有 fp32 主权重、lr 1e-5 的更新对多数权重不足半个 ulp——F0/F3
+漂移的绝对量级与 OFT/三头倍数需用 F4 校准（<a
+href="https://github.com/asimfish/awesome_starvla/blob/main/experiments/results/f3_llrd/README.md"><code>experiments/results/f3_llrd/</code></a>
+§3）</label></li>
+<li><label><input type="checkbox" checked="" />F4 fp32 主权重校准（2
+条运行，1 卡）：同配置下单头 OFT 损失 0.247 → 0.183、三头
+0.242/0.324/0.416 → 0.178/0.293/0.353；第 35 层漂移 OFT 0.0003 →
+0.026、三头 0.052 → 0.484——bf16 单卡路径一直在吞骨干更新，F0/F2/F3
+的绝对读数需重新解释，三头/单头顶层改写倍数由 240× 修正为 19×，"三头不伤
+OFT 头"仍成立（<a
+href="https://github.com/asimfish/awesome_starvla/blob/main/experiments/results/f4_fp32_master_weights/README.md"><code>experiments/results/f4_fp32_master_weights/</code></a>）；<code>f0_libero_goal_smoke.yaml</code>
+默认 <code>backbone_fp32: true</code> 并冻结
+<code>embed_tokens</code></label></li>
+<li><label><input type="checkbox" checked="" />F4 checkpoint
+上的跨头探针（含 H1 预注册的 OFT 查询位可读性）：查询位 L35 goal
+0.462（预训练）→ 0.562（OFT）→ 0.581（三头），跨套 goal→spatial −1.5 →
+−0.08 → −0.03，保留度 1.0 → 0.870 →
+0.794——微调把动作信息写进骨干、三头写得更多且更可迁移、代价是改写预训练表征；bf16
+checkpoint 上"无写入"的结论作废（<a
+href="https://github.com/asimfish/awesome_starvla/blob/main/experiments/results/f4_fp32_master_weights/README.md">F4
+§3</a>）</label></li>
+<li><label><input type="checkbox" checked="" />F2 在 fp32
+骨干上的复测（新 OFT 头 4 条）：spatial 0.277（预训练）→ 0.252（OFT
+bf16）→ <strong>0.214</strong>（OFT fp32）→ <strong>0.211</strong>（三头
+fp32），goal 0.267 → 0.225 → <strong>0.173</strong> →
+<strong>0.169</strong>——训练到位的骨干可复用且迁到新场景，三头 fp32
+骨干在两套上都略优（<a
+href="https://github.com/asimfish/awesome_starvla/blob/main/experiments/results/f2_frozen_backbone_transfer/README.md">F2
+§2b</a>）</label></li>
+<li><label><input type="checkbox" />F2 新 PI 头在 fp32 骨干上的 4 条（需
+≥ 42 GB 空卡，等待者已挂）；F3 的 LLRD 两臂在 fp32 下复跑</label></li>
+<li><label><input type="checkbox" />R3 标定曲线（VLAct 全配方、2000
+步一探针）→ 定 R5 的 <code>drift_high / drift_low</code>（起点已按 F3
+改为 1e-3 / 1e-4）</label></li>
+</ul>
 <h2 id="8-已知偏差与解释约束">8. 已知偏差与解释约束</h2>
 <ul>
 <li><code>vlact_ext</code> 的 GR00T 头以 <code>state_dim: 0</code>
@@ -6980,12 +7113,96 @@ seed）、预注册主指标、置信下界判据</td>
 <tr>
 <td>13</td>
 <td>度量粒度未定</td>
-<td>§6 固定探测批与
-<code>extract_fn</code>（<code>train_starvla_lab.qwen_layer_extract_fn</code>：逐层
-mean-pool）</td>
+<td>§6 固定探测批与 <code>extract_fn</code>（最初为
+<code>train_starvla_lab.qwen_layer_extract_fn</code> 逐层 mean-pool；F0
+v2 诊断后改为
+<code>probes.QwenBackboneProbe</code>：换回预训练嵌入、token 级 CKA
+为主）</td>
 </tr>
 </tbody>
 </table>
+<h2 id="10-阶段-b-首批-1-卡实验的综合结论2026-09-06">10. 阶段 B 首批 1
+卡实验的综合结论（2026-09-06）</h2>
+<p>五组实验（WP6 开销、F0 v2/v3、跨头探针、F2、F3）都在 Qwen3-VL-4B +
+LIBERO-goal、300 步、1×A100 的小 regime 里完成，合计约 40 条运行、8
+小时卡时。它们不能替代 R0–R9，但已经改写了方案的几处假设与工具定义：</p>
+<table>
+<thead>
+<tr>
+<th>研究问题</th>
+<th>方案原假设</th>
+<th>小 regime 下的证据</th>
+<th>对后续的影响</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Q1 可复用性能否不跑下游就度量</td>
+<td>H1：冻结骨干上的跨头线性探针 R² 与换头成功率强相关</td>
+<td><strong>fp32 checkpoint（F4）上</strong>：H1 查询位可读性
+0.462（预训练）→ 0.562（OFT）→ 0.581（三头），跨套 goal→spatial −1.5 →
+−0.08 → −0.03，保留度 1.0 → 0.87 →
+0.79——微调把动作信息线性地写进骨干，三头写得更多、更可迁移，代价是改写预训练表征。bf16
+checkpoint 上"无写入、只有侵蚀"的读数是欠训练骨干的产物</td>
+<td>查询位可读性作 G2
+主指标（<code>cross_head_probe.py --query_layers</code>），pooled
+与保留度作辅助；F2 的"冻结骨干 + 新头 300 步"作廉价代理，其 fp32
+复测决定它是否与探针同向</td>
+</tr>
+<tr>
+<td>Q3 先验保护能否自动化</td>
+<td>H3：漂移驱动 LLRD ≥ 硬冻结</td>
+<td>控制器端到端可用、机制正确（第 35 层越阈后倍率减到下限，漂移
+−24%，头损失代价 ≤ 0.011），但触发迟滞；静态 LLRD 0.85 不硬冻结在 bf16
+单卡路径下明显更差</td>
+<td>R5 阈值起点改为 1e-3 / 1e-4；R4/R5 必须在有 fp32
+主权重的路径（DeepSpeed 或 <code>backbone_fp32</code>）上跑，否则低 lr
+层的更新会被 bf16 舍入吞掉（§6）</td>
+</tr>
+<tr>
+<td>VLAct 配方 (c) 多头共监督</td>
+<td>三头不伤单头、骨干更换头友好</td>
+<td>三头模型里 OFT 头损失与单头相同（fp32：0.178 vs 0.183）、开销
+1.45–1.54×；fp32 下三头骨干的查询位表征跨场景迁移最好（goal→spatial
+−0.03 vs OFT −0.08），pooled 可读性最高（0.566 vs 0.537）。F2 fp32
+复测（新 OFT 头）：预训练 0.277 → OFT fp32 0.214 → 三头 fp32
+0.211（未见的 spatial），goal 0.267 → 0.173 →
+0.169——训练到位的骨干可复用且迁到新场景，三头略优；新 PI
+头的复测等卡</td>
+<td>"多头共监督让写入的表征变通用"在小规模上有了第一条正面证据（预注册指标）；R3
+vs R1 用同一探针 + F2 协议放大检验</td>
+</tr>
+<tr>
+<td>VLAct 配方 (a) 冻结下半层</td>
+<td>视觉编码器 + LLM 前 18 层冻结即可保护先验</td>
+<td>300 步内两种模型都只动第 33 层以上，第 18–32 层漂移 &lt;
+1e-4；<code>embed_tokens</code> 冻不冻对损失无影响、对探针影响巨大</td>
+<td>冻结集合建议加入 <code>embed_tokens</code>（VLAct
+未说明）；探针一律换回预训练嵌入</td>
+</tr>
+<tr>
+<td>度量口径</td>
+<td>mean-pool 隐状态 CKA、训练集前 64 样本</td>
+<td>v2 的曲线 98% 是嵌入假象；修正后（token
+级、换回嵌入、跨场景分层批、按更新次数编号）曲线单调、噪声底为 0</td>
+<td>已写入 §6 与 <code>QwenBackboneProbe</code>；R3
+的标定曲线用新口径</td>
+</tr>
+<tr>
+<td>单卡冒烟路径本身</td>
+<td>与多卡路径等价</td>
+<td>无 fp32 主权重 → lr 1e-5 更新对多数权重不足半个 ulp。<strong>F4
+证实</strong>：fp32 主权重下 OFT 损失 0.247 → 0.183、第 35 层漂移 0.0003
+→ 0.026，三头 0.052 → 0.484；三头/单头倍数 240× → 19×，OFT
+也在明显改写顶层</td>
+<td><code>backbone_fp32</code> 成为单卡默认；F0 §3.6 跨头探针、F2、F3
+基于 bf16 checkpoint 的绝对读数待在 F4 checkpoint 上重测（已排队）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>下一步（按优先级）</strong>：F2 新 PI 头 fp32 复测（等卡）→
+F3 两臂 fp32 复跑 → R3（VLAct 全配方、LIBERO 四套 + caption
+共训、DeepSpeed）用新口径标定，同时用 F2 协议做 G2 的第一批点。</p>
 </article><article id="ch11"><h1 id="11--eventvla-代码审计论文与实现的差异复现坑与改进落点">11 ·
 EventVLA 代码审计：论文与实现的差异、复现坑与改进落点</h1>
 <table>
