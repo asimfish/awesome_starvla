@@ -157,7 +157,8 @@ def test_hooks_probes_drive_llrd_and_write_jsonl(tmp_path: Path):
     records = read_jsonl(tmp_path / "p.jsonl")
     # step = number of completed updates: the initial record (0, reference vs itself) then every 2 updates
     assert [r["step"] for r in records] == [0, 2, 4, 6] and all(r["probe"] == "drift" for r in records)
-    assert records[0]["drift"]["mean"] == 0.0 and "drift" in records[-1]
+    # step-0 drift is CKA(X, X) = 1 - 1, which lands at ~1e-17 on some BLAS builds (Linux / py3.12 CI)
+    assert abs(records[0]["drift"]["mean"]) < 1e-9 and "drift" in records[-1]
     assert hooks.last_drift is not None and hooks.last_drift > 0
 
 
