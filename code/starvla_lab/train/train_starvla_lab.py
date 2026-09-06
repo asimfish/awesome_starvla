@@ -106,6 +106,21 @@ def build_probe_batch(cfg: Any, probes: ProbesConfig, train_loader: Any) -> List
     return batch
 
 
+def apply_gradient_accumulation(accelerator: Any, cfg: Any) -> int:
+    """Make ``trainer.gradient_accumulation_steps`` effective on the no-DeepSpeed path.
+
+    StarVLA constructs its module-level ``Accelerator`` without ``gradient_accumulation_steps``; with DeepSpeed the
+    value comes from the DeepSpeed config, but with ``STARVLA_DISABLE_DEEPSPEED=1`` the accelerator keeps 1 and the
+    yaml key only changes the printed batch size. Setting the accelerator's property makes ``accumulate()`` /
+    ``sync_gradients`` behave (the trainer already advances ``completed_steps`` and the LR scheduler on sync only).
+    """
+    steps = int(cfg_get(cfg, "trainer.gradient_accumulation_steps", 1) or 1)
+    if steps > 1 and int(getattr(accelerator, "gradient_accumulation_steps", 1)) != steps:
+        accelerator.gradient_accumulation_steps = steps
+        print(f"[starvla_lab] gradient accumulation: {steps} micro-steps per optimizer step (accelerator updated)")
+    return int(getattr(accelerator, "gradient_accumulation_steps", 1))
+
+
 def select_mode(cfg: Any) -> str:
     mode = str(cfg_get(cfg, "trainer.lab.mode", "auto")).lower()
     if mode == "auto":
@@ -140,6 +155,7 @@ def main(cfg: Any) -> None:
     install_fraction_hook(fraction, seed=int(cfg_get(cfg, "seed", 0)))
 
     output_dir = base.setup_directories(cfg=cfg)
+    apply_gradient_accumulation(base.accelerator, cfg)
     vla = base.build_framework(cfg)
     # datasets.vla_data.data_mix may be an inline "dataset_dir:robot_type[,...]" spec (e.g. a LIBERO suite StarVLA
     # has no named mixture for); it is registered at runtime and replaced by the generated name.

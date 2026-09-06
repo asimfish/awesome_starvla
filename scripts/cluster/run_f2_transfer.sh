@@ -27,6 +27,9 @@ STEPS="${STEPS:-300}"
 FREEZE="qwen_vl_interface.model.model.visual"
 for i in $(seq 0 35); do FREEZE="$FREEZE,qwen_vl_interface.model.model.language_model.layers.$i"; done
 FREEZE="$FREEZE,qwen_vl_interface.model.model.language_model.norm"
+# FREEZE_EMBED=1 also freezes embed_tokens: no backward through the backbone at all (~10 GB less memory); protocol-neutral
+# for heads that do not use query tokens (QwenPI_v3), a deviation for QwenOFT whose query rows then stay pretrained.
+if [ "${FREEZE_EMBED:-0}" = "1" ]; then FREEZE="$FREEZE,qwen_vl_interface.model.model.language_model.embed_tokens"; fi
 
 for suite in $SUITES; do
   MIX="libero_${suite}_no_noops_1.0.0_lerobot:libero_franka"

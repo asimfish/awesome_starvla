@@ -306,3 +306,16 @@ def test_apply_backbone_fp32_upcasts_only_trainable_backbone_params_and_keeps_op
     assert LabConfig.from_cfg(_cfg(backbone_fp32=True)).backbone_fp32 is True and LabConfig.from_cfg(_cfg()).backbone_fp32 is False
     with pytest.raises(AttributeError):
         apply_backbone_fp32(nn.Linear(2, 2))
+
+
+def test_apply_gradient_accumulation_sets_the_accelerator_only_when_needed():
+    from starvla_lab.train.train_starvla_lab import apply_gradient_accumulation
+
+    class _Acc:
+        gradient_accumulation_steps = 1
+
+    acc = _Acc()
+    assert apply_gradient_accumulation(acc, {"trainer": {}}) == 1 and acc.gradient_accumulation_steps == 1
+    assert apply_gradient_accumulation(acc, {"trainer": {"gradient_accumulation_steps": 1}}) == 1
+    assert apply_gradient_accumulation(acc, {"trainer": {"gradient_accumulation_steps": 2}}) == 2 and acc.gradient_accumulation_steps == 2
+    assert apply_gradient_accumulation(acc, {"trainer": {"gradient_accumulation_steps": "4"}}) == 4

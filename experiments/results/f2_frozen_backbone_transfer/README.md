@@ -51,6 +51,7 @@
 - 训练内 MSE 每次在不同的随机批上评测，逐点波动 ±0.005，只看 6 次均值或曲线趋势。
 - 头 lr 与嵌入 lr 都是 1e-4，与 F0 的骨干 lr 1e-5 不同；`pre` 骨干的 🔍 查询嵌入行从预训练 emoji 嵌入开始学，`oft` / `mh` 的已训练过——`oftef` 列量化了这一混杂（≈ 0.005）。
 - 与其他用户共卡，s/step 2.3–3.7 不可比。
+- **`QwenPI_v3` 的显存陷阱**：`Qwen_PI_v3.forward` 从 `config.trainer.repeated_diffusion_steps` 读重复扩散步数（不是 `action_model.repeated_diffusion_steps`），未设置时默认 **16**——全部 36 层骨干隐状态在 fp32 下复制 16 份送进 DiT，PI 头运行需要 > 40 GB；本表的 PI 行都在独占卡上以该默认值跑出，fp32 骨干的 PI 复测因此只能等到 ≥ 60 GB 的空卡（batch 4×2、batch 2×4、冻结嵌入都不够）。单卡路径下 `trainer.gradient_accumulation_steps` 原本不生效（StarVLA 只在 DeepSpeed 配置里传给 accelerate），lab 入口现已补上（`apply_gradient_accumulation`）。
 - 单卡无 DeepSpeed 路径下骨干以 bf16 保存并直接被 AdamW 更新（无 fp32 主权重），见 [`../f3_llrd/README.md`](../f3_llrd/README.md) §3 的说明；本实验骨干冻结，不受影响，但被装载的 F0 骨干本身在该条件下训练。
 
 ## 5. 文件
