@@ -25,6 +25,7 @@ split of the fit set from a fixed grid. All variants share the same samples, spl
 from __future__ import annotations
 
 import argparse
+import gc
 import json
 import sys
 import time
@@ -77,9 +78,22 @@ def load_samples(cfg, data_mix: str, n: int, pool_factor: int, out_dir: Path, se
     probe_cfg.output_dir = str(out_dir / "_data")
     (out_dir / "_data").mkdir(parents=True, exist_ok=True)
     loader = build_dataloader(cfg=probe_cfg, dataset_py="lerobot_datasets")
-    pool, it = [], iter(loader)
+    pool, it, failures = [], iter(loader), 0
     while len(pool) < n * pool_factor:
-        pool.extend(next(it))
+        try:
+            pool.extend(next(it))
+        except StopIteration:
+            it = iter(loader)
+        except Exception as exc:  # PyAV ENOMEM on memory-starved nodes: release decoders, back off, keep going
+            failures += 1
+            if failures > 20:
+                raise
+            print(f"[probe] loader error ({type(exc).__name__}: {str(exc)[:80]}); retry {failures}/20 after gc", flush=True)
+            gc.collect()
+            time.sleep(5)
+            continue
+        if len(pool) % 256 < 16:
+            gc.collect()  # PyAV containers held by decoded samples' frames are released promptly
     return stratified_probe_batch(pool, n, key="lang")
 
 
