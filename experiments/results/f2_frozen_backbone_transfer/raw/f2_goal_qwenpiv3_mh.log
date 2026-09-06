@@ -1,0 +1,505 @@
+[f0] host=ide-7e33a68268b54c4b9512a8ca868790c2-e64a97 gpu=0 framework=QwenPI_v3 run_id=f2_goal_qwenpiv3_mh
+[f0] starVLA @ d81fc66, awesome_starvla @ bc47296
+0, NVIDIA A100-SXM4-80GB, 5 MiB, 81920 MiB
+/home/dataset-assist-0/liyufeng/envs/starvla/lib/python3.11/site-packages/albumentations/__init__.py:13: UserWarning: A new version of Albumentations is available: 2.0.8 (you have 1.4.18). Upgrade using: pip install -U albumentations. To disable automatic update checks, set the environment variable NO_ALBUMENTATIONS_UPDATE to 1.
+  check_for_updates()
+Distributed environment: DistributedType.NO
+Num processes: 1
+Process index: 0
+Local process index: 0
+Device: cuda
+
+Mixed precision type: no
+
+09/06 [08:59:03] WARNING  | >>  DataConfig for                    registry.py:70
+                          robot_type='ur5_robochallenge' has no                 
+                          `embodiment_tag` classvar; defaulting                 
+                          to EmbodimentTag.NEW_EMBODIMENT.                      
+                 WARNING  | >>  DataConfig for                    registry.py:70
+                          robot_type='arx5_robochallenge' has no                
+                          `embodiment_tag` classvar; defaulting                 
+                          to EmbodimentTag.NEW_EMBODIMENT.                      
+                 WARNING  | >>  DataConfig for                    registry.py:70
+                          robot_type='dosw1_robochallenge' has no               
+                          `embodiment_tag` classvar; defaulting                 
+                          to EmbodimentTag.NEW_EMBODIMENT.                      
+09/06 [08:59:05] WARNING  | >> [*] [StarVLA]               base_framework.py:110
+                          Reproducibility notice: this                          
+                          repository is under active                            
+                          development. The latest code may                      
+                          not exactly reproduce every                           
+                          previously released HF                                
+                          checkpoint because code,                              
+                          configs, preprocessing, and                           
+                          evaluation behavior can change                        
+                          over time. For exact                                  
+                          reproduction, checkout the                            
+                          repository revision from the                          
+                          checkpoint's release/training                         
+                          time and use its own config.                          
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00, 12.39it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00, 12.31it/s]
+Total number of DiT parameters:  532326426
+09/06 [08:59:14] INFO     | >> Creating VLA Dataset with     train_starvla.py:92
+                          Mixture `lab_probe_e9b6b9d8`                          
+                 INFO     | >>  Using mixture             lerobot_datasets.py:92
+                          'lab_probe_e9b6b9d8':                                 
+                          [('libero_goal_no_noops_1.0.0_l                       
+                          erobot', 1.0, 'libero_franka')]                       
+Initialized dataset libero_goal_no_noops_1.0.0_lerobot with EmbodimentTag.FRANKA
+Dataset lengths: [52042]
+Merged dataset statistics saved to: /home/dataset-assist-0/liyufeng/awesome_starvla_work/checkpoints/f2_goal_qwenpiv3_mh/dataset_statistics.json
+Used action keys (reordered): ['x', 'y', 'z', 'roll', 'pitch', 'yaw', 'gripper']
+Used state keys (reordered): ['x', 'y', 'z', 'roll', 'pitch', 'yaw', 'pad', 'gripper']
+09/06 [08:59:15] INFO     | >> 📝 Full config saved at      train_starvla.py:222
+                          /home/dataset-assist-0/liyufeng/a                     
+                          wesome_starvla_work/checkpoints/f                     
+                          2_goal_qwenpiv3_mh/config.full.ya                     
+                          ml                                                    
+                 INFO     | >> 📊 Accessed config snapshot  train_starvla.py:227
+                          saved at                                              
+                          /home/dataset-assist-0/liyufeng/a                     
+                          wesome_starvla_work/checkpoints/f                     
+                          2_goal_qwenpiv3_mh/config.yaml                        
+📦 loading checkpoint: /home/dataset-assist-0/liyufeng/awesome_starvla_work/checkpoints/f0v3_multihead/final_model/pytorch_model.pt
+✅ parameters loaded to module 'qwen_vl_interface'
+09/06 [08:59:28] INFO     | >> Loaded pretrained            train_starvla.py:256
+                          checkpoint:                                           
+                          /home/dataset-assist-0/liyufeng/a                     
+                          wesome_starvla_work/checkpoints/f                     
+                          0v3_multihead/final_model/pytorch                     
+                          _model.pt, steps: 0                                   
+##############################
+qwen_vl_interface.model.model.visual,qwen_vl_interface.model.model.language_model.layers.0,qwen_vl_interface.model.model.language_model.layers.1,qwen_vl_interface.model.model.language_model.layers.2,qwen_vl_interface.model.model.language_model.layers.3,qwen_vl_interface.model.model.language_model.layers.4,qwen_vl_interface.model.model.language_model.layers.5,qwen_vl_interface.model.model.language_model.layers.6,qwen_vl_interface.model.model.language_model.layers.7,qwen_vl_interface.model.model.language_model.layers.8,qwen_vl_interface.model.model.language_model.layers.9,qwen_vl_interface.model.model.language_model.layers.10,qwen_vl_interface.model.model.language_model.layers.11,qwen_vl_interface.model.model.language_model.layers.12,qwen_vl_interface.model.model.language_model.layers.13,qwen_vl_interface.model.model.language_model.layers.14,qwen_vl_interface.model.model.language_model.layers.15,qwen_vl_interface.model.model.language_model.layers.16,qwen_vl_interface.model.model.language_model.layers.17,qwen_vl_interface.model.model.language_model.layers.18,qwen_vl_interface.model.model.language_model.layers.19,qwen_vl_interface.model.model.language_model.layers.20,qwen_vl_interface.model.model.language_model.layers.21,qwen_vl_interface.model.model.language_model.layers.22,qwen_vl_interface.model.model.language_model.layers.23,qwen_vl_interface.model.model.language_model.layers.24,qwen_vl_interface.model.model.language_model.layers.25,qwen_vl_interface.model.model.language_model.layers.26,qwen_vl_interface.model.model.language_model.layers.27,qwen_vl_interface.model.model.language_model.layers.28,qwen_vl_interface.model.model.language_model.layers.29,qwen_vl_interface.model.model.language_model.layers.30,qwen_vl_interface.model.model.language_model.layers.31,qwen_vl_interface.model.model.language_model.layers.32,qwen_vl_interface.model.model.language_model.layers.33,qwen_vl_interface.model.model.language_model.layers.34,qwen_vl_interface.model.model.language_model.layers.35,qwen_vl_interface.model.model.language_model.norm
+🔒 Frozen modules with re pattern: ['qwen_vl_interface.model.model.visual', 'qwen_vl_interface.model.model.language_model.layers.0', 'qwen_vl_interface.model.model.language_model.layers.1', 'qwen_vl_interface.model.model.language_model.layers.2', 'qwen_vl_interface.model.model.language_model.layers.3', 'qwen_vl_interface.model.model.language_model.layers.4', 'qwen_vl_interface.model.model.language_model.layers.5', 'qwen_vl_interface.model.model.language_model.layers.6', 'qwen_vl_interface.model.model.language_model.layers.7', 'qwen_vl_interface.model.model.language_model.layers.8', 'qwen_vl_interface.model.model.language_model.layers.9', 'qwen_vl_interface.model.model.language_model.layers.10', 'qwen_vl_interface.model.model.language_model.layers.11', 'qwen_vl_interface.model.model.language_model.layers.12', 'qwen_vl_interface.model.model.language_model.layers.13', 'qwen_vl_interface.model.model.language_model.layers.14', 'qwen_vl_interface.model.model.language_model.layers.15', 'qwen_vl_interface.model.model.language_model.layers.16', 'qwen_vl_interface.model.model.language_model.layers.17', 'qwen_vl_interface.model.model.language_model.layers.18', 'qwen_vl_interface.model.model.language_model.layers.19', 'qwen_vl_interface.model.model.language_model.layers.20', 'qwen_vl_interface.model.model.language_model.layers.21', 'qwen_vl_interface.model.model.language_model.layers.22', 'qwen_vl_interface.model.model.language_model.layers.23', 'qwen_vl_interface.model.model.language_model.layers.24', 'qwen_vl_interface.model.model.language_model.layers.25', 'qwen_vl_interface.model.model.language_model.layers.26', 'qwen_vl_interface.model.model.language_model.layers.27', 'qwen_vl_interface.model.model.language_model.layers.28', 'qwen_vl_interface.model.model.language_model.layers.29', 'qwen_vl_interface.model.model.language_model.layers.30', 'qwen_vl_interface.model.model.language_model.layers.31', 'qwen_vl_interface.model.model.language_model.layers.32', 'qwen_vl_interface.model.model.language_model.layers.33', 'qwen_vl_interface.model.model.language_model.layers.34', 'qwen_vl_interface.model.model.language_model.layers.35', 'qwen_vl_interface.model.model.language_model.norm']
+📊 model parameter statistics:
+# Parameters (in millions): 5071.087 Total, 1022.227 Trainable
+09/06 [08:59:35] INFO     | >> ***** Training Configuration train_starvla.py:409
+                          *****                                                 
+                 INFO     | >>   Total optimization steps = train_starvla.py:410
+                          300                                                   
+                 INFO     | >>   Per device batch size = 8  train_starvla.py:411
+                 INFO     | >>   Gradient accumulation      train_starvla.py:412
+                          steps = 1                                             
+                 INFO     | >>   Total batch size = 8       train_starvla.py:413
+  0%|          | 0/300 [00:00<?, ?it/s]  0%|          | 1/300 [00:07<37:10,  7.46s/it]  0%|          | 1/300 [00:07<37:10,  7.46s/it, data_times=1.181, model_times=6.280]  1%|          | 2/300 [00:10<23:04,  4.64s/it, data_times=1.181, model_times=6.280]  1%|          | 2/300 [00:10<23:04,  4.64s/it, data_times=0.001, model_times=2.669]  1%|          | 3/300 [00:12<18:31,  3.74s/it, data_times=0.001, model_times=2.669]  1%|          | 3/300 [00:12<18:31,  3.74s/it, data_times=0.001, model_times=2.665]  1%|▏         | 4/300 [00:15<16:34,  3.36s/it, data_times=0.001, model_times=2.665]  1%|▏         | 4/300 [00:15<16:34,  3.36s/it, data_times=0.001, model_times=2.769]  2%|▏         | 5/300 [00:18<15:14,  3.10s/it, data_times=0.001, model_times=2.769]  2%|▏         | 5/300 [00:18<15:14,  3.10s/it, data_times=0.000, model_times=2.639]  2%|▏         | 6/300 [00:20<14:23,  2.94s/it, data_times=0.000, model_times=2.639]  2%|▏         | 6/300 [00:20<14:23,  2.94s/it, data_times=0.001, model_times=2.613]  2%|▏         | 7/300 [00:23<13:38,  2.79s/it, data_times=0.001, model_times=2.613]  2%|▏         | 7/300 [00:23<13:38,  2.79s/it, data_times=0.001, model_times=2.493]  3%|▎         | 8/300 [00:25<13:19,  2.74s/it, data_times=0.001, model_times=2.493]  3%|▎         | 8/300 [00:25<13:19,  2.74s/it, data_times=0.001, model_times=2.614]  3%|▎         | 9/300 [00:28<13:03,  2.69s/it, data_times=0.001, model_times=2.614]  3%|▎         | 9/300 [00:28<13:03,  2.69s/it, data_times=0.001, model_times=2.591]  3%|▎         | 10/300 [00:31<12:55,  2.67s/it, data_times=0.001, model_times=2.591]  3%|▎         | 10/300 [00:31<12:55,  2.67s/it, data_times=0.001, model_times=2.626]09/06 [09:00:06] INFO     | >> Step 10, Loss:               train_starvla.py:320
+                          {'action_dit_loss':                                   
+                          1.0939642190933228,                                   
+                          'timing/data':                                        
+                          0.000569446012377739,                                 
+                          'timing/model':                                       
+                          2.6258392417803407,                                   
+                          'learning_rate/qwen_vl_interface'                     
+                          : 3.3333333333333335e-05,                             
+                          'learning_rate/action_model':                         
+                          3.3333333333333335e-05,                               
+                          'learning_rate/base':                                 
+                          8.333333333333334e-06, 'epoch':                       
+                          0.0})                                                 
+  4%|▎         | 11/300 [00:33<12:47,  2.65s/it, data_times=0.001, model_times=2.626]  4%|▎         | 11/300 [00:33<12:47,  2.65s/it, data_times=0.001, model_times=2.602]  4%|▍         | 12/300 [00:36<12:40,  2.64s/it, data_times=0.001, model_times=2.602]  4%|▍         | 12/300 [00:36<12:40,  2.64s/it, data_times=0.001, model_times=2.602]  4%|▍         | 13/300 [00:39<12:37,  2.64s/it, data_times=0.001, model_times=2.602]  4%|▍         | 13/300 [00:39<12:37,  2.64s/it, data_times=0.000, model_times=2.642]  5%|▍         | 14/300 [00:41<12:46,  2.68s/it, data_times=0.000, model_times=2.642]  5%|▍         | 14/300 [00:41<12:46,  2.68s/it, data_times=0.001, model_times=2.765]  5%|▌         | 15/300 [00:44<12:41,  2.67s/it, data_times=0.001, model_times=2.765]  5%|▌         | 15/300 [00:44<12:41,  2.67s/it, data_times=0.001, model_times=2.644]  5%|▌         | 16/300 [00:47<12:32,  2.65s/it, data_times=0.001, model_times=2.644]  5%|▌         | 16/300 [00:47<12:32,  2.65s/it, data_times=0.001, model_times=2.596]  6%|▌         | 17/300 [00:49<12:26,  2.64s/it, data_times=0.001, model_times=2.596]  6%|▌         | 17/300 [00:49<12:26,  2.64s/it, data_times=0.001, model_times=2.604]  6%|▌         | 18/300 [00:52<12:19,  2.62s/it, data_times=0.001, model_times=2.604]  6%|▌         | 18/300 [00:52<12:19,  2.62s/it, data_times=0.001, model_times=2.586]  6%|▋         | 19/300 [00:54<12:16,  2.62s/it, data_times=0.001, model_times=2.586]  6%|▋         | 19/300 [00:54<12:16,  2.62s/it, data_times=0.000, model_times=2.612]  7%|▋         | 20/300 [00:57<12:14,  2.62s/it, data_times=0.000, model_times=2.612]  7%|▋         | 20/300 [00:57<12:14,  2.62s/it, data_times=0.001, model_times=2.625]09/06 [09:00:32] INFO     | >> Step 20, Loss:               train_starvla.py:320
+                          {'action_dit_loss':                                   
+                          0.692457377910614, 'timing/data':                     
+                          0.0005630990490317345,                                
+                          'timing/model':                                       
+                          2.624611704610288,                                    
+                          'learning_rate/qwen_vl_interface'                     
+                          : 6.666666666666667e-05,                              
+                          'learning_rate/action_model':                         
+                          6.666666666666667e-05,                                
+                          'learning_rate/base':                                 
+                          1.6666666666666667e-05, 'epoch':                      
+                          0.0})                                                 
+  7%|▋         | 21/300 [01:00<12:14,  2.63s/it, data_times=0.001, model_times=2.625]  7%|▋         | 21/300 [01:00<12:14,  2.63s/it, data_times=0.001, model_times=2.652]  7%|▋         | 22/300 [01:02<12:16,  2.65s/it, data_times=0.001, model_times=2.652]  7%|▋         | 22/300 [01:02<12:16,  2.65s/it, data_times=0.000, model_times=2.686]  8%|▊         | 23/300 [01:05<12:15,  2.66s/it, data_times=0.000, model_times=2.686]  8%|▊         | 23/300 [01:05<12:15,  2.66s/it, data_times=0.001, model_times=2.666]  8%|▊         | 24/300 [01:08<12:03,  2.62s/it, data_times=0.001, model_times=2.666]  8%|▊         | 24/300 [01:08<12:03,  2.62s/it, data_times=0.001, model_times=2.539]  8%|▊         | 25/300 [01:10<12:00,  2.62s/it, data_times=0.001, model_times=2.539]  8%|▊         | 25/300 [01:10<12:00,  2.62s/it, data_times=0.001, model_times=2.608]  9%|▊         | 26/300 [01:13<12:02,  2.64s/it, data_times=0.001, model_times=2.608]  9%|▊         | 26/300 [01:13<12:02,  2.64s/it, data_times=0.001, model_times=2.677]  9%|▉         | 27/300 [01:15<11:57,  2.63s/it, data_times=0.001, model_times=2.677]  9%|▉         | 27/300 [01:15<11:57,  2.63s/it, data_times=0.000, model_times=2.603]  9%|▉         | 28/300 [01:18<11:52,  2.62s/it, data_times=0.000, model_times=2.603]  9%|▉         | 28/300 [01:18<11:52,  2.62s/it, data_times=0.001, model_times=2.600] 10%|▉         | 29/300 [01:21<11:47,  2.61s/it, data_times=0.001, model_times=2.600] 10%|▉         | 29/300 [01:21<11:47,  2.61s/it, data_times=0.001, model_times=2.584] 10%|█         | 30/300 [01:23<11:42,  2.60s/it, data_times=0.001, model_times=2.584] 10%|█         | 30/300 [01:23<11:42,  2.60s/it, data_times=0.000, model_times=2.580]09/06 [09:00:58] INFO     | >> Step 30, Loss:               train_starvla.py:320
+                          {'action_dit_loss':                                   
+                          0.7996848225593567,                                   
+                          'timing/data':                                        
+                          0.00046382565051317215,                               
+                          'timing/model':                                       
+                          2.5795250004157424,                                   
+                          'learning_rate/qwen_vl_interface'                     
+                          : 0.0001,                                             
+                          'learning_rate/action_model':                         
+                          0.0001, 'learning_rate/base':                         
+                          2.5e-05, 'epoch': 0.0})                               
+ 10%|█         | 31/300 [01:26<11:51,  2.65s/it, data_times=0.000, model_times=2.580] 10%|█         | 31/300 [01:26<11:51,  2.65s/it, data_times=0.001, model_times=2.744] 11%|█         | 32/300 [01:29<11:57,  2.68s/it, data_times=0.001, model_times=2.744] 11%|█         | 32/300 [01:29<11:57,  2.68s/it, data_times=0.001, model_times=2.740] 11%|█         | 33/300 [01:31<11:46,  2.65s/it, data_times=0.001, model_times=2.740] 11%|█         | 33/300 [01:31<11:46,  2.65s/it, data_times=0.001, model_times=2.579] 11%|█▏        | 34/300 [01:34<11:41,  2.64s/it, data_times=0.001, model_times=2.579] 11%|█▏        | 34/300 [01:34<11:41,  2.64s/it, data_times=0.001, model_times=2.606] 12%|█▏        | 35/300 [01:37<11:36,  2.63s/it, data_times=0.001, model_times=2.606] 12%|█▏        | 35/300 [01:37<11:36,  2.63s/it, data_times=0.000, model_times=2.610] 12%|█▏        | 36/300 [01:39<11:32,  2.62s/it, data_times=0.000, model_times=2.610] 12%|█▏        | 36/300 [01:39<11:32,  2.62s/it, data_times=0.001, model_times=2.608] 12%|█▏        | 37/300 [01:42<11:28,  2.62s/it, data_times=0.001, model_times=2.608] 12%|█▏        | 37/300 [01:42<11:28,  2.62s/it, data_times=0.001, model_times=2.599] 13%|█▎        | 38/300 [01:44<11:31,  2.64s/it, data_times=0.001, model_times=2.599] 13%|█▎        | 38/300 [01:44<11:31,  2.64s/it, data_times=0.001, model_times=2.686] 13%|█▎        | 39/300 [01:47<11:34,  2.66s/it, data_times=0.001, model_times=2.686] 13%|█▎        | 39/300 [01:47<11:34,  2.66s/it, data_times=0.001, model_times=2.708] 13%|█▎        | 40/300 [01:50<11:31,  2.66s/it, data_times=0.001, model_times=2.708] 13%|█▎        | 40/300 [01:50<11:31,  2.66s/it, data_times=0.001, model_times=2.654]09/06 [09:01:25] INFO     | >> Step 40, Loss:               train_starvla.py:320
+                          {'action_dit_loss':                                   
+                          0.8761898875236511,                                   
+                          'timing/data':                                        
+                          0.0009207921102643013,                                
+                          'timing/model':                                       
+                          2.654462962411344,                                    
+                          'learning_rate/qwen_vl_interface'                     
+                          : 9.967544117161328e-05,                              
+                          'learning_rate/action_model':                         
+                          9.967544117161328e-05,                                
+                          'learning_rate/base':                                 
+                          2.491886029290332e-05, 'epoch':                       
+                          0.01})                                                
+ 14%|█▎        | 41/300 [01:53<11:34,  2.68s/it, data_times=0.001, model_times=2.654] 14%|█▎        | 41/300 [01:53<11:34,  2.68s/it, data_times=0.001, model_times=2.725] 14%|█▍        | 42/300 [01:55<11:25,  2.66s/it, data_times=0.001, model_times=2.725] 14%|█▍        | 42/300 [01:55<11:25,  2.66s/it, data_times=0.001, model_times=2.590] 14%|█▍        | 43/300 [01:58<11:26,  2.67s/it, data_times=0.001, model_times=2.590] 14%|█▍        | 43/300 [01:58<11:26,  2.67s/it, data_times=0.001, model_times=2.698] 15%|█▍        | 44/300 [02:00<11:23,  2.67s/it, data_times=0.001, model_times=2.698] 15%|█▍        | 44/300 [02:00<11:23,  2.67s/it, data_times=0.001, model_times=2.669] 15%|█▌        | 45/300 [02:03<11:14,  2.64s/it, data_times=0.001, model_times=2.669] 15%|█▌        | 45/300 [02:03<11:14,  2.64s/it, data_times=0.001, model_times=2.582] 15%|█▌        | 46/300 [02:06<11:23,  2.69s/it, data_times=0.001, model_times=2.582] 15%|█▌        | 46/300 [02:06<11:23,  2.69s/it, data_times=0.001, model_times=2.800] 16%|█▌        | 47/300 [02:09<11:22,  2.70s/it, data_times=0.001, model_times=2.800] 16%|█▌        | 47/300 [02:09<11:22,  2.70s/it, data_times=0.001, model_times=2.707] 16%|█▌        | 48/300 [02:11<11:12,  2.67s/it, data_times=0.001, model_times=2.707] 16%|█▌        | 48/300 [02:11<11:12,  2.67s/it, data_times=0.001, model_times=2.596] 16%|█▋        | 49/300 [02:14<11:05,  2.65s/it, data_times=0.001, model_times=2.596] 16%|█▋        | 49/300 [02:14<11:05,  2.65s/it, data_times=0.001, model_times=2.604] 17%|█▋        | 50/300 [02:17<11:24,  2.74s/it, data_times=0.001, model_times=2.604] 17%|█▋        | 50/300 [02:17<11:24,  2.74s/it, data_times=0.001, model_times=2.939]09/06 [09:01:53] INFO     | >> Step 50, Loss:               train_starvla.py:320
+                          {'action_dit_loss':                                   
+                          0.616938591003418, 'mse_score':                       
+                          0.02209086503301348,                                  
+                          'timing/data':                                        
+                          0.0005305791273713112,                                
+                          'timing/model':                                       
+                          2.9391636420041323,                                   
+                          'learning_rate/qwen_vl_interface'                     
+                          : 9.870615378783155e-05,                              
+                          'learning_rate/action_model':                         
+                          9.870615378783155e-05,                                
+                          'learning_rate/base':                                 
+                          2.4676538446957887e-05, 'epoch':                      
+                          0.01})                                                
+ 17%|█▋        | 51/300 [02:21<12:58,  3.13s/it, data_times=0.001, model_times=2.939] 17%|█▋        | 51/300 [02:21<12:58,  3.13s/it, data_times=0.001, model_times=2.626] 17%|█▋        | 52/300 [02:23<12:19,  2.98s/it, data_times=0.001, model_times=2.626] 17%|█▋        | 52/300 [02:23<12:19,  2.98s/it, data_times=0.001, model_times=2.641] 18%|█▊        | 53/300 [02:26<11:58,  2.91s/it, data_times=0.001, model_times=2.641] 18%|█▊        | 53/300 [02:26<11:58,  2.91s/it, data_times=0.001, model_times=2.739] 18%|█▊        | 54/300 [02:29<11:33,  2.82s/it, data_times=0.001, model_times=2.739] 18%|█▊        | 54/300 [02:29<11:33,  2.82s/it, data_times=0.001, model_times=2.602] 18%|█▊        | 55/300 [02:31<11:18,  2.77s/it, data_times=0.001, model_times=2.602] 18%|█▊        | 55/300 [02:31<11:18,  2.77s/it, data_times=0.001, model_times=2.646] 19%|█▊        | 56/300 [02:34<11:09,  2.74s/it, data_times=0.001, model_times=2.646] 19%|█▊        | 56/300 [02:34<11:09,  2.74s/it, data_times=0.001, model_times=2.680] 19%|█▉        | 57/300 [02:37<10:53,  2.69s/it, data_times=0.001, model_times=2.680] 19%|█▉        | 57/300 [02:37<10:53,  2.69s/it, data_times=0.000, model_times=2.556] 19%|█▉        | 58/300 [02:39<10:49,  2.69s/it, data_times=0.000, model_times=2.556] 19%|█▉        | 58/300 [02:39<10:49,  2.69s/it, data_times=0.001, model_times=2.679] 20%|█▉        | 59/300 [02:42<10:49,  2.69s/it, data_times=0.001, model_times=2.679] 20%|█▉        | 59/300 [02:42<10:49,  2.69s/it, data_times=0.001, model_times=2.707] 20%|██        | 60/300 [02:45<10:49,  2.70s/it, data_times=0.001, model_times=2.707] 20%|██        | 60/300 [02:45<10:49,  2.70s/it, data_times=0.001, model_times=2.727]09/06 [09:02:20] INFO     | >> Step 60, Loss:               train_starvla.py:320
+                          {'action_dit_loss':                                   
+                          0.5724411010742188,                                   
+                          'timing/data':                                        
+                          0.000529758632183075,                                 
+                          'timing/model':                                       
+                          2.7272200100123882,                                   
+                          'learning_rate/qwen_vl_interface'                     
+                          : 9.71052457977236e-05,                               
+                          'learning_rate/action_model':                         
+                          9.71052457977236e-05,                                 
+                          'learning_rate/base':                                 
+                          2.42763114494309e-05, 'epoch':                        
+                          0.01})                                                
+ 20%|██        | 61/300 [02:47<10:39,  2.67s/it, data_times=0.001, model_times=2.727] 20%|██        | 61/300 [02:47<10:39,  2.67s/it, data_times=0.001, model_times=2.596] 21%|██        | 62/300 [02:50<10:35,  2.67s/it, data_times=0.001, model_times=2.596] 21%|██        | 62/300 [02:50<10:35,  2.67s/it, data_times=0.001, model_times=2.654] 21%|██        | 63/300 [02:53<10:27,  2.65s/it, data_times=0.001, model_times=2.654] 21%|██        | 63/300 [02:53<10:27,  2.65s/it, data_times=0.001, model_times=2.600] 21%|██▏       | 64/300 [02:55<10:29,  2.67s/it, data_times=0.001, model_times=2.600] 21%|██▏       | 64/300 [02:55<10:29,  2.67s/it, data_times=0.001, model_times=2.699] 22%|██▏       | 65/300 [02:58<10:25,  2.66s/it, data_times=0.001, model_times=2.699] 22%|██▏       | 65/300 [02:58<10:25,  2.66s/it, data_times=0.001, model_times=2.645] 22%|██▏       | 66/300 [03:01<10:16,  2.63s/it, data_times=0.001, model_times=2.645] 22%|██▏       | 66/300 [03:01<10:16,  2.63s/it, data_times=0.001, model_times=2.571] 22%|██▏       | 67/300 [03:03<10:10,  2.62s/it, data_times=0.001, model_times=2.571] 22%|██▏       | 67/300 [03:03<10:10,  2.62s/it, data_times=0.001, model_times=2.591] 23%|██▎       | 68/300 [03:06<10:17,  2.66s/it, data_times=0.001, model_times=2.591] 23%|██▎       | 68/300 [03:06<10:17,  2.66s/it, data_times=0.001, model_times=2.747] 23%|██▎       | 69/300 [03:09<10:19,  2.68s/it, data_times=0.001, model_times=2.747] 23%|██▎       | 69/300 [03:09<10:19,  2.68s/it, data_times=0.001, model_times=2.722] 23%|██▎       | 70/300 [03:11<10:13,  2.67s/it, data_times=0.001, model_times=2.722] 23%|██▎       | 70/300 [03:11<10:13,  2.67s/it, data_times=0.001, model_times=2.639]09/06 [09:02:46] INFO     | >> Step 70, Loss:               train_starvla.py:320
+                          {'action_dit_loss':                                   
+                          0.509531557559967, 'timing/data':                     
+                          0.0007385145872831345,                                
+                          'timing/model':                                       
+                          2.6393191013485193,                                   
+                          'learning_rate/qwen_vl_interface'                     
+                          : 9.48943667355238e-05,                               
+                          'learning_rate/action_model':                         
+                          9.48943667355238e-05,                                 
+                          'learning_rate/base':                                 
+                          2.372359168388095e-05, 'epoch':                       
+                          0.01})                                                
+ 24%|██▎       | 71/300 [03:14<10:06,  2.65s/it, data_times=0.001, model_times=2.639] 24%|██▎       | 71/300 [03:14<10:06,  2.65s/it, data_times=0.001, model_times=2.586] 24%|██▍       | 72/300 [03:16<09:58,  2.62s/it, data_times=0.001, model_times=2.586] 24%|██▍       | 72/300 [03:16<09:58,  2.62s/it, data_times=0.001, model_times=2.567] 24%|██▍       | 73/300 [03:19<09:53,  2.61s/it, data_times=0.001, model_times=2.567] 24%|██▍       | 73/300 [03:19<09:53,  2.61s/it, data_times=0.001, model_times=2.586] 25%|██▍       | 74/300 [03:22<09:48,  2.60s/it, data_times=0.001, model_times=2.586] 25%|██▍       | 74/300 [03:22<09:48,  2.60s/it, data_times=0.001, model_times=2.577] 25%|██▌       | 75/300 [03:24<09:44,  2.60s/it, data_times=0.001, model_times=2.577] 25%|██▌       | 75/300 [03:24<09:44,  2.60s/it, data_times=0.001, model_times=2.579] 25%|██▌       | 76/300 [03:27<09:42,  2.60s/it, data_times=0.001, model_times=2.579] 25%|██▌       | 76/300 [03:27<09:42,  2.60s/it, data_times=0.001, model_times=2.599] 26%|██▌       | 77/300 [03:29<09:37,  2.59s/it, data_times=0.001, model_times=2.599] 26%|██▌       | 77/300 [03:29<09:37,  2.59s/it, data_times=0.001, model_times=2.566] 26%|██▌       | 78/300 [03:32<09:38,  2.61s/it, data_times=0.001, model_times=2.566] 26%|██▌       | 78/300 [03:32<09:38,  2.61s/it, data_times=0.001, model_times=2.644] 26%|██▋       | 79/300 [03:35<09:38,  2.62s/it, data_times=0.001, model_times=2.644] 26%|██▋       | 79/300 [03:35<09:38,  2.62s/it, data_times=0.001, model_times=2.639] 27%|██▋       | 80/300 [03:37<09:35,  2.62s/it, data_times=0.001, model_times=2.639] 27%|██▋       | 80/300 [03:37<09:35,  2.62s/it, data_times=0.000, model_times=2.606]09/06 [09:03:12] INFO     | >> Step 80, Loss:               train_starvla.py:320
+                          {'action_dit_loss':                                   
+                          0.6079393625259399,                                   
+                          'timing/data':                                        
+                          0.0004650084301829338,                                
+                          'timing/model':                                       
+                          2.605883587151766,                                    
+                          'learning_rate/qwen_vl_interface'                     
+                          : 9.210341494782096e-05,                              
+                          'learning_rate/action_model':                         
+                          9.210341494782096e-05,                                
+                          'learning_rate/base':                                 
+                          2.302585373695524e-05, 'epoch':                       
+                          0.01})                                                
+ 27%|██▋       | 81/300 [03:40<09:27,  2.59s/it, data_times=0.000, model_times=2.606] 27%|██▋       | 81/300 [03:40<09:27,  2.59s/it, data_times=0.001, model_times=2.522] 27%|██▋       | 82/300 [03:42<09:24,  2.59s/it, data_times=0.001, model_times=2.522] 27%|██▋       | 82/300 [03:42<09:24,  2.59s/it, data_times=0.001, model_times=2.579] 28%|██▊       | 83/300 [03:45<09:22,  2.59s/it, data_times=0.001, model_times=2.579] 28%|██▊       | 83/300 [03:45<09:22,  2.59s/it, data_times=0.001, model_times=2.604] 28%|██▊       | 84/300 [03:48<09:23,  2.61s/it, data_times=0.001, model_times=2.604] 28%|██▊       | 84/300 [03:48<09:23,  2.61s/it, data_times=0.000, model_times=2.641] 28%|██▊       | 85/300 [03:50<09:24,  2.63s/it, data_times=0.000, model_times=2.641] 28%|██▊       | 85/300 [03:50<09:24,  2.63s/it, data_times=0.001, model_times=2.662] 29%|██▊       | 86/300 [03:53<09:19,  2.61s/it, data_times=0.001, model_times=2.662] 29%|██▊       | 86/300 [03:53<09:19,  2.61s/it, data_times=0.001, model_times=2.586] 29%|██▉       | 87/300 [03:55<09:16,  2.61s/it, data_times=0.001, model_times=2.586] 29%|██▉       | 87/300 [03:55<09:16,  2.61s/it, data_times=0.001, model_times=2.600] 29%|██▉       | 88/300 [03:58<09:06,  2.58s/it, data_times=0.001, model_times=2.600] 29%|██▉       | 88/300 [03:58<09:06,  2.58s/it, data_times=0.001, model_times=2.497] 30%|██▉       | 89/300 [04:01<08:59,  2.56s/it, data_times=0.001, model_times=2.497] 30%|██▉       | 89/300 [04:01<08:59,  2.56s/it, data_times=0.001, model_times=2.506] 30%|███       | 90/300 [04:03<09:00,  2.58s/it, data_times=0.001, model_times=2.506] 30%|███       | 90/300 [04:03<09:00,  2.58s/it, data_times=0.001, model_times=2.616]09/06 [09:03:38] INFO     | >> Step 90, Loss:               train_starvla.py:320
+                          {'action_dit_loss':                                   
+                          0.4717736542224884,                                   
+                          'timing/data':                                        
+                          0.0006957203149795532,                                
+                          'timing/model':                                       
+                          2.615882858633995,                                    
+                          'learning_rate/qwen_vl_interface'                     
+                          : 8.877013326971095e-05,                              
+                          'learning_rate/action_model':                         
+                          8.877013326971095e-05,                                
+                          'learning_rate/base':                                 
+                          2.2192533317427737e-05, 'epoch':                      
+                          0.01})                                                
+ 30%|███       | 91/300 [04:06<09:02,  2.60s/it, data_times=0.001, model_times=2.616] 30%|███       | 91/300 [04:06<09:02,  2.60s/it, data_times=0.001, model_times=2.639] 31%|███       | 92/300 [04:08<08:58,  2.59s/it, data_times=0.001, model_times=2.639] 31%|███       | 92/300 [04:08<08:58,  2.59s/it, data_times=0.001, model_times=2.573] 31%|███       | 93/300 [04:11<09:02,  2.62s/it, data_times=0.001, model_times=2.573] 31%|███       | 93/300 [04:11<09:02,  2.62s/it, data_times=0.001, model_times=2.681] 31%|███▏      | 94/300 [04:14<08:55,  2.60s/it, data_times=0.001, model_times=2.681] 31%|███▏      | 94/300 [04:14<08:55,  2.60s/it, data_times=0.001, model_times=2.550] 32%|███▏      | 95/300 [04:16<08:49,  2.58s/it, data_times=0.001, model_times=2.550] 32%|███▏      | 95/300 [04:16<08:49,  2.58s/it, data_times=0.001, model_times=2.538] 32%|███▏      | 96/300 [04:19<08:48,  2.59s/it, data_times=0.001, model_times=2.538] 32%|███▏      | 96/300 [04:19<08:48,  2.59s/it, data_times=0.001, model_times=2.616] 32%|███▏      | 97/300 [04:21<08:46,  2.59s/it, data_times=0.001, model_times=2.616] 32%|███▏      | 97/300 [04:21<08:46,  2.59s/it, data_times=0.001, model_times=2.597] 33%|███▎      | 98/300 [04:24<08:45,  2.60s/it, data_times=0.001, model_times=2.597] 33%|███▎      | 98/300 [04:24<08:45,  2.60s/it, data_times=0.001, model_times=2.607] 33%|███▎      | 99/300 [04:27<08:42,  2.60s/it, data_times=0.001, model_times=2.607] 33%|███▎      | 99/300 [04:27<08:42,  2.60s/it, data_times=0.001, model_times=2.602] 33%|███▎      | 100/300 [04:29<08:39,  2.60s/it, data_times=0.001, model_times=2.602] 33%|███▎      | 100/300 [04:29<08:39,  2.60s/it, data_times=0.001, model_times=2.591]09/06 [09:04:06] INFO     | >> Step 100, Loss:              train_starvla.py:320
+                          {'action_dit_loss':                                   
+                          0.5797900557518005, 'mse_score':                      
+                          0.01972707041672298,                                  
+                          'timing/data':                                        
+                          0.0008247401565313339,                                
+                          'timing/model':                                       
+                          2.591192097403109,                                    
+                          'learning_rate/qwen_vl_interface'                     
+                          : 8.493959861769923e-05,                              
+                          'learning_rate/action_model':                         
+                          8.493959861769923e-05,                                
+                          'learning_rate/base':                                 
+                          2.1234899654424807e-05, 'epoch':                      
+                          0.02})                                                
+ 34%|███▎      | 101/300 [04:33<09:59,  3.01s/it, data_times=0.001, model_times=2.591] 34%|███▎      | 101/300 [04:33<09:59,  3.01s/it, data_times=0.001, model_times=2.564] 34%|███▍      | 102/300 [04:36<09:34,  2.90s/it, data_times=0.001, model_times=2.564] 34%|███▍      | 102/300 [04:36<09:34,  2.90s/it, data_times=0.001, model_times=2.629] 34%|███▍      | 103/300 [04:38<09:17,  2.83s/it, data_times=0.001, model_times=2.629] 34%|███▍      | 103/300 [04:38<09:17,  2.83s/it, data_times=0.001, model_times=2.657] 35%|███▍      | 104/300 [04:41<09:03,  2.77s/it, data_times=0.001, model_times=2.657] 35%|███▍      | 104/300 [04:41<09:03,  2.77s/it, data_times=0.001, model_times=2.638] 35%|███▌      | 105/300 [04:44<08:51,  2.73s/it, data_times=0.001, model_times=2.638] 35%|███▌      | 105/300 [04:44<08:51,  2.73s/it, data_times=0.001, model_times=2.624] 35%|███▌      | 106/300 [04:46<08:41,  2.69s/it, data_times=0.001, model_times=2.624] 35%|███▌      | 106/300 [04:46<08:41,  2.69s/it, data_times=0.001, model_times=2.591] 36%|███▌      | 107/300 [04:49<08:32,  2.65s/it, data_times=0.001, model_times=2.591] 36%|███▌      | 107/300 [04:49<08:32,  2.65s/it, data_times=0.001, model_times=2.572] 36%|███▌      | 108/300 [04:51<08:22,  2.62s/it, data_times=0.001, model_times=2.572] 36%|███▌      | 108/300 [04:51<08:22,  2.62s/it, data_times=0.000, model_times=2.534] 36%|███▋      | 109/300 [04:54<08:19,  2.61s/it, data_times=0.000, model_times=2.534] 36%|███▋      | 109/300 [04:54<08:19,  2.61s/it, data_times=0.001, model_times=2.595] 37%|███▋      | 110/300 [04:57<08:16,  2.61s/it, data_times=0.001, model_times=2.595] 37%|███▋      | 110/300 [04:57<08:16,  2.61s/it, data_times=0.000, model_times=2.604]09/06 [09:04:32] INFO     | >> Step 110, Loss:              train_starvla.py:320
+                          {'action_dit_loss':                                   
+                          0.4671263098716736,                                   
+                          'timing/data':                                        
+                          0.0004556030035018921,                                
+                          'timing/model':                                       
+                          2.603963939473033,                                    
+                          'learning_rate/qwen_vl_interface'                     
+                          : 8.066361240173374e-05,                              
+                          'learning_rate/action_model':                         
+                          8.066361240173374e-05,                                
+                          'learning_rate/base':                                 
+                          2.0165903100433436e-05, 'epoch':                      
+                          0.02})                                                
+ 37%|███▋      | 111/300 [04:59<08:08,  2.58s/it, data_times=0.000, model_times=2.604] 37%|███▋      | 111/300 [04:59<08:08,  2.58s/it, data_times=0.001, model_times=2.507] 37%|███▋      | 112/300 [05:02<08:08,  2.60s/it, data_times=0.001, model_times=2.507] 37%|███▋      | 112/300 [05:02<08:08,  2.60s/it, data_times=0.001, model_times=2.639] 38%|███▊      | 113/300 [05:04<08:10,  2.62s/it, data_times=0.001, model_times=2.639] 38%|███▊      | 113/300 [05:04<08:10,  2.62s/it, data_times=0.001, model_times=2.680] 38%|███▊      | 114/300 [05:07<08:06,  2.62s/it, data_times=0.001, model_times=2.680] 38%|███▊      | 114/300 [05:07<08:06,  2.62s/it, data_times=0.001, model_times=2.595] 38%|███▊      | 115/300 [05:10<08:05,  2.62s/it, data_times=0.001, model_times=2.595] 38%|███▊      | 115/300 [05:10<08:05,  2.62s/it, data_times=0.001, model_times=2.633] 39%|███▊      | 116/300 [05:12<08:06,  2.65s/it, data_times=0.001, model_times=2.633] 39%|███▊      | 116/300 [05:12<08:06,  2.65s/it, data_times=0.001, model_times=2.695] 39%|███▉      | 117/300 [05:15<08:03,  2.64s/it, data_times=0.001, model_times=2.695] 39%|███▉      | 117/300 [05:15<08:03,  2.64s/it, data_times=0.001, model_times=2.634] 39%|███▉      | 118/300 [05:18<08:01,  2.64s/it, data_times=0.001, model_times=2.634] 39%|███▉      | 118/300 [05:18<08:01,  2.64s/it, data_times=0.001, model_times=2.642] 40%|███▉      | 119/300 [05:20<07:55,  2.62s/it, data_times=0.001, model_times=2.642] 40%|███▉      | 119/300 [05:20<07:55,  2.62s/it, data_times=0.001, model_times=2.578] 40%|████      | 120/300 [05:23<07:53,  2.63s/it, data_times=0.001, model_times=2.578] 40%|████      | 120/300 [05:23<07:53,  2.63s/it, data_times=0.001, model_times=2.638]09/06 [09:04:58] INFO     | >> Step 120, Loss:              train_starvla.py:320
+                          {'action_dit_loss':                                   
+                          0.5863685607910156,                                   
+                          'timing/data':                                        
+                          0.0007112929597496986,                                
+                          'timing/model':                                       
+                          2.637632604688406,                                    
+                          'learning_rate/qwen_vl_interface'                     
+                          : 7.6e-05,                                            
+                          'learning_rate/action_model':                         
+                          7.6e-05, 'learning_rate/base':                        
+                          1.9e-05, 'epoch': 0.02})                              
+ 40%|████      | 121/300 [05:26<07:55,  2.66s/it, data_times=0.001, model_times=2.638] 40%|████      | 121/300 [05:26<07:55,  2.66s/it, data_times=0.001, model_times=2.710] 41%|████      | 122/300 [05:28<07:49,  2.64s/it, data_times=0.001, model_times=2.710] 41%|████      | 122/300 [05:28<07:49,  2.64s/it, data_times=0.000, model_times=2.592] 41%|████      | 123/300 [05:31<07:42,  2.61s/it, data_times=0.000, model_times=2.592] 41%|████      | 123/300 [05:31<07:42,  2.61s/it, data_times=0.001, model_times=2.554] 41%|████▏     | 124/300 [05:34<07:53,  2.69s/it, data_times=0.001, model_times=2.554] 41%|████▏     | 124/300 [05:34<07:53,  2.69s/it, data_times=0.001, model_times=2.856] 42%|████▏     | 125/300 [05:36<07:40,  2.63s/it, data_times=0.001, model_times=2.856] 42%|████▏     | 125/300 [05:36<07:40,  2.63s/it, data_times=0.001, model_times=2.503] 42%|████▏     | 126/300 [05:39<07:37,  2.63s/it, data_times=0.001, model_times=2.503] 42%|████▏     | 126/300 [05:39<07:37,  2.63s/it, data_times=0.001, model_times=2.607] 42%|████▏     | 127/300 [05:41<07:35,  2.63s/it, data_times=0.001, model_times=2.607] 42%|████▏     | 127/300 [05:41<07:35,  2.63s/it, data_times=0.001, model_times=2.638] 43%|████▎     | 128/300 [05:44<07:29,  2.61s/it, data_times=0.001, model_times=2.638] 43%|████▎     | 128/300 [05:44<07:29,  2.61s/it, data_times=0.001, model_times=2.560] 43%|████▎     | 129/300 [05:47<07:25,  2.60s/it, data_times=0.001, model_times=2.560] 43%|████▎     | 129/300 [05:47<07:25,  2.60s/it, data_times=0.001, model_times=2.586] 43%|████▎     | 130/300 [05:49<07:31,  2.65s/it, data_times=0.001, model_times=2.586] 43%|████▎     | 130/300 [05:49<07:31,  2.65s/it, data_times=0.001, model_times=2.769]09/06 [09:05:25] INFO     | >> Step 130, Loss:              train_starvla.py:320
+                          {'action_dit_loss':                                   
+                          0.5588855147361755,                                   
+                          'timing/data':                                        
+                          0.0007779933512210846,                                
+                          'timing/model':                                       
+                          2.7689346354454756,                                   
+                          'learning_rate/qwen_vl_interface'                     
+                          : 7.101182876987953e-05,                              
+                          'learning_rate/action_model':                         
+                          7.101182876987953e-05,                                
+                          'learning_rate/base':                                 
+                          1.7752957192469884e-05, 'epoch':                      
+                          0.02})                                                
+ 44%|████▎     | 131/300 [05:52<07:31,  2.67s/it, data_times=0.001, model_times=2.769] 44%|████▎     | 131/300 [05:52<07:31,  2.67s/it, data_times=0.001, model_times=2.693] 44%|████▍     | 132/300 [05:55<07:25,  2.65s/it, data_times=0.001, model_times=2.693] 44%|████▍     | 132/300 [05:55<07:25,  2.65s/it, data_times=0.001, model_times=2.610] 44%|████▍     | 133/300 [05:57<07:20,  2.64s/it, data_times=0.001, model_times=2.610] 44%|████▍     | 133/300 [05:57<07:20,  2.64s/it, data_times=0.002, model_times=2.600] 45%|████▍     | 134/300 [06:00<07:16,  2.63s/it, data_times=0.002, model_times=2.600] 45%|████▍     | 134/300 [06:00<07:16,  2.63s/it, data_times=0.001, model_times=2.610] 45%|████▌     | 135/300 [06:03<07:25,  2.70s/it, data_times=0.001, model_times=2.610] 45%|████▌     | 135/300 [06:03<07:25,  2.70s/it, data_times=0.001, model_times=2.853] 45%|████▌     | 136/300 [06:06<07:31,  2.76s/it, data_times=0.001, model_times=2.853] 45%|████▌     | 136/300 [06:06<07:31,  2.76s/it, data_times=0.000, model_times=2.887] 46%|████▌     | 137/300 [06:08<07:21,  2.71s/it, data_times=0.000, model_times=2.887] 46%|████▌     | 137/300 [06:08<07:21,  2.71s/it, data_times=0.001, model_times=2.595] 46%|████▌     | 138/300 [06:11<07:17,  2.70s/it, data_times=0.001, model_times=2.595] 46%|████▌     | 138/300 [06:11<07:17,  2.70s/it, data_times=0.001, model_times=2.682] 46%|████▋     | 139/300 [06:14<07:12,  2.69s/it, data_times=0.001, model_times=2.682] 46%|████▋     | 139/300 [06:14<07:12,  2.69s/it, data_times=0.001, model_times=2.650] 47%|████▋     | 140/300 [06:16<07:05,  2.66s/it, data_times=0.001, model_times=2.650] 47%|████▋     | 140/300 [06:16<07:05,  2.66s/it, data_times=0.001, model_times=2.592]09/06 [09:05:51] INFO     | >> Step 140, Loss:              train_starvla.py:320
+                          {'action_dit_loss':                                   
+                          0.41415855288505554,                                  
+                          'timing/data':                                        
+                          0.0005537122488021851,                                
+                          'timing/model': 2.59166167024523,                     
+                          'learning_rate/qwen_vl_interface'                     
+                          : 6.576655517013234e-05,                              
+                          'learning_rate/action_model':                         
+                          6.576655517013234e-05,                                
+                          'learning_rate/base':                                 
+                          1.6441638792533085e-05, 'epoch':                      
+                          0.02})                                                
+ 47%|████▋     | 141/300 [06:19<07:07,  2.69s/it, data_times=0.001, model_times=2.592] 47%|████▋     | 141/300 [06:19<07:07,  2.69s/it, data_times=0.001, model_times=2.737] 47%|████▋     | 142/300 [06:21<06:58,  2.65s/it, data_times=0.001, model_times=2.737] 47%|████▋     | 142/300 [06:21<06:58,  2.65s/it, data_times=0.001, model_times=2.560] 48%|████▊     | 143/300 [06:24<06:53,  2.63s/it, data_times=0.001, model_times=2.560] 48%|████▊     | 143/300 [06:24<06:53,  2.63s/it, data_times=0.001, model_times=2.593] 48%|████▊     | 144/300 [06:27<06:45,  2.60s/it, data_times=0.001, model_times=2.593] 48%|████▊     | 144/300 [06:27<06:45,  2.60s/it, data_times=0.001, model_times=2.511] 48%|████▊     | 145/300 [06:29<06:48,  2.64s/it, data_times=0.001, model_times=2.511] 48%|████▊     | 145/300 [06:29<06:48,  2.64s/it, data_times=0.001, model_times=2.728] 49%|████▊     | 146/300 [06:32<06:48,  2.65s/it, data_times=0.001, model_times=2.728] 49%|████▊     | 146/300 [06:32<06:48,  2.65s/it, data_times=0.001, model_times=2.691] 49%|████▉     | 147/300 [06:35<06:50,  2.68s/it, data_times=0.001, model_times=2.691] 49%|████▉     | 147/300 [06:35<06:50,  2.68s/it, data_times=0.001, model_times=2.751] 49%|████▉     | 148/300 [06:37<06:43,  2.65s/it, data_times=0.001, model_times=2.751] 49%|████▉     | 148/300 [06:37<06:43,  2.65s/it, data_times=0.001, model_times=2.578] 50%|████▉     | 149/300 [06:40<06:37,  2.64s/it, data_times=0.001, model_times=2.578] 50%|████▉     | 149/300 [06:40<06:37,  2.64s/it, data_times=0.001, model_times=2.589] 50%|█████     | 150/300 [06:43<06:39,  2.66s/it, data_times=0.001, model_times=2.589] 50%|█████     | 150/300 [06:43<06:39,  2.66s/it, data_times=0.001, model_times=2.730]09/06 [09:06:19] INFO     | >> Step 150, Loss:              train_starvla.py:320
+                          {'action_dit_loss':                                   
+                          0.4209943115711212, 'mse_score':                      
+                          0.023398923022406443,                                 
+                          'timing/data':                                        
+                          0.0008602757006883621,                                
+                          'timing/model':                                       
+                          2.7302982369437814,                                   
+                          'learning_rate/qwen_vl_interface'                     
+                          : 6.033511252801267e-05,                              
+                          'learning_rate/action_model':                         
+                          6.033511252801267e-05,                                
+                          'learning_rate/base':                                 
+                          1.5083778132003167e-05, 'epoch':                      
+                          0.02})                                                
+ 50%|█████     | 151/300 [06:47<07:42,  3.10s/it, data_times=0.001, model_times=2.730] 50%|█████     | 151/300 [06:47<07:42,  3.10s/it, data_times=0.001, model_times=2.676] 51%|█████     | 152/300 [06:50<07:25,  3.01s/it, data_times=0.001, model_times=2.676] 51%|█████     | 152/300 [06:50<07:25,  3.01s/it, data_times=0.001, model_times=2.778] 51%|█████     | 153/300 [06:52<07:06,  2.90s/it, data_times=0.001, model_times=2.778] 51%|█████     | 153/300 [06:52<07:06,  2.90s/it, data_times=0.001, model_times=2.644] 51%|█████▏    | 154/300 [06:55<06:53,  2.83s/it, data_times=0.001, model_times=2.644] 51%|█████▏    | 154/300 [06:55<06:53,  2.83s/it, data_times=0.001, model_times=2.668] 52%|█████▏    | 155/300 [06:57<06:40,  2.76s/it, data_times=0.001, model_times=2.668] 52%|█████▏    | 155/300 [06:57<06:40,  2.76s/it, data_times=0.001, model_times=2.589] 52%|█████▏    | 156/300 [07:00<06:34,  2.74s/it, data_times=0.001, model_times=2.589] 52%|█████▏    | 156/300 [07:00<06:34,  2.74s/it, data_times=0.001, model_times=2.693] 52%|█████▏    | 157/300 [07:03<06:40,  2.80s/it, data_times=0.001, model_times=2.693] 52%|█████▏    | 157/300 [07:03<06:40,  2.80s/it, data_times=0.001, model_times=2.932] 53%|█████▎    | 158/300 [07:06<06:29,  2.74s/it, data_times=0.001, model_times=2.932] 53%|█████▎    | 158/300 [07:06<06:29,  2.74s/it, data_times=0.001, model_times=2.608] 53%|█████▎    | 159/300 [07:08<06:16,  2.67s/it, data_times=0.001, model_times=2.608] 53%|█████▎    | 159/300 [07:08<06:16,  2.67s/it, data_times=0.001, model_times=2.497] 53%|█████▎    | 160/300 [07:11<06:16,  2.69s/it, data_times=0.001, model_times=2.497] 53%|█████▎    | 160/300 [07:11<06:16,  2.69s/it, data_times=0.001, model_times=2.730]09/06 [09:06:46] INFO     | >> Step 160, Loss:              train_starvla.py:320
+                          {'action_dit_loss':                                   
+                          0.39398086071014404,                                  
+                          'timing/data':                                        
+                          0.000678294338285923,                                 
+                          'timing/model':                                       
+                          2.7303825318813324,                                   
+                          'learning_rate/qwen_vl_interface'                     
+                          : 5.479095178770284e-05,                              
+                          'learning_rate/action_model':                         
+                          5.479095178770284e-05,                                
+                          'learning_rate/base':                                 
+                          1.369773794692571e-05, 'epoch':                       
+                          0.02})                                                
+ 54%|█████▎    | 161/300 [07:14<06:09,  2.66s/it, data_times=0.001, model_times=2.730] 54%|█████▎    | 161/300 [07:14<06:09,  2.66s/it, data_times=0.001, model_times=2.587] 54%|█████▍    | 162/300 [07:16<06:10,  2.68s/it, data_times=0.001, model_times=2.587] 54%|█████▍    | 162/300 [07:16<06:10,  2.68s/it, data_times=0.001, model_times=2.729] 54%|█████▍    | 163/300 [07:19<06:04,  2.66s/it, data_times=0.001, model_times=2.729] 54%|█████▍    | 163/300 [07:19<06:04,  2.66s/it, data_times=0.001, model_times=2.616] 55%|█████▍    | 164/300 [07:22<06:03,  2.67s/it, data_times=0.001, model_times=2.616] 55%|█████▍    | 164/300 [07:22<06:03,  2.67s/it, data_times=0.001, model_times=2.682] 55%|█████▌    | 165/300 [07:24<06:01,  2.68s/it, data_times=0.001, model_times=2.682] 55%|█████▌    | 165/300 [07:24<06:01,  2.68s/it, data_times=0.001, model_times=2.695] 55%|█████▌    | 166/300 [07:27<06:06,  2.74s/it, data_times=0.001, model_times=2.695] 55%|█████▌    | 166/300 [07:27<06:06,  2.74s/it, data_times=0.001, model_times=2.867] 56%|█████▌    | 167/300 [07:30<06:05,  2.75s/it, data_times=0.001, model_times=2.867] 56%|█████▌    | 167/300 [07:30<06:05,  2.75s/it, data_times=0.000, model_times=2.775] 56%|█████▌    | 168/300 [07:33<06:00,  2.73s/it, data_times=0.000, model_times=2.775] 56%|█████▌    | 168/300 [07:33<06:00,  2.73s/it, data_times=0.001, model_times=2.683] 56%|█████▋    | 169/300 [07:35<05:56,  2.72s/it, data_times=0.001, model_times=2.683] 56%|█████▋    | 169/300 [07:35<05:56,  2.72s/it, data_times=0.001, model_times=2.707] 57%|█████▋    | 170/300 [07:38<05:55,  2.73s/it, data_times=0.001, model_times=2.707] 57%|█████▋    | 170/300 [07:38<05:55,  2.73s/it, data_times=0.001, model_times=2.757]09/06 [09:07:13] INFO     | >> Step 170, Loss:              train_starvla.py:320
+                          {'action_dit_loss':                                   
+                          0.49617162346839905,                                  
+                          'timing/data':                                        
+                          0.0005530761554837227,                                
+                          'timing/model':                                       
+                          2.7567494632676244,                                   
+                          'learning_rate/qwen_vl_interface'                     
+                          : 4.920904821229716e-05,                              
+                          'learning_rate/action_model':                         
+                          4.920904821229716e-05,                                
+                          'learning_rate/base':                                 
+                          1.230226205307429e-05, 'epoch':                       
+                          0.03})                                                
+ 57%|█████▋    | 171/300 [07:41<05:50,  2.72s/it, data_times=0.001, model_times=2.757] 57%|█████▋    | 171/300 [07:41<05:50,  2.72s/it, data_times=0.001, model_times=2.674] 57%|█████▋    | 172/300 [07:43<05:50,  2.73s/it, data_times=0.001, model_times=2.674] 57%|█████▋    | 172/300 [07:44<05:50,  2.73s/it, data_times=0.001, model_times=2.767] 58%|█████▊    | 173/300 [07:46<05:41,  2.69s/it, data_times=0.001, model_times=2.767] 58%|█████▊    | 173/300 [07:46<05:41,  2.69s/it, data_times=0.001, model_times=2.575] 58%|█████▊    | 174/300 [07:49<05:36,  2.67s/it, data_times=0.001, model_times=2.575] 58%|█████▊    | 174/300 [07:49<05:36,  2.67s/it, data_times=0.001, model_times=2.623] 58%|█████▊    | 175/300 [07:51<05:31,  2.65s/it, data_times=0.001, model_times=2.623] 58%|█████▊    | 175/300 [07:51<05:31,  2.65s/it, data_times=0.001, model_times=2.601] 59%|█████▊    | 176/300 [07:54<05:32,  2.68s/it, data_times=0.001, model_times=2.601] 59%|█████▊    | 176/300 [07:54<05:32,  2.68s/it, data_times=0.001, model_times=2.762] 59%|█████▉    | 177/300 [07:57<05:28,  2.67s/it, data_times=0.001, model_times=2.762] 59%|█████▉    | 177/300 [07:57<05:28,  2.67s/it, data_times=0.001, model_times=2.642] 59%|█████▉    | 178/300 [07:59<05:25,  2.67s/it, data_times=0.001, model_times=2.642] 59%|█████▉    | 178/300 [07:59<05:25,  2.67s/it, data_times=0.001, model_times=2.656] 60%|█████▉    | 179/300 [08:02<05:25,  2.69s/it, data_times=0.001, model_times=2.656] 60%|█████▉    | 179/300 [08:02<05:25,  2.69s/it, data_times=0.001, model_times=2.729] 60%|██████    | 180/300 [08:05<05:16,  2.64s/it, data_times=0.001, model_times=2.729] 60%|██████    | 180/300 [08:05<05:16,  2.64s/it, data_times=0.001, model_times=2.511]09/06 [09:07:40] INFO     | >> Step 180, Loss:              train_starvla.py:320
+                          {'action_dit_loss':                                   
+                          0.42621147632598877,                                  
+                          'timing/data':                                        
+                          0.0006454456597566605,                                
+                          'timing/model':                                       
+                          2.5113536110147834,                                   
+                          'learning_rate/qwen_vl_interface'                     
+                          : 4.3664887471987345e-05,                             
+                          'learning_rate/action_model':                         
+                          4.3664887471987345e-05,                               
+                          'learning_rate/base':                                 
+                          1.0916221867996836e-05, 'epoch':                      
+                          0.03})                                                
+ 60%|██████    | 181/300 [08:07<05:14,  2.65s/it, data_times=0.001, model_times=2.511] 60%|██████    | 181/300 [08:07<05:14,  2.65s/it, data_times=0.000, model_times=2.667] 61%|██████    | 182/300 [08:10<05:12,  2.65s/it, data_times=0.000, model_times=2.667] 61%|██████    | 182/300 [08:10<05:12,  2.65s/it, data_times=0.000, model_times=2.662] 61%|██████    | 183/300 [08:13<05:10,  2.65s/it, data_times=0.000, model_times=2.662] 61%|██████    | 183/300 [08:13<05:10,  2.65s/it, data_times=0.001, model_times=2.653] 61%|██████▏   | 184/300 [08:15<05:07,  2.65s/it, data_times=0.001, model_times=2.653] 61%|██████▏   | 184/300 [08:15<05:07,  2.65s/it, data_times=0.001, model_times=2.653] 62%|██████▏   | 185/300 [08:18<05:09,  2.69s/it, data_times=0.001, model_times=2.653] 62%|██████▏   | 185/300 [08:18<05:09,  2.69s/it, data_times=0.001, model_times=2.775] 62%|██████▏   | 186/300 [08:21<05:05,  2.68s/it, data_times=0.001, model_times=2.775] 62%|██████▏   | 186/300 [08:21<05:05,  2.68s/it, data_times=0.001, model_times=2.654] 62%|██████▏   | 187/300 [08:23<05:05,  2.70s/it, data_times=0.001, model_times=2.654] 62%|██████▏   | 187/300 [08:23<05:05,  2.70s/it, data_times=0.001, model_times=2.747] 63%|██████▎   | 188/300 [08:26<04:59,  2.68s/it, data_times=0.001, model_times=2.747] 63%|██████▎   | 188/300 [08:26<04:59,  2.68s/it, data_times=0.001, model_times=2.614] 63%|██████▎   | 189/300 [08:29<04:56,  2.67s/it, data_times=0.001, model_times=2.614] 63%|██████▎   | 189/300 [08:29<04:56,  2.67s/it, data_times=0.000, model_times=2.667] 63%|██████▎   | 190/300 [08:31<04:52,  2.66s/it, data_times=0.000, model_times=2.667] 63%|██████▎   | 190/300 [08:31<04:52,  2.66s/it, data_times=0.001, model_times=2.615]09/06 [09:08:07] INFO     | >> Step 190, Loss:              train_starvla.py:320
+                          {'action_dit_loss':                                   
+                          0.36250200867652893,                                  
+                          'timing/data':                                        
+                          0.0009461734443902969,                                
+                          'timing/model':                                       
+                          2.615109554491937,                                    
+                          'learning_rate/qwen_vl_interface'                     
+                          : 3.823344482986768e-05,                              
+                          'learning_rate/action_model':                         
+                          3.823344482986768e-05,                                
+                          'learning_rate/base':                                 
+                          9.55836120746692e-06, 'epoch':                        
+                          0.03})                                                
+ 64%|██████▎   | 191/300 [08:34<04:48,  2.65s/it, data_times=0.001, model_times=2.615] 64%|██████▎   | 191/300 [08:34<04:48,  2.65s/it, data_times=0.001, model_times=2.620] 64%|██████▍   | 192/300 [08:37<04:51,  2.70s/it, data_times=0.001, model_times=2.620] 64%|██████▍   | 192/300 [08:37<04:51,  2.70s/it, data_times=0.001, model_times=2.809] 64%|██████▍   | 193/300 [08:39<04:42,  2.64s/it, data_times=0.001, model_times=2.809] 64%|██████▍   | 193/300 [08:39<04:42,  2.64s/it, data_times=0.001, model_times=2.498] 65%|██████▍   | 194/300 [08:42<04:36,  2.61s/it, data_times=0.001, model_times=2.498] 65%|██████▍   | 194/300 [08:42<04:36,  2.61s/it, data_times=0.001, model_times=2.547] 65%|██████▌   | 195/300 [08:44<04:34,  2.62s/it, data_times=0.001, model_times=2.547] 65%|██████▌   | 195/300 [08:44<04:34,  2.62s/it, data_times=0.000, model_times=2.621] 65%|██████▌   | 196/300 [08:47<04:30,  2.61s/it, data_times=0.000, model_times=2.621] 65%|██████▌   | 196/300 [08:47<04:30,  2.61s/it, data_times=0.001, model_times=2.578] 66%|██████▌   | 197/300 [08:50<04:28,  2.61s/it, data_times=0.001, model_times=2.578] 66%|██████▌   | 197/300 [08:50<04:28,  2.61s/it, data_times=0.000, model_times=2.621] 66%|██████▌   | 198/300 [08:52<04:27,  2.63s/it, data_times=0.000, model_times=2.621] 66%|██████▌   | 198/300 [08:52<04:27,  2.63s/it, data_times=0.000, model_times=2.657] 66%|██████▋   | 199/300 [08:55<04:25,  2.63s/it, data_times=0.000, model_times=2.657] 66%|██████▋   | 199/300 [08:55<04:25,  2.63s/it, data_times=0.001, model_times=2.648] 67%|██████▋   | 200/300 [08:58<04:26,  2.66s/it, data_times=0.001, model_times=2.648] 67%|██████▋   | 200/300 [08:58<04:26,  2.66s/it, data_times=0.000, model_times=2.736]09/06 [09:08:34] INFO     | >> Step 200, Loss:              train_starvla.py:320
+                          {'action_dit_loss':                                   
+                          0.27633538842201233, 'mse_score':                     
+                          0.01625419727393559,                                  
+                          'timing/data':                                        
+                          0.0004162471741437912,                                
+                          'timing/model':                                       
+                          2.735739255324006,                                    
+                          'learning_rate/qwen_vl_interface'                     
+                          : 3.2988171230120465e-05,                             
+                          'learning_rate/action_model':                         
+                          3.2988171230120465e-05,                               
+                          'learning_rate/base':                                 
+                          8.247042807530116e-06, 'epoch':                       
+                          0.03})                                                
+ 67%|██████▋   | 201/300 [09:02<05:07,  3.11s/it, data_times=0.000, model_times=2.736] 67%|██████▋   | 201/300 [09:02<05:07,  3.11s/it, data_times=0.001, model_times=2.606] 67%|██████▋   | 202/300 [09:04<04:48,  2.94s/it, data_times=0.001, model_times=2.606] 67%|██████▋   | 202/300 [09:04<04:48,  2.94s/it, data_times=0.000, model_times=2.546] 68%|██████▊   | 203/300 [09:07<04:34,  2.83s/it, data_times=0.000, model_times=2.546] 68%|██████▊   | 203/300 [09:07<04:34,  2.83s/it, data_times=0.000, model_times=2.559] 68%|██████▊   | 204/300 [09:10<04:23,  2.74s/it, data_times=0.000, model_times=2.559] 68%|██████▊   | 204/300 [09:10<04:23,  2.74s/it, data_times=0.001, model_times=2.544] 68%|██████▊   | 205/300 [09:12<04:16,  2.70s/it, data_times=0.001, model_times=2.544] 68%|██████▊   | 205/300 [09:12<04:16,  2.70s/it, data_times=0.001, model_times=2.581] 69%|██████▊   | 206/300 [09:15<04:12,  2.68s/it, data_times=0.001, model_times=2.581] 69%|██████▊   | 206/300 [09:15<04:12,  2.68s/it, data_times=0.001, model_times=2.655] 69%|██████▉   | 207/300 [09:17<04:08,  2.67s/it, data_times=0.001, model_times=2.655] 69%|██████▉   | 207/300 [09:17<04:08,  2.67s/it, data_times=0.001, model_times=2.649] 69%|██████▉   | 208/300 [09:20<04:02,  2.63s/it, data_times=0.001, model_times=2.649] 69%|██████▉   | 208/300 [09:20<04:02,  2.63s/it, data_times=0.001, model_times=2.527] 70%|██████▉   | 209/300 [09:23<03:59,  2.63s/it, data_times=0.001, model_times=2.527] 70%|██████▉   | 209/300 [09:23<03:59,  2.63s/it, data_times=0.001, model_times=2.614] 70%|███████   | 210/300 [09:25<03:55,  2.62s/it, data_times=0.001, model_times=2.614] 70%|███████   | 210/300 [09:25<03:55,  2.62s/it, data_times=0.001, model_times=2.585]09/06 [09:09:00] INFO     | >> Step 210, Loss:              train_starvla.py:320
+                          {'action_dit_loss':                                   
+                          0.31898391246795654,                                  
+                          'timing/data':                                        
+                          0.0008057262748479843,                                
+                          'timing/model':                                       
+                          2.5848226360976696,                                   
+                          'learning_rate/qwen_vl_interface'                     
+                          : 2.800000000000001e-05,                              
+                          'learning_rate/action_model':                         
+                          2.800000000000001e-05,                                
+                          'learning_rate/base':                                 
+                          7.0000000000000024e-06, 'epoch':                      
+                          0.03})                                                
+ 70%|███████   | 211/300 [09:28<03:55,  2.64s/it, data_times=0.001, model_times=2.585] 70%|███████   | 211/300 [09:28<03:55,  2.64s/it, data_times=0.000, model_times=2.694] 71%|███████   | 212/300 [09:31<03:55,  2.68s/it, data_times=0.000, model_times=2.694] 71%|███████   | 212/300 [09:31<03:55,  2.68s/it, data_times=0.001, model_times=2.762] 71%|███████   | 213/300 [09:33<03:56,  2.72s/it, data_times=0.001, model_times=2.762] 71%|███████   | 213/300 [09:33<03:56,  2.72s/it, data_times=0.001, model_times=2.814] 71%|███████▏  | 214/300 [09:36<03:51,  2.70s/it, data_times=0.001, model_times=2.814] 71%|███████▏  | 214/300 [09:36<03:51,  2.70s/it, data_times=0.000, model_times=2.642] 72%|███████▏  | 215/300 [09:39<03:47,  2.68s/it, data_times=0.000, model_times=2.642] 72%|███████▏  | 215/300 [09:39<03:47,  2.68s/it, data_times=0.001, model_times=2.634] 72%|███████▏  | 216/300 [09:42<03:49,  2.74s/it, data_times=0.001, model_times=2.634] 72%|███████▏  | 216/300 [09:42<03:49,  2.74s/it, data_times=0.001, model_times=2.865] 72%|███████▏  | 217/300 [09:44<03:43,  2.70s/it, data_times=0.001, model_times=2.865] 72%|███████▏  | 217/300 [09:44<03:43,  2.70s/it, data_times=0.001, model_times=2.604] 73%|███████▎  | 218/300 [09:47<03:40,  2.69s/it, data_times=0.001, model_times=2.604] 73%|███████▎  | 218/300 [09:47<03:40,  2.69s/it, data_times=0.001, model_times=2.654] 73%|███████▎  | 219/300 [09:50<03:37,  2.68s/it, data_times=0.001, model_times=2.654] 73%|███████▎  | 219/300 [09:50<03:37,  2.68s/it, data_times=0.001, model_times=2.674] 73%|███████▎  | 220/300 [09:52<03:32,  2.66s/it, data_times=0.001, model_times=2.674] 73%|███████▎  | 220/300 [09:52<03:32,  2.66s/it, data_times=0.000, model_times=2.608]09/06 [09:09:27] INFO     | >> Step 220, Loss:              train_starvla.py:320
+                          {'action_dit_loss':                                   
+                          0.3311871886253357,                                   
+                          'timing/data':                                        
+                          0.0004017418250441551,                                
+                          'timing/model':                                       
+                          2.607589934952557,                                    
+                          'learning_rate/qwen_vl_interface'                     
+                          : 2.3336387598266272e-05,                             
+                          'learning_rate/action_model':                         
+                          2.3336387598266272e-05,                               
+                          'learning_rate/base':                                 
+                          5.834096899566568e-06, 'epoch':                       
+                          0.03})                                                
+ 74%|███████▎  | 221/300 [09:55<03:30,  2.66s/it, data_times=0.000, model_times=2.608] 74%|███████▎  | 221/300 [09:55<03:30,  2.66s/it, data_times=0.001, model_times=2.649] 74%|███████▍  | 222/300 [09:57<03:24,  2.63s/it, data_times=0.001, model_times=2.649] 74%|███████▍  | 222/300 [09:57<03:24,  2.63s/it, data_times=0.001, model_times=2.544] 74%|███████▍  | 223/300 [10:00<03:20,  2.60s/it, data_times=0.001, model_times=2.544] 74%|███████▍  | 223/300 [10:00<03:20,  2.60s/it, data_times=0.001, model_times=2.548] 75%|███████▍  | 224/300 [10:03<03:18,  2.62s/it, data_times=0.001, model_times=2.548] 75%|███████▍  | 224/300 [10:03<03:18,  2.62s/it, data_times=0.000, model_times=2.645] 75%|███████▌  | 225/300 [10:05<03:14,  2.60s/it, data_times=0.000, model_times=2.645] 75%|███████▌  | 225/300 [10:05<03:14,  2.60s/it, data_times=0.001, model_times=2.550] 75%|███████▌  | 226/300 [10:08<03:12,  2.60s/it, data_times=0.001, model_times=2.550] 75%|███████▌  | 226/300 [10:08<03:12,  2.60s/it, data_times=0.000, model_times=2.600] 76%|███████▌  | 227/300 [10:10<03:11,  2.62s/it, data_times=0.000, model_times=2.600] 76%|███████▌  | 227/300 [10:10<03:11,  2.62s/it, data_times=0.001, model_times=2.670] 76%|███████▌  | 228/300 [10:13<03:11,  2.65s/it, data_times=0.001, model_times=2.670] 76%|███████▌  | 228/300 [10:13<03:11,  2.65s/it, data_times=0.001, model_times=2.723] 76%|███████▋  | 229/300 [10:16<03:06,  2.62s/it, data_times=0.001, model_times=2.723] 76%|███████▋  | 229/300 [10:16<03:06,  2.62s/it, data_times=0.001, model_times=2.550] 77%|███████▋  | 230/300 [10:18<03:04,  2.63s/it, data_times=0.001, model_times=2.550] 77%|███████▋  | 230/300 [10:18<03:04,  2.63s/it, data_times=0.001, model_times=2.650]09/06 [09:09:54] INFO     | >> Step 230, Loss:              train_starvla.py:320
+                          {'action_dit_loss':                                   
+                          0.3883958160877228,                                   
+                          'timing/data':                                        
+                          0.0005899937823414803,                                
+                          'timing/model':                                       
+                          2.6496928771957755,                                   
+                          'learning_rate/qwen_vl_interface'                     
+                          : 1.906040138230079e-05,                              
+                          'learning_rate/action_model':                         
+                          1.906040138230079e-05,                                
+                          'learning_rate/base':                                 
+                          4.765100345575197e-06, 'epoch':                       
+                          0.04})                                                
+ 77%|███████▋  | 231/300 [10:21<03:01,  2.63s/it, data_times=0.001, model_times=2.650] 77%|███████▋  | 231/300 [10:21<03:01,  2.63s/it, data_times=0.001, model_times=2.630] 77%|███████▋  | 232/300 [10:24<03:00,  2.65s/it, data_times=0.001, model_times=2.630] 77%|███████▋  | 232/300 [10:24<03:00,  2.65s/it, data_times=0.001, model_times=2.685] 78%|███████▊  | 233/300 [10:26<02:58,  2.67s/it, data_times=0.001, model_times=2.685] 78%|███████▊  | 233/300 [10:26<02:58,  2.67s/it, data_times=0.001, model_times=2.694] 78%|███████▊  | 234/300 [10:29<02:55,  2.66s/it, data_times=0.001, model_times=2.694] 78%|███████▊  | 234/300 [10:29<02:55,  2.66s/it, data_times=0.001, model_times=2.646] 78%|███████▊  | 235/300 [10:32<02:54,  2.69s/it, data_times=0.001, model_times=2.646] 78%|███████▊  | 235/300 [10:32<02:54,  2.69s/it, data_times=0.001, model_times=2.758] 79%|███████▊  | 236/300 [10:34<02:51,  2.69s/it, data_times=0.001, model_times=2.758] 79%|███████▊  | 236/300 [10:34<02:51,  2.69s/it, data_times=0.001, model_times=2.677] 79%|███████▉  | 237/300 [10:37<02:49,  2.70s/it, data_times=0.001, model_times=2.677] 79%|███████▉  | 237/300 [10:37<02:49,  2.70s/it, data_times=0.000, model_times=2.712] 79%|███████▉  | 238/300 [10:40<02:47,  2.69s/it, data_times=0.000, model_times=2.712] 79%|███████▉  | 238/300 [10:40<02:47,  2.69s/it, data_times=0.001, model_times=2.686] 80%|███████▉  | 239/300 [10:43<02:43,  2.69s/it, data_times=0.001, model_times=2.686] 80%|███████▉  | 239/300 [10:43<02:43,  2.69s/it, data_times=0.000, model_times=2.666] 80%|████████  | 240/300 [10:45<02:42,  2.70s/it, data_times=0.000, model_times=2.666] 80%|████████  | 240/300 [10:45<02:42,  2.70s/it, data_times=0.000, model_times=2.732]09/06 [09:10:20] INFO     | >> Step 240, Loss:              train_starvla.py:320
+                          {'action_dit_loss':                                   
+                          0.2625572681427002,                                   
+                          'timing/data':                                        
+                          0.0004294672980904579,                                
+                          'timing/model':                                       
+                          2.7321563186123967,                                   
+                          'learning_rate/qwen_vl_interface'                     
+                          : 1.5229866730289061e-05,                             
+                          'learning_rate/action_model':                         
+                          1.5229866730289061e-05,                               
+                          'learning_rate/base':                                 
+                          3.8074666825722652e-06, 'epoch':                      
+                          0.04})                                                
+ 80%|████████  | 241/300 [10:48<02:38,  2.68s/it, data_times=0.000, model_times=2.732] 80%|████████  | 241/300 [10:48<02:38,  2.68s/it, data_times=0.001, model_times=2.626] 81%|████████  | 242/300 [10:50<02:34,  2.66s/it, data_times=0.001, model_times=2.626] 81%|████████  | 242/300 [10:50<02:34,  2.66s/it, data_times=0.001, model_times=2.599] 81%|████████  | 243/300 [10:53<02:30,  2.65s/it, data_times=0.001, model_times=2.599] 81%|████████  | 243/300 [10:53<02:30,  2.65s/it, data_times=0.000, model_times=2.622] 81%|████████▏ | 244/300 [10:56<02:27,  2.63s/it, data_times=0.000, model_times=2.622] 81%|████████▏ | 244/300 [10:56<02:27,  2.63s/it, data_times=0.001, model_times=2.597] 82%|████████▏ | 245/300 [10:59<02:27,  2.68s/it, data_times=0.001, model_times=2.597] 82%|████████▏ | 245/300 [10:59<02:27,  2.68s/it, data_times=0.001, model_times=2.801] 82%|████████▏ | 246/300 [11:01<02:24,  2.68s/it, data_times=0.001, model_times=2.801] 82%|████████▏ | 246/300 [11:01<02:24,  2.68s/it, data_times=0.001, model_times=2.677] 82%|████████▏ | 247/300 [11:04<02:21,  2.67s/it, data_times=0.001, model_times=2.677] 82%|████████▏ | 247/300 [11:04<02:21,  2.67s/it, data_times=0.000, model_times=2.634] 83%|████████▎ | 248/300 [11:07<02:18,  2.67s/it, data_times=0.000, model_times=2.634] 83%|████████▎ | 248/300 [11:07<02:18,  2.67s/it, data_times=0.001, model_times=2.670] 83%|████████▎ | 249/300 [11:09<02:16,  2.68s/it, data_times=0.001, model_times=2.670] 83%|████████▎ | 249/300 [11:09<02:16,  2.68s/it, data_times=0.001, model_times=2.694] 83%|████████▎ | 250/300 [11:12<02:15,  2.71s/it, data_times=0.001, model_times=2.694] 83%|████████▎ | 250/300 [11:12<02:15,  2.71s/it, data_times=0.001, model_times=2.777]09/06 [09:10:49] INFO     | >> Step 250, Loss:              train_starvla.py:320
+                          {'action_dit_loss':                                   
+                          0.31779152154922485, 'mse_score':                     
+                          0.017177332724843706,                                 
+                          'timing/data':                                        
+                          0.0006888071075081825,                                
+                          'timing/model':                                       
+                          2.776861196383834,                                    
+                          'learning_rate/qwen_vl_interface'                     
+                          : 1.1896585052179059e-05,                             
+                          'learning_rate/action_model':                         
+                          1.1896585052179059e-05,                               
+                          'learning_rate/base':                                 
+                          2.9741462630447647e-06, 'epoch':                      
+                          0.04})                                                
+ 84%|████████▎ | 251/300 [11:16<02:34,  3.16s/it, data_times=0.001, model_times=2.777] 84%|████████▎ | 251/300 [11:16<02:34,  3.16s/it, data_times=0.001, model_times=2.716] 84%|████████▍ | 252/300 [11:19<02:23,  2.99s/it, data_times=0.001, model_times=2.716] 84%|████████▍ | 252/300 [11:19<02:23,  2.99s/it, data_times=0.001, model_times=2.583] 84%|████████▍ | 253/300 [11:21<02:14,  2.87s/it, data_times=0.001, model_times=2.583] 84%|████████▍ | 253/300 [11:21<02:14,  2.87s/it, data_times=0.001, model_times=2.599] 85%|████████▍ | 254/300 [11:24<02:11,  2.87s/it, data_times=0.001, model_times=2.599] 85%|████████▍ | 254/300 [11:24<02:11,  2.87s/it, data_times=0.001, model_times=2.848] 85%|████████▌ | 255/300 [11:27<02:05,  2.79s/it, data_times=0.001, model_times=2.848] 85%|████████▌ | 255/300 [11:27<02:05,  2.79s/it, data_times=0.001, model_times=2.595] 85%|████████▌ | 256/300 [11:29<02:00,  2.73s/it, data_times=0.001, model_times=2.595] 85%|████████▌ | 256/300 [11:29<02:00,  2.73s/it, data_times=0.000, model_times=2.613] 86%|████████▌ | 257/300 [11:32<01:56,  2.70s/it, data_times=0.000, model_times=2.613] 86%|████████▌ | 257/300 [11:32<01:56,  2.70s/it, data_times=0.001, model_times=2.611] 86%|████████▌ | 258/300 [11:35<01:53,  2.70s/it, data_times=0.001, model_times=2.611] 86%|████████▌ | 258/300 [11:35<01:53,  2.70s/it, data_times=0.001, model_times=2.687] 86%|████████▋ | 259/300 [11:38<01:51,  2.72s/it, data_times=0.001, model_times=2.687] 86%|████████▋ | 259/300 [11:38<01:51,  2.72s/it, data_times=0.000, model_times=2.781] 87%|████████▋ | 260/300 [11:40<01:48,  2.72s/it, data_times=0.000, model_times=2.781] 87%|████████▋ | 260/300 [11:40<01:48,  2.72s/it, data_times=0.000, model_times=2.722]09/06 [09:11:15] INFO     | >> Step 260, Loss:              train_starvla.py:320
+                          {'action_dit_loss':                                   
+                          0.3648545444011688,                                   
+                          'timing/data':                                        
+                          0.0004954030737280846,                                
+                          'timing/model':                                       
+                          2.722223629243672,                                    
+                          'learning_rate/qwen_vl_interface'                     
+                          : 9.105633264476216e-06,                              
+                          'learning_rate/action_model':                         
+                          9.105633264476216e-06,                                
+                          'learning_rate/base':                                 
+                          2.276408316119054e-06, 'epoch':                       
+                          0.04})                                                
+ 87%|████████▋ | 261/300 [11:43<01:44,  2.69s/it, data_times=0.000, model_times=2.722] 87%|████████▋ | 261/300 [11:43<01:44,  2.69s/it, data_times=0.000, model_times=2.608] 87%|████████▋ | 262/300 [11:46<01:42,  2.69s/it, data_times=0.000, model_times=2.608] 87%|████████▋ | 262/300 [11:46<01:42,  2.69s/it, data_times=0.001, model_times=2.670] 88%|████████▊ | 263/300 [11:48<01:40,  2.72s/it, data_times=0.001, model_times=2.670] 88%|████████▊ | 263/300 [11:48<01:40,  2.72s/it, data_times=0.001, model_times=2.790] 88%|████████▊ | 264/300 [11:51<01:37,  2.72s/it, data_times=0.001, model_times=2.790] 88%|████████▊ | 264/300 [11:51<01:37,  2.72s/it, data_times=0.001, model_times=2.722] 88%|████████▊ | 265/300 [11:54<01:36,  2.74s/it, data_times=0.001, model_times=2.722] 88%|████████▊ | 265/300 [11:54<01:36,  2.74s/it, data_times=0.001, model_times=2.792] 89%|████████▊ | 266/300 [11:57<01:33,  2.74s/it, data_times=0.001, model_times=2.792] 89%|████████▊ | 266/300 [11:57<01:33,  2.74s/it, data_times=0.001, model_times=2.735] 89%|████████▉ | 267/300 [11:59<01:28,  2.69s/it, data_times=0.001, model_times=2.735] 89%|████████▉ | 267/300 [11:59<01:28,  2.69s/it, data_times=0.001, model_times=2.563] 89%|████████▉ | 268/300 [12:02<01:26,  2.70s/it, data_times=0.001, model_times=2.563] 89%|████████▉ | 268/300 [12:02<01:26,  2.70s/it, data_times=0.001, model_times=2.715] 90%|████████▉ | 269/300 [12:05<01:24,  2.71s/it, data_times=0.001, model_times=2.715] 90%|████████▉ | 269/300 [12:05<01:24,  2.71s/it, data_times=0.001, model_times=2.737] 90%|█████████ | 270/300 [12:08<01:23,  2.79s/it, data_times=0.001, model_times=2.737] 90%|█████████ | 270/300 [12:08<01:23,  2.79s/it, data_times=0.001, model_times=2.982]09/06 [09:11:43] INFO     | >> Step 270, Loss:              train_starvla.py:320
+                          {'action_dit_loss':                                   
+                          0.356732040643692, 'timing/data':                     
+                          0.0007003070786595345,                                
+                          'timing/model':                                       
+                          2.9820470018312335,                                   
+                          'learning_rate/qwen_vl_interface'                     
+                          : 6.8947542022764005e-06,                             
+                          'learning_rate/action_model':                         
+                          6.8947542022764005e-06,                               
+                          'learning_rate/base':                                 
+                          1.7236885505691001e-06, 'epoch':                      
+                          0.04})                                                
+ 90%|█████████ | 271/300 [12:10<01:21,  2.80s/it, data_times=0.001, model_times=2.982] 90%|█████████ | 271/300 [12:10<01:21,  2.80s/it, data_times=0.001, model_times=2.805] 91%|█████████ | 272/300 [12:13<01:18,  2.81s/it, data_times=0.001, model_times=2.805] 91%|█████████ | 272/300 [12:13<01:18,  2.81s/it, data_times=0.001, model_times=2.825] 91%|█████████ | 273/300 [12:16<01:15,  2.80s/it, data_times=0.001, model_times=2.825] 91%|█████████ | 273/300 [12:16<01:15,  2.80s/it, data_times=0.001, model_times=2.784] 91%|█████████▏| 274/300 [12:19<01:12,  2.78s/it, data_times=0.001, model_times=2.784] 91%|█████████▏| 274/300 [12:19<01:12,  2.78s/it, data_times=0.001, model_times=2.714] 92%|█████████▏| 275/300 [12:21<01:09,  2.76s/it, data_times=0.001, model_times=2.714] 92%|█████████▏| 275/300 [12:21<01:09,  2.76s/it, data_times=0.001, model_times=2.720] 92%|█████████▏| 276/300 [12:24<01:05,  2.74s/it, data_times=0.001, model_times=2.720] 92%|█████████▏| 276/300 [12:24<01:05,  2.74s/it, data_times=0.001, model_times=2.704] 92%|█████████▏| 277/300 [12:27<01:04,  2.82s/it, data_times=0.001, model_times=2.704] 92%|█████████▏| 277/300 [12:27<01:04,  2.82s/it, data_times=0.002, model_times=3.008] 93%|█████████▎| 278/300 [12:30<01:01,  2.82s/it, data_times=0.002, model_times=3.008] 93%|█████████▎| 278/300 [12:30<01:01,  2.82s/it, data_times=0.001, model_times=2.790] 93%|█████████▎| 279/300 [12:33<00:58,  2.77s/it, data_times=0.001, model_times=2.790] 93%|█████████▎| 279/300 [12:33<00:58,  2.77s/it, data_times=0.001, model_times=2.671] 93%|█████████▎| 280/300 [12:35<00:55,  2.78s/it, data_times=0.001, model_times=2.671] 93%|█████████▎| 280/300 [12:35<00:55,  2.78s/it, data_times=0.001, model_times=2.802]09/06 [09:12:11] INFO     | >> Step 280, Loss:              train_starvla.py:320
+                          {'action_dit_loss':                                   
+                          0.31739768385887146,                                  
+                          'timing/data':                                        
+                          0.0005660252645611763,                                
+                          'timing/model': 2.80223869625479,                     
+                          'learning_rate/qwen_vl_interface'                     
+                          : 5.293846212168457e-06,                              
+                          'learning_rate/action_model':                         
+                          5.293846212168457e-06,                                
+                          'learning_rate/base':                                 
+                          1.3234615530421141e-06, 'epoch':                      
+                          0.04})                                                
+ 94%|█████████▎| 281/300 [12:38<00:52,  2.76s/it, data_times=0.001, model_times=2.802] 94%|█████████▎| 281/300 [12:38<00:52,  2.76s/it, data_times=0.000, model_times=2.700] 94%|█████████▍| 282/300 [12:41<00:49,  2.76s/it, data_times=0.000, model_times=2.700] 94%|█████████▍| 282/300 [12:41<00:49,  2.76s/it, data_times=0.001, model_times=2.744] 94%|█████████▍| 283/300 [12:44<00:46,  2.74s/it, data_times=0.001, model_times=2.744] 94%|█████████▍| 283/300 [12:44<00:46,  2.74s/it, data_times=0.001, model_times=2.695] 95%|█████████▍| 284/300 [12:46<00:43,  2.73s/it, data_times=0.001, model_times=2.695] 95%|█████████▍| 284/300 [12:46<00:43,  2.73s/it, data_times=0.001, model_times=2.707] 95%|█████████▌| 285/300 [12:49<00:40,  2.71s/it, data_times=0.001, model_times=2.707] 95%|█████████▌| 285/300 [12:49<00:40,  2.71s/it, data_times=0.001, model_times=2.655] 95%|█████████▌| 286/300 [12:52<00:37,  2.68s/it, data_times=0.001, model_times=2.655] 95%|█████████▌| 286/300 [12:52<00:37,  2.68s/it, data_times=0.001, model_times=2.624] 96%|█████████▌| 287/300 [12:54<00:35,  2.70s/it, data_times=0.001, model_times=2.624] 96%|█████████▌| 287/300 [12:54<00:35,  2.70s/it, data_times=0.001, model_times=2.742] 96%|█████████▌| 288/300 [12:57<00:32,  2.70s/it, data_times=0.001, model_times=2.742] 96%|█████████▌| 288/300 [12:57<00:32,  2.70s/it, data_times=0.001, model_times=2.697] 96%|█████████▋| 289/300 [13:00<00:29,  2.66s/it, data_times=0.001, model_times=2.697] 96%|█████████▋| 289/300 [13:00<00:29,  2.66s/it, data_times=0.001, model_times=2.550] 97%|█████████▋| 290/300 [13:02<00:26,  2.62s/it, data_times=0.001, model_times=2.550] 97%|█████████▋| 290/300 [13:02<00:26,  2.62s/it, data_times=0.001, model_times=2.524]09/06 [09:12:37] INFO     | >> Step 290, Loss:              train_starvla.py:320
+                          {'action_dit_loss':                                   
+                          0.26658856868743896,                                  
+                          'timing/data':                                        
+                          0.0007444806396961212,                                
+                          'timing/model':                                       
+                          2.523802855052054,                                    
+                          'learning_rate/qwen_vl_interface'                     
+                          : 4.324558828386734e-06,                              
+                          'learning_rate/action_model':                         
+                          4.324558828386734e-06,                                
+                          'learning_rate/base':                                 
+                          1.0811397070966836e-06, 'epoch':                      
+                          0.04})                                                
+ 97%|█████████▋| 291/300 [13:05<00:23,  2.64s/it, data_times=0.001, model_times=2.524] 97%|█████████▋| 291/300 [13:05<00:23,  2.64s/it, data_times=0.001, model_times=2.676] 97%|█████████▋| 292/300 [13:08<00:21,  2.65s/it, data_times=0.001, model_times=2.676] 97%|█████████▋| 292/300 [13:08<00:21,  2.65s/it, data_times=0.001, model_times=2.686] 98%|█████████▊| 293/300 [13:10<00:19,  2.75s/it, data_times=0.001, model_times=2.686] 98%|█████████▊| 293/300 [13:10<00:19,  2.75s/it, data_times=0.001, model_times=2.967] 98%|█████████▊| 294/300 [13:13<00:16,  2.72s/it, data_times=0.001, model_times=2.967] 98%|█████████▊| 294/300 [13:13<00:16,  2.72s/it, data_times=0.001, model_times=2.663] 98%|█████████▊| 295/300 [13:16<00:13,  2.71s/it, data_times=0.001, model_times=2.663] 98%|█████████▊| 295/300 [13:16<00:13,  2.71s/it, data_times=0.001, model_times=2.687] 99%|█████████▊| 296/300 [13:18<00:10,  2.68s/it, data_times=0.001, model_times=2.687] 99%|█████████▊| 296/300 [13:18<00:10,  2.68s/it, data_times=0.000, model_times=2.614] 99%|█████████▉| 297/300 [13:21<00:07,  2.67s/it, data_times=0.000, model_times=2.614] 99%|█████████▉| 297/300 [13:21<00:07,  2.67s/it, data_times=0.001, model_times=2.619] 99%|█████████▉| 298/300 [13:24<00:05,  2.66s/it, data_times=0.001, model_times=2.619] 99%|█████████▉| 298/300 [13:24<00:05,  2.66s/it, data_times=0.001, model_times=2.639]100%|█████████▉| 299/300 [13:26<00:02,  2.68s/it, data_times=0.001, model_times=2.639]100%|█████████▉| 299/300 [13:26<00:02,  2.68s/it, data_times=0.001, model_times=2.742]100%|██████████| 300/300 [13:29<00:00,  2.69s/it, data_times=0.001, model_times=2.742]100%|██████████| 300/300 [13:29<00:00,  2.69s/it, data_times=0.001, model_times=2.696]09/06 [09:13:06] INFO     | >> Step 300, Loss:              train_starvla.py:320
+                          {'action_dit_loss':                                   
+                          0.33075252175331116, 'mse_score':                     
+                          0.01568907392876489,                                  
+                          'timing/data':                                        
+                          0.000981631688773632,                                 
+                          'timing/model':                                       
+                          2.696256526745856,                                    
+                          'learning_rate/qwen_vl_interface'                     
+                          : 4e-06,                                              
+                          'learning_rate/action_model':                         
+                          4e-06, 'learning_rate/base':                          
+                          1e-06, 'epoch': 0.05})                                
+09/06 [09:13:57] INFO     | >> Training complete. Final     train_starvla.py:458
+                          model saved at                                        
+                          /home/dataset-assist-0/liyufeng/a                     
+                          wesome_starvla_work/checkpoints/f                     
+                          2_goal_qwenpiv3_mh/final_model                        
+100%|██████████| 300/300 [14:22<00:00,  2.87s/it, data_times=0.001, model_times=2.696]
+[f0] finished; run dir: /home/dataset-assist-0/liyufeng/awesome_starvla_work/checkpoints/f2_goal_qwenpiv3_mh

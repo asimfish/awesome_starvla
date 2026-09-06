@@ -136,6 +136,11 @@ class LabConfig:
     aux_scheduler: AuxSchedulerConfig = field(default_factory=AuxSchedulerConfig)
     probes: ProbesConfig = field(default_factory=ProbesConfig)
     head_dropout: HeadDropoutConfig = field(default_factory=HeadDropoutConfig)
+    # Keep the VLM's *trainable* parameters in fp32 (compute stays bf16 through StarVLA's autocast). StarVLA loads the
+    # backbone in bf16 and, without DeepSpeed, AdamW updates bf16 weights directly: an update of lr ~1e-5 is a fraction
+    # of a bf16 ulp for most weights and is rounded away. DeepSpeed keeps fp32 master weights; this flag restores that
+    # behaviour on the single-GPU path (memory: +2 bytes per trainable backbone parameter, plus fp32 optimizer states).
+    backbone_fp32: bool = False
 
     @classmethod
     def from_cfg(cls, cfg: Any, key: str = "trainer.lab") -> "LabConfig":
@@ -147,6 +152,7 @@ class LabConfig:
             aux_scheduler=_fill(AuxSchedulerConfig, cfg_get(node, "aux_scheduler")),
             probes=_fill(ProbesConfig, cfg_get(node, "probes")),
             head_dropout=_fill(HeadDropoutConfig, cfg_get(node, "head_dropout")),
+            backbone_fp32=bool(cfg_get(node, "backbone_fp32", False)),
         )
 
     def any_enabled(self) -> bool:

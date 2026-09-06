@@ -1,0 +1,50 @@
+# F2 · 冻结骨干迁移：三种骨干 × 两种新头 × 两套 LIBERO（1 卡，16 条运行，各 300 步）
+
+**三句话结论。** (1) **没有有害的 decoder lock-in**：用 OFT 头微调过的骨干接一个全新的 PI 头，与预训练骨干一样好（spatial 0.338 vs 0.334，goal 0.324 vs 0.333）；三头微调过的骨干接新 PI 头也不更好（0.337 / 0.327）——在 300 步、单套件的 regime 下，VLAct 的"多头共监督让骨干更换头友好"和它要防的"单头锁死"都没有出现。(2) **三头骨干对同任务的新 OFT 头最好**（goal：末 50 步 L1 0.216 vs OFT 骨干 0.226 vs 预训练 0.267；训练内 MSE 0.0146 / 0.0160 / 0.0180）：F0 v3 里那 240× 的顶层改写确实写入了 LIBERO-goal 的动作信息，只是 pooled 线性探针（§F0 3.6）读不出来——它在 OFT 查询位上、要 MLP 头才能读。(3) **换到没见过的 LIBERO-spatial，三头骨干的优势消失**（OFT 头 0.252 = OFT 骨干 0.252；PI 头无差别）：改写是任务特定的，不是通用的动作表征。
+
+## 1. 设置
+
+| 项 | 值 |
+|---|---|
+| 骨干（全部冻结：视觉编码器 + LLM 36 层 + 末层 norm，38 条精确路径；`embed_tokens` 可训练，视作头的一部分） | `pre` 预训练 Qwen3-VL-4B-Instruct；`oft` = F0 v3 `QwenOFT` 最终模型的骨干；`mh` = F0 v3 `QwenMultiHead` 的骨干；`oftef` = F0 v3 `QwenOFT` + 冻结嵌入的骨干（层被调过、嵌入是预训练原值，用来拆开"嵌入随骨干重载"的混杂） |
+| 装载 | `--trainer.pretrained_checkpoint <ckpt> --trainer.reload_modules qwen_vl_interface`（StarVLA 原生，`strict=True` 只重载 VLM，头全新初始化） |
+| 新头 | `QwenOFT`（MLP，可训练 455M = 389M 嵌入 + 66M 头）；`QwenPI_v3`（层间 flow-matching DiT，可训练 1,022M） |
+| 数据 | LIBERO-spatial（三种 F0 骨干都没见过）与 LIBERO-goal（F0 骨干微调所用）；内联 `data_mix`（`libero_<suite>_no_noops_1.0.0_lerobot:libero_franka`，运行时注册） |
+| 训练 | 300 步、batch 8、头 lr 1e-4、嵌入 lr 1e-4、warmup 30、cosine；`eval_interval 50`（StarVLA 用 `predict_action` 在另一随机批上算 MSE，逐点噪声大，看均值）；1×A100-80GB，与其他用户共卡 |
+| 入口 | `scripts/cluster/run_f2_transfer.sh f2 "spatial goal" "pre=none oft=f0v3_oft mh=f0v3_multihead" "QwenOFT QwenPI_v3"`（`oftef` 为第二批）；分析 `scripts/analyze_f2.py` |
+
+## 2. 结果（末 50 步头损失；括号内为 6 次训练内 MSE 评测的均值；完整表 `summary.md`，曲线 `f2_curves.png`）
+
+| 套件 | 新头 | `pre` | `oft` | `oftef` | `mh` |
+|---|---|---:|---:|---:|---:|
+| spatial（未见） | OFT（L1） | 0.277 (0.0216) | 0.252 (0.0190) | 0.257 (0.0200) | **0.252** (0.0197) |
+| spatial（未见） | PI_v3（FM） | **0.334** (0.0193) | 0.338 (0.0198) | 0.343 (0.0197) | 0.337 (0.0203) |
+| goal（已调） | OFT（L1） | 0.267 (0.0191) | 0.226 (0.0198) | 0.231 (0.0195) | **0.216** (0.0163) |
+| goal（已调） | PI_v3（FM） | 0.333 (0.0193) | **0.324** (0.0192) | 0.330 (0.0197) | 0.327 (0.0191) |
+
+前 50 步的头损失（收敛速度）：spatial OFT 头 `pre` 0.628 / `oft` 0.501 / `oftef` 0.490 / `mh` 0.455；goal OFT 头四者都在 0.49–0.51；PI 头 0.81–0.92，`mh` 最低。
+
+## 3. 读法
+
+1. **OFT 头受益于被微调过的层，而不只是嵌入。** `oftef` 与 `oft` 只差 0.005（spatial 0.257 vs 0.252，goal 0.231 vs 0.226），而两者都比 `pre` 好 0.02–0.04；也就是 F0 里 OFT 微调对第 34–35 层那 2e-4 的改动（§F0 3.5）对新 OFT 头是有用的，且能迁到相邻场景。
+2. **三头骨干的额外改写是任务特定的动作信息。** 在 goal 上，新 OFT 头在 `mh` 骨干上比在 `oft` 骨干上好 0.010（MSE 0.0146 vs 0.0160，是全表最好的一格）；在 spatial 上两者相同。结合 F0 §3.6：pooled 特征的线性可读性没变、保留度掉 2 个百分点、但同任务的 OFT 头能读出更多——顶层被改写的那部分是"OFT 查询位可读的 goal 任务动作表征"，既不是通用可读的，也不是纯噪声。
+3. **PI 头对骨干几乎不敏感。** 四种骨干的 flow-matching 损失差 ≤ 0.01（MSE 差 ≤ 0.001），`pre` 在 spatial 上还略好。300 步里 1,022M 参数的 DiT 自身的学习主导了损失；要看出骨干差异，PI 头需要更长的训练或更小的头。这也意味着"骨干是否被单头锁死"用 PI 头在这个 regime 下测不出来——F1 协议里跨头迁移的判据要用足够长的下游训练。
+4. **对方案的含义**（Q1 / Q3 / G2）：小规模下多头共监督的收益是"把当前任务的动作信息更多地写进骨干顶层"，代价是 2–3% 的表征保留度损失，且这部分写入不迁移到新场景。VLAct 在大规模持续预训练里报告的跨头收益，如果存在，应来自任务多样性让写入的表征变通用——这是 R3 vs R1 该检验的，F2 的协议（冻结骨干 + 新头 + 未见套件）可以直接复用。
+
+## 4. 已知偏差
+
+- 训练内 MSE 每次在不同的随机批上评测，逐点波动 ±0.005，只看 6 次均值或曲线趋势。
+- 头 lr 与嵌入 lr 都是 1e-4，与 F0 的骨干 lr 1e-5 不同；`pre` 骨干的 🔍 查询嵌入行从预训练 emoji 嵌入开始学，`oft` / `mh` 的已训练过——`oftef` 列量化了这一混杂（≈ 0.005）。
+- 与其他用户共卡，s/step 2.3–3.7 不可比。
+- 单卡无 DeepSpeed 路径下骨干以 bf16 保存并直接被 AdamW 更新（无 fp32 主权重），见 [`../f3_llrd/README.md`](../f3_llrd/README.md) §3 的说明；本实验骨干冻结，不受影响，但被装载的 F0 骨干本身在该条件下训练。
+
+## 5. 文件
+
+```
+f2_frozen_backbone_transfer/
+├── README.md        本文
+├── summary.md       全部指标（含 s/step）
+├── f2_metrics.csv   16 条运行每 10 步的日志指标
+├── f2_curves.png    头损失与训练内 MSE 曲线（2 套件 × 2 头，4 种骨干）
+└── raw/             f2_<suite>_<head>_<backbone>.log（StarVLA 训练日志）
+```

@@ -67,7 +67,7 @@ awesome_starvla/
 │   └── awesome_starvla_full_report.html / .pdf  # 62 页合订全文报告
 ├── code/
 │   ├── vlact_ext/                  # VLAct 配方扩展包（多头框架、wrap loss、统一布局、冻结规则）+ 61 个测试
-│   ├── starvla_lab/                # 改进方案研究包（probes / schedules / heads / data / train / bench / configs）+ 125 个测试
+│   ├── starvla_lab/                # 改进方案研究包（probes / schedules / heads / data / train / bench / configs）+ 127 个测试
 │   └── EventVLA/                   # git 子模块：EventVLA 模型 + RoboTwin-MeM 基准
 ├── experiments/
 │   ├── README.md                   # 运行清单与结果 JSON 约定

@@ -31,7 +31,7 @@ import torch
 from ..data.mixtures import register_mixture
 from ..data.subsample import install_fraction_hook
 from ..probes.qwen_extract import QwenBackboneProbe, framework_of, gather_probe_batch
-from .integration import LabHooks, attach_to_trainer, build_optimizer_and_scheduler
+from .integration import LabHooks, apply_backbone_fp32, attach_to_trainer, build_optimizer_and_scheduler
 from .lab_config import LabConfig, ProbesConfig, cfg_get
 
 
@@ -161,12 +161,20 @@ def main(cfg: Any) -> None:
     optimizer, lr_scheduler = build_optimizer_and_scheduler(
         vla, cfg, lab, scheduler_factory, fallback=lambda m, c: base.setup_optimizer_and_scheduler(model=m, cfg=c)
     )
+    if lab.backbone_fp32:
+        counts = apply_backbone_fp32(vla, cfg_get(cfg, "trainer.freeze_modules", "") or "")
+        print(f"[starvla_lab] backbone_fp32: {counts['converted'] / 1e6:.0f}M backbone params upcast to fp32 "
+              f"({counts['frozen'] / 1e6:.0f}M frozen left as loaded, {counts['already_fp32'] / 1e6:.0f}M already fp32); compute stays bf16 (autocast)")
     if lab.llrd.enabled:
+        # The scheduler has already stepped once (warmup starts at 0), so report the base lr the scheduler scales, not g["lr"].
+        def base_lr(g):
+            return g.get("initial_lr", g["lr"])
+
         layer_groups = [g for g in optimizer.param_groups if "layer_index" in g]
-        others = ", ".join(f"{g.get('name', '?')}={g['lr']:.2e}" for g in optimizer.param_groups if "layer_index" not in g)
-        span = (f"layer {layer_groups[0]['layer_index']} lr {layer_groups[0]['lr']:.2e} ... "
-                f"layer {layer_groups[-1]['layer_index']} lr {layer_groups[-1]['lr']:.2e}") if layer_groups else "no trainable layers"
-        print(f"[starvla_lab] LLRD groups: {len(layer_groups)} decoder layers ({span}); {others}")
+        others = ", ".join(f"{g.get('name', '?')}={base_lr(g):.2e}" for g in optimizer.param_groups if "layer_index" not in g)
+        span = (f"layer {layer_groups[0]['layer_index']} lr {base_lr(layer_groups[0]):.2e} ... "
+                f"layer {layer_groups[-1]['layer_index']} lr {base_lr(layer_groups[-1]):.2e}") if layer_groups else "no trainable layers"
+        print(f"[starvla_lab] LLRD groups (base lr): {len(layer_groups)} decoder layers ({span}); {others}")
     if mode == "cotrain":
         trainer = base.VLAMTrainer(cfg=cfg, model=vla, vla_train_dataloader=vla_loader, vlm_train_dataloader=vlm_loader,
                                    optimizer=optimizer, lr_scheduler=lr_scheduler, accelerator=base.accelerator)

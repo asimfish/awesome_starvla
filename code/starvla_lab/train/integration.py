@@ -33,7 +33,8 @@ from ..schedules.aux_scheduler import AuxDataScheduler
 from ..schedules.llrd import DriftDrivenLLRD, layer_group_index, layerwise_lr_decay_groups
 from .lab_config import LabConfig, cfg_get
 
-__all__ = ["build_optimizer_and_scheduler", "LabHooks", "attach_to_trainer", "unwrap_model", "default_reference_reps", "completed_updates_after"]
+__all__ = ["build_optimizer_and_scheduler", "LabHooks", "attach_to_trainer", "unwrap_model", "default_reference_reps",
+           "completed_updates_after", "apply_backbone_fp32"]
 
 SchedulerFactory = Callable[[torch.optim.Optimizer], Any]
 
@@ -88,6 +89,32 @@ def build_optimizer_and_scheduler(
         kwargs["eps"] = float(eps)
     optimizer = optimizer_cls(groups, lr=base_lr, **kwargs)
     return optimizer, scheduler_factory(optimizer)
+
+
+def apply_backbone_fp32(model: nn.Module, freeze_spec: Any = "", backbone_attr: str = "qwen_vl_interface") -> Dict[str, int]:
+    """Upcast the *trainable* backbone parameters to fp32 in place; frozen ones (per ``freeze_spec``, StarVLA's
+    ``trainer.freeze_modules`` / ``vlact_ext.freeze_rules`` syntax) stay as loaded.
+
+    Safe to call after the optimizer exists: ``Parameter`` objects are kept, only ``.data`` changes dtype, and torch
+    optimizers create their state lazily in the parameter's dtype. Returns parameter counts (converted / frozen / kept).
+    """
+    from ..schedules.llrd import _fr
+
+    fw = unwrap_model(model)
+    backbone = getattr(fw, backbone_attr, None)
+    if backbone is None:
+        raise AttributeError(f"model has no {backbone_attr!r}; backbone_fp32 needs a StarVLA Qwen-VL framework")
+    frozen = _fr.resolve_frozen_param_ids(fw, freeze_spec or "")
+    counts = {"converted": 0, "frozen": 0, "already_fp32": 0}
+    for p in backbone.parameters():
+        if id(p) in frozen:
+            counts["frozen"] += p.numel()
+        elif p.dtype == torch.float32:
+            counts["already_fp32"] += p.numel()
+        else:
+            p.data = p.data.float()
+            counts["converted"] += p.numel()
+    return counts
 
 
 def default_reference_reps(extract_fn: ExtractFn, model: nn.Module, batch: Any) -> List[torch.Tensor]:

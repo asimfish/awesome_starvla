@@ -12,6 +12,8 @@
 | `results/<run_id>.json` | 评测脚本（人工或 CI）写入 | 一次运行一个文件，字段见下 |
 | `results/summary.md` | `python3 -c "from starvla_lab.bench import *; ..."`（见下） | 由 `summarize_results` 聚合成 mean ± std 表 |
 | `results/f0_libero_goal_smoke/` | `scripts/cluster/run_f0_smoke.sh` → `scripts/analyze_f0.py` / `scripts/probe_diagnostics.py` | **已有数字**：LIBERO-goal 上 `QwenOFT` vs `QwenMultiHead` 各 300 步的损失曲线、逐头损失（v2）、探针方法学诊断（`embed_tokens` 主导旧度量）、修正后探针的训练中漂移曲线 + `embed_tokens` 冻结消融（v3，共 5 条运行）、WP1 跨头线性探针首跑（可读性 + 保留度，6 个骨干；1×A100，2026-09-06），含 `README.md` 解读 |
+| `results/f2_frozen_backbone_transfer/` | `scripts/cluster/run_f2_transfer.sh` → `scripts/analyze_f2.py` | **已有数字**：4 种冻结骨干 × 2 种新头 × 2 套 LIBERO 的 16 条 300 步运行（decoder lock-in 的小规模检验，2026-09-06） |
+| `results/f3_llrd/` | `scripts/cluster/run_f3_llrd.sh` → `scripts/analyze_f0.py` | **已有数字**：三头模型上静态 LLRD 0.85 vs 漂移驱动 LLRD 各 300 步，含控制器倍率轨迹与单卡 bf16 更新量化的说明（2026-09-06） |
 | `results/wp6_overhead/` | `scripts/gpu_overhead_bench.py`（经 `scripts/cluster/run_overhead_bench.sh`） | **已有数字**：Qwen3-VL-4B 上单头 / 三头 / 头 dropout 的 s/step、samples/s、峰值显存与推理延迟（1×A100，2026-09-05），含 `overhead.csv`、`results.json`、`stdout.log` 与解读 `README.md` |
 
 ## 结果 JSON 约定

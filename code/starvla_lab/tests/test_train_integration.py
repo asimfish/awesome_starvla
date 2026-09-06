@@ -283,3 +283,26 @@ def test_resolve_inline_mixture_keeps_names_and_registers_specs():
     assert resolve_inline_mixture(name, [base, copy]) == name  # generated names resolve too
     with pytest.raises(ValueError):
         resolve_inline_mixture("not_a_mixture_and_not_a_spec", [base, copy])
+
+
+def test_apply_backbone_fp32_upcasts_only_trainable_backbone_params_and_keeps_optimizer_valid():
+    from starvla_lab.train.integration import apply_backbone_fp32
+
+    model = _Framework(n=4).to(torch.bfloat16)
+    frozen_spec = "qwen_vl_interface.model.model.visual,qwen_vl_interface.model.model.language_model.layers.0"
+    opt = torch.optim.AdamW([p for n, p in model.named_parameters()], lr=1e-3)
+    counts = apply_backbone_fp32(model, frozen_spec)
+    lm = model.qwen_vl_interface.model.model.language_model
+    assert lm.layers[0].weight.dtype == torch.bfloat16 and model.qwen_vl_interface.model.model.visual.weight.dtype == torch.bfloat16
+    assert all(p.dtype == torch.float32 for p in lm.layers[1].parameters()) and lm.embed_tokens.weight.dtype == torch.float32
+    assert model.heads["oft"].weight.dtype == torch.bfloat16, "heads are outside the backbone and untouched"
+    n_frozen = sum(p.numel() for p in model.qwen_vl_interface.model.model.visual.parameters()) + sum(p.numel() for p in lm.layers[0].parameters())
+    assert counts["frozen"] == n_frozen and counts["converted"] > 0 and counts["already_fp32"] == 0
+    # the optimizer still points at the same Parameter objects and can step in fp32
+    lm.layers[1].weight.grad = torch.ones_like(lm.layers[1].weight)
+    before = lm.layers[1].weight.detach().clone()
+    opt.step()
+    assert not torch.equal(before, lm.layers[1].weight.detach()) and lm.layers[1].weight.dtype == torch.float32
+    assert LabConfig.from_cfg(_cfg(backbone_fp32=True)).backbone_fp32 is True and LabConfig.from_cfg(_cfg()).backbone_fp32 is False
+    with pytest.raises(AttributeError):
+        apply_backbone_fp32(nn.Linear(2, 2))
