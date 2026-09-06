@@ -152,7 +152,8 @@ experiments/
 - [x] F3 学习率控制（2 条运行，1 卡）：漂移驱动 LLRD 端到端工作（第 35 层越过 1e-2 后倍率减半到下限 0.05，最终漂移 −24%，头损失代价 0.004–0.011）但触发太晚；静态 LLRD 0.85 不硬冻结明显更差。发现单卡 bf16 路径没有 fp32 主权重、lr 1e-5 的更新对多数权重不足半个 ulp——F0/F3 漂移的绝对量级与 OFT/三头倍数需用 F4 校准（[`experiments/results/f3_llrd/`](../experiments/results/f3_llrd/README.md) §3）
 - [x] F4 fp32 主权重校准（2 条运行，1 卡）：同配置下单头 OFT 损失 0.247 → 0.183、三头 0.242/0.324/0.416 → 0.178/0.293/0.353；第 35 层漂移 OFT 0.0003 → 0.026、三头 0.052 → 0.484——bf16 单卡路径一直在吞骨干更新，F0/F2/F3 的绝对读数需重新解释，三头/单头顶层改写倍数由 240× 修正为 19×，"三头不伤 OFT 头"仍成立（[`experiments/results/f4_fp32_master_weights/`](../experiments/results/f4_fp32_master_weights/README.md)）；`f0_libero_goal_smoke.yaml` 默认 `backbone_fp32: true` 并冻结 `embed_tokens`
 - [x] F4 checkpoint 上的跨头探针（含 H1 预注册的 OFT 查询位可读性）：查询位 L35 goal 0.462（预训练）→ 0.562（OFT）→ 0.581（三头），跨套 goal→spatial −1.5 → −0.08 → −0.03，保留度 1.0 → 0.870 → 0.794——微调把动作信息写进骨干、三头写得更多且更可迁移、代价是改写预训练表征；bf16 checkpoint 上"无写入"的结论作废（[F4 §3](../experiments/results/f4_fp32_master_weights/README.md)）
-- [ ] F2 冻结骨干迁移在 fp32 骨干上的复测（pub2 运行中）；F3 的 LLRD 两臂在 fp32 下复跑
+- [x] F2 在 fp32 骨干上的复测（新 OFT 头 4 条）：spatial 0.277（预训练）→ 0.252（OFT bf16）→ **0.214**（OFT fp32）→ **0.211**（三头 fp32），goal 0.267 → 0.225 → **0.173** → **0.169**——训练到位的骨干可复用且迁到新场景，三头 fp32 骨干在两套上都略优（[F2 §2b](../experiments/results/f2_frozen_backbone_transfer/README.md)）
+- [ ] F2 新 PI 头在 fp32 骨干上的 4 条（需 ≥ 42 GB 空卡，等待者已挂）；F3 的 LLRD 两臂在 fp32 下复跑
 - [ ] R3 标定曲线（VLAct 全配方、2000 步一探针）→ 定 R5 的 `drift_high / drift_low`（起点已按 F3 改为 1e-3 / 1e-4）
 
 ## 8. 已知偏差与解释约束
@@ -193,4 +194,4 @@ experiments/
 | 度量口径 | mean-pool 隐状态 CKA、训练集前 64 样本 | v2 的曲线 98% 是嵌入假象；修正后（token 级、换回嵌入、跨场景分层批、按更新次数编号）曲线单调、噪声底为 0 | 已写入 §6 与 `QwenBackboneProbe`；R3 的标定曲线用新口径 |
 | 单卡冒烟路径本身 | 与多卡路径等价 | 无 fp32 主权重 → lr 1e-5 更新对多数权重不足半个 ulp。**F4 证实**：fp32 主权重下 OFT 损失 0.247 → 0.183、第 35 层漂移 0.0003 → 0.026，三头 0.052 → 0.484；三头/单头倍数 240× → 19×，OFT 也在明显改写顶层 | `backbone_fp32` 成为单卡默认；F0 §3.6 跨头探针、F2、F3 基于 bf16 checkpoint 的绝对读数待在 F4 checkpoint 上重测（已排队） |
 
-**下一步（按优先级）**：F2 在 fp32 骨干上的复测（运行中）→ F3 两臂 fp32 复跑 → R3（VLAct 全配方、LIBERO 四套 + caption 共训、DeepSpeed）用新口径标定，同时用 F2 协议做 G2 的第一批点。
+**下一步（按优先级）**：F2 新 PI 头 fp32 复测（等卡）→ F3 两臂 fp32 复跑 → R3（VLAct 全配方、LIBERO 四套 + caption 共训、DeepSpeed）用新口径标定，同时用 F2 协议做 G2 的第一批点。
