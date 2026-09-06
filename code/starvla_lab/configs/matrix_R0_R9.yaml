@@ -94,14 +94,14 @@ variants:
       trainer.lab.probes.every_n_steps: 2000
       trainer.lab.probes.probe_batch_size: 64
       trainer.lab.probes.probe_data_mix: "libero_goal_no_noops_1.0.0_lerobot:libero_franka,libero_spatial_no_noops_1.0.0_lerobot:libero_franka,libero_object_no_noops_1.0.0_lerobot:libero_franka,libero_10_no_noops_1.0.0_lerobot:libero_franka"
-      # Thresholds from F0 v3 / F3 (token-level 1-CKA, Qwen3-VL-4B, 300 steps LIBERO-goal): the 3-head model's layer 35
-      # passes 4e-3 by update 50 and 1.3e-2 by 75, single-head OFT stays below 3e-4 everywhere. With 1e-2 / 1e-3 the
-      # controller only fired at update 100 (F3, drift already 0.023) and cut the final layer-35 drift by 24%; 1e-3 / 1e-4
-      # fires ~50 updates earlier. Library defaults (0.10 / 0.05) are two orders of magnitude too coarse; re-check on R3.
-      trainer.lab.llrd.drift_high: 1.0e-3
-      trainer.lab.llrd.drift_low: 1.0e-4
-      trainer.lab.aux_scheduler.drift_high: 1.0e-3
-      trainer.lab.aux_scheduler.drift_low: 1.0e-4
+      # Thresholds from F4 (fp32 master weights, token-level 1-CKA, Qwen3-VL-4B, 300 steps LIBERO-goal): the 3-head
+      # model's layer 35 is at 0.05 after 50 updates and 0.48 after 300, single-head OFT at 0.003 / 0.026; layers <= 33
+      # stay below 3e-3. The bf16 numbers F3 was calibrated on were ~10x too small (updates rounded away). The controller
+      # must act during warmup (probe every 10-25 updates at this scale); re-check on the R3 calibration curve.
+      trainer.lab.llrd.drift_high: 1.0e-2
+      trainer.lab.llrd.drift_low: 1.0e-3
+      trainer.lab.aux_scheduler.drift_high: 1.0e-2
+      trainer.lab.aux_scheduler.drift_low: 1.0e-3
     est_gpu_hours: 900
   R6:
     tier: extra

@@ -122,7 +122,7 @@ experiments/
 | 辅助头与动作头梯度冲突 | 记录各头梯度范数与余弦；必要时用 GradNorm / PCGrad 式加权，作为 WP3 的备选 |
 | 基准噪声淹没差异 | 3 seeds；LIBERO-Plus 10,030 实例作主指标；SimplerEnv 不作主指标 |
 | 漂移控制阈值无依据 | M1 的 R3 以 `calibrate_only` 跑出漂移曲线后再定 `drift_high / drift_low`；阈值写进 R5 的配置并在报告里给出标定图 |
-| **单卡 bf16 路径的更新量化（F3 实测，2026-09-06）** | StarVLA 以 bf16 加载 VLM，`STARVLA_DISABLE_DEEPSPEED=1` 时 AdamW 直接更新 bf16 权重（无 fp32 主权重）；lr 1e-5 的单步更新对 \|w\| > 2e-3 的权重不足半个 ulp，被舍入丢弃，梯度方向一致的头（三头、flow-matching）更容易越过门槛——F0 里 OFT 与三头 240× 的漂移差可能部分是舍入门槛效应；LLRD 把低层 lr 压到 1e-7 后只剩偶发整 ulp 跳变（F3a 的锯齿漂移与更差损失）。对策：`trainer.lab.backbone_fp32`（可训练骨干参数 fp32、计算 bf16 autocast，对应 DeepSpeed 的 fp32 主权重），F4 用它重跑 F0 主运行；多卡 DeepSpeed 路径不受影响 |
+| **单卡 bf16 路径的更新量化（F3 实测，2026-09-06）** | StarVLA 以 bf16 加载 VLM，`STARVLA_DISABLE_DEEPSPEED=1` 时 AdamW 直接更新 bf16 权重（无 fp32 主权重）；lr 1e-5 的单步更新对 \|w\| > 2e-3 的权重不足半个 ulp，被舍入丢弃，梯度方向一致的头（三头、flow-matching）更容易越过门槛——F0 里 OFT 与三头 240× 的漂移差可能部分是舍入门槛效应；LLRD 把低层 lr 压到 1e-7 后只剩偶发整 ulp 跳变（F3a 的锯齿漂移与更差损失）。对策：`trainer.lab.backbone_fp32`（可训练骨干参数 fp32、计算 bf16 autocast，对应 DeepSpeed 的 fp32 主权重）。**F4 已证实**：同配置下损失好 26%、漂移大一个数量级；单卡冒烟一律开此开关，bf16 数字只作历史对照；多卡 DeepSpeed 路径不受影响 |
 | 度量口径不一致 | 固定探测批：`probes.probe_data_mix` 指定的跨场景混合里按指令轮询抽 64 个样本（`probes.probe_batch_size`），纯 VLM prompt、换回预训练 `embed_tokens`、token 级 CKA（≤ 4096 个固定 token 位置）为主、mean-pool 为次，OFT 查询位隐状态拟合探针；所有变体共用同一批与同一 `QwenBackboneProbe`；记录以已完成的更新次数为步号 |
 | **漂移度量被 `embed_tokens` 主导（F0 实测，2026-09-06）** | F0 在 LIBERO-goal 上的受控诊断（[`experiments/results/f0_libero_goal_smoke/`](../experiments/results/f0_libero_goal_smoke/README.md) §3）：微调只改了 `embed_tokens` 的 42–46 行（相对变化 ~2e-5），却贡献了 mean-pool CKA 漂移的 98%，冻结层也随之"漂移"；换回预训练嵌入后 OFT 微调的骨干漂移只有 0.0002，三头模型 0.0038（第 35 层 0.019）。修正：(a) 探针提取时临时换回预训练 `embed_tokens`，或把 `embed_tokens` 加入冻结集合并作为消融（VLAct 未说明）；(b) 主指标改为 token 级 CKA（几千 token 为样本），mean-pool 只作辅助；(c) 探针批必须跨场景 / 跨任务（≥ 64 样本，LIBERO 四套 + RoboTwin 混合），单场景批的 Gram 矩阵近退化；(d) M1 的阈值标定用修正后的度量重做。**已落实（F0 v3，2026-09-06）**：(a)(b)(c) 实现为 `starvla_lab.probes.QwenBackboneProbe` + `probes.probe_data_mix`，接进 `train_starvla_lab`；重跑后冻结层漂移精确为 0，单头 OFT 300 步只在第 35 层动 2e-4，三头模型第 35 层 5e-2、第 33 层以下 < 1e-4，曲线单调饱和；冻结 `embed_tokens` 的消融损失不变（0.247 vs 0.251），读数与"探针时换回"一致。(d) 的量级：单头逐层 < 3e-4，三头只有第 34–35 层 > 1e-3，库默认阈值 0.10 / 0.05 差两个数量级，R5 起点改为 1e-2 / 1e-3 |
 | 评测脚本参数约定各异 | 每个基准的评测命令是 `protocol_f1.yaml` 里的模板字符串（`{ckpt_file}`、`{seed}`、`{run_id}` 占位），与 StarVLA 真实脚本的参数一一对应 |
@@ -150,7 +150,8 @@ experiments/
 - [x] WP1 跨头线性探针在 F0 的 5 个最终模型 + 预训练 VLM 上首跑（`scripts/cross_head_probe.py`，1 卡 15 分钟，2,048 样本跨两套）：预训练 VLM 已线性编码约一半动作方差（R² 0.50），五个微调骨干都没有提高它，三头模型第 35 层反而低 0.01；token 级保留度 OFT 99.5% vs 三头 97.6%（反向 96.7%），v2 复现一致——顶层改写是小幅侵蚀而非写入，G2 的线性探针基线已立（[`experiments/results/f0_libero_goal_smoke/`](../experiments/results/f0_libero_goal_smoke/README.md) §3.6）
 - [x] F2 冻结骨干迁移（16 条运行，1 卡）：预训练 / OFT 微调 / 三头微调 / OFT+冻结嵌入四种骨干全部冻结，各接全新 OFT 头与 PI 头在 LIBERO-spatial（未见）与 LIBERO-goal（已调）上训 300 步。没有有害的 decoder lock-in（OFT 骨干接新 PI 头 = 预训练骨干），三头骨干对同任务新 OFT 头最好（0.216 vs 0.226 vs 0.267）但优势不迁到新场景，PI 头对骨干不敏感（[`experiments/results/f2_frozen_backbone_transfer/`](../experiments/results/f2_frozen_backbone_transfer/README.md)）
 - [x] F3 学习率控制（2 条运行，1 卡）：漂移驱动 LLRD 端到端工作（第 35 层越过 1e-2 后倍率减半到下限 0.05，最终漂移 −24%，头损失代价 0.004–0.011）但触发太晚；静态 LLRD 0.85 不硬冻结明显更差。发现单卡 bf16 路径没有 fp32 主权重、lr 1e-5 的更新对多数权重不足半个 ulp——F0/F3 漂移的绝对量级与 OFT/三头倍数需用 F4 校准（[`experiments/results/f3_llrd/`](../experiments/results/f3_llrd/README.md) §3）
-- [ ] F4：`trainer.lab.backbone_fp32 true` 重跑 F0 的两条主运行（`scripts/cluster/run_f4_fp32.sh`，需一张 ≥ 65 GB 空闲的卡）
+- [x] F4 fp32 主权重校准（2 条运行，1 卡）：同配置下单头 OFT 损失 0.247 → 0.183、三头 0.242/0.324/0.416 → 0.178/0.293/0.353；第 35 层漂移 OFT 0.0003 → 0.026、三头 0.052 → 0.484——bf16 单卡路径一直在吞骨干更新，F0/F2/F3 的绝对读数需重新解释，三头/单头顶层改写倍数由 240× 修正为 19×，"三头不伤 OFT 头"仍成立（[`experiments/results/f4_fp32_master_weights/`](../experiments/results/f4_fp32_master_weights/README.md)）；`f0_libero_goal_smoke.yaml` 默认 `backbone_fp32: true` 并冻结 `embed_tokens`
+- [ ] 在 F4 checkpoint 上重跑跨头探针（pooled 可读性 / 保留度 / OFT 查询位可读性）与 F2 冻结骨干迁移；F3 的 LLRD 两臂在 fp32 下复跑
 - [ ] R3 标定曲线（VLAct 全配方、2000 步一探针）→ 定 R5 的 `drift_high / drift_low`（起点已按 F3 改为 1e-3 / 1e-4）
 
 ## 8. 已知偏差与解释约束
@@ -189,6 +190,6 @@ experiments/
 | VLAct 配方 (c) 多头共监督 | 三头不伤单头、骨干更换头友好 | 三头模型里 OFT 头损失与单头相同（0.242–0.243 vs 0.244–0.251）、开销 1.45–1.54×；但"更换头友好"没有出现：OFT 骨干接新 PI 头 = 预训练骨干 = 三头骨干，且三头骨干的额外写入不迁到新场景 | "多头共监督的收益来自任务多样性让写入的表征变通用"成为 R3 vs R1 的核心待检假设；F2 协议（冻结骨干 + 新头 + 未见套件）直接复用作判据 |
 | VLAct 配方 (a) 冻结下半层 | 视觉编码器 + LLM 前 18 层冻结即可保护先验 | 300 步内两种模型都只动第 33 层以上，第 18–32 层漂移 < 1e-4；`embed_tokens` 冻不冻对损失无影响、对探针影响巨大 | 冻结集合建议加入 `embed_tokens`（VLAct 未说明）；探针一律换回预训练嵌入 |
 | 度量口径 | mean-pool 隐状态 CKA、训练集前 64 样本 | v2 的曲线 98% 是嵌入假象；修正后（token 级、换回嵌入、跨场景分层批、按更新次数编号）曲线单调、噪声底为 0 | 已写入 §6 与 `QwenBackboneProbe`；R3 的标定曲线用新口径 |
-| 单卡冒烟路径本身 | 与多卡路径等价 | 无 fp32 主权重 → lr 1e-5 更新对多数权重不足半个 ulp；OFT 2e-4 与三头 5e-2 的漂移差可能部分是舍入门槛效应 | F4（`backbone_fp32`）待跑；F4 之前 F0/F3 的漂移绝对量级与倍数都带此注 |
+| 单卡冒烟路径本身 | 与多卡路径等价 | 无 fp32 主权重 → lr 1e-5 更新对多数权重不足半个 ulp。**F4 证实**：fp32 主权重下 OFT 损失 0.247 → 0.183、第 35 层漂移 0.0003 → 0.026，三头 0.052 → 0.484；三头/单头倍数 240× → 19×，OFT 也在明显改写顶层 | `backbone_fp32` 成为单卡默认；F0 §3.6 跨头探针、F2、F3 基于 bf16 checkpoint 的绝对读数待在 F4 checkpoint 上重测（已排队） |
 
-**下一步（按优先级）**：F4 校准 → 给 `QwenBackboneProbe` 加 OFT 查询位提取模式并在 F0/F4 checkpoint 上重算可读性 → R3（VLAct 全配方、LIBERO 四套 + caption 共训、DeepSpeed）用新口径标定，同时用 F2 协议做 G2 的第一批点。
+**下一步（按优先级）**：在 F4 checkpoint 上重跑跨头探针（含新加的 OFT 查询位模式）与 F2 → F3 两臂 fp32 复跑 → R3（VLAct 全配方、LIBERO 四套 + caption 共训、DeepSpeed）用新口径标定，同时用 F2 协议做 G2 的第一批点。

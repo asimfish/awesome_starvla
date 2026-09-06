@@ -69,8 +69,9 @@ trainer:
   lr_scheduler_type: cosine_with_min_lr
   scheduler_specific_kwargs:
     min_lr: 1.0e-06
-  # VLAct 配方 (a)：视觉编码器 + LLM 前 18 层；等价于 vlact_ext 语法 "…visual,llm_layers_below:18"，此处展开成原生精确路径
-  freeze_modules: 'qwen_vl_interface.model.model.visual,qwen_vl_interface.model.model.language_model.layers.0,qwen_vl_interface.model.model.language_model.layers.1,qwen_vl_interface.model.model.language_model.layers.2,qwen_vl_interface.model.model.language_model.layers.3,qwen_vl_interface.model.model.language_model.layers.4,qwen_vl_interface.model.model.language_model.layers.5,qwen_vl_interface.model.model.language_model.layers.6,qwen_vl_interface.model.model.language_model.layers.7,qwen_vl_interface.model.model.language_model.layers.8,qwen_vl_interface.model.model.language_model.layers.9,qwen_vl_interface.model.model.language_model.layers.10,qwen_vl_interface.model.model.language_model.layers.11,qwen_vl_interface.model.model.language_model.layers.12,qwen_vl_interface.model.model.language_model.layers.13,qwen_vl_interface.model.model.language_model.layers.14,qwen_vl_interface.model.model.language_model.layers.15,qwen_vl_interface.model.model.language_model.layers.16,qwen_vl_interface.model.model.language_model.layers.17'
+  # VLAct 配方 (a)：视觉编码器 + LLM 前 18 层；等价于 vlact_ext 语法 "…visual,llm_layers_below:18"，此处展开成原生精确路径。
+  # embed_tokens 也冻结（F0 v3 消融：损失不变；探针更干净；fp32 主权重下省 6 GB）
+  freeze_modules: 'qwen_vl_interface.model.model.visual,qwen_vl_interface.model.model.language_model.embed_tokens,qwen_vl_interface.model.model.language_model.layers.0,qwen_vl_interface.model.model.language_model.layers.1,qwen_vl_interface.model.model.language_model.layers.2,qwen_vl_interface.model.model.language_model.layers.3,qwen_vl_interface.model.model.language_model.layers.4,qwen_vl_interface.model.model.language_model.layers.5,qwen_vl_interface.model.model.language_model.layers.6,qwen_vl_interface.model.model.language_model.layers.7,qwen_vl_interface.model.model.language_model.layers.8,qwen_vl_interface.model.model.language_model.layers.9,qwen_vl_interface.model.model.language_model.layers.10,qwen_vl_interface.model.model.language_model.layers.11,qwen_vl_interface.model.model.language_model.layers.12,qwen_vl_interface.model.model.language_model.layers.13,qwen_vl_interface.model.model.language_model.layers.14,qwen_vl_interface.model.model.language_model.layers.15,qwen_vl_interface.model.model.language_model.layers.16,qwen_vl_interface.model.model.language_model.layers.17'
   loss_scale:
     vla: 1.0
     vlm: 0.0
@@ -87,6 +88,9 @@ trainer:
     weight_decay: 1.0e-08
   lab:
     mode: single
+    # F4（experiments/results/f4_fp32_master_weights）：单卡无 DeepSpeed 时 StarVLA 直接在 bf16 权重上做 AdamW 更新，lr 1e-5 的更新对多数
+    # 权重不足半个 ulp 会被舍掉（OFT 损失 0.247 vs fp32 0.183）。可训练骨干参数升 fp32、计算仍 bf16 autocast；OFT 44 GB、三头 58 GB。
+    backbone_fp32: true
     probes:
       enabled: true
       every_n_steps: 25
