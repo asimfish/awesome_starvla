@@ -93,7 +93,7 @@ R0–R8 全部计算 WP1 的探针指标，回答 Q1。
 ```
 code/
 ├── vlact_ext/                 # 已有：VLAct 配方（只修 bug；本轮加了 active_heads 头 dropout 开关）
-└── starvla_lab/               # 本方案的研究包（127 个 CPU 测试）
+└── starvla_lab/               # 本方案的研究包（128 个 CPU 测试）
     ├── probes/                #   WP1：action_probe.py, cka.py, drift.py, hooks.py
     ├── schedules/             #   WP2 / WP4：llrd.py, aux_scheduler.py
     ├── heads/                 #   WP3：feature_prediction_head.py, keyframe_head.py, register.py
@@ -141,7 +141,7 @@ experiments/
 
 - [x] 与真实 StarVLA 的 CPU 集成：`scripts/setup_cpu_env.sh`（py3.12 环境）+ `scripts/smoke_starvla_integration.py`（真实三头工厂 + `QwenMultiHead` + 全部 `LabHooks` 钩子；`flow_matching_loss` 与原头 `forward` 逐位相等）
 
-阶段 A 完成：`python3 -m pytest code/starvla_lab/tests -q` → 127 passed（含 v3 探针 15 个、F2/F4 接线 2 个）；`python3 -m pytest code/vlact_ext/tests -q` → 60 passed, 1 skipped（系统 python3.9，mock 骨干）；py3.12 + StarVLA 可导入时两包合跑 → 169 passed, 2 skipped，冒烟脚本通过。
+阶段 A 完成：`python3 -m pytest code/starvla_lab/tests -q` → 128 passed（含 v3 探针 15 个、F2/F4 接线 3 个）；`python3 -m pytest code/vlact_ext/tests -q` → 60 passed, 1 skipped（系统 python3.9，mock 骨干）；py3.12 + StarVLA 可导入时两包合跑 → 169 passed, 2 skipped，冒烟脚本通过。
 
 **阶段 B 已开始（1 卡，2026-09-05/06）**：
 - [x] WP6 开销数字：三头 = OFT 单头 1.54× 时间、27.2 GB（[`experiments/results/wp6_overhead/`](../experiments/results/wp6_overhead/README.md)）

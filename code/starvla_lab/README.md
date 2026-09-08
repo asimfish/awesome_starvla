@@ -4,12 +4,12 @@
 
 ```bash
 cd awesome_starvla
-python3 -m pytest code/starvla_lab/tests -q        # 127 passed（系统 python3.9，CPU，约 4 s；首次 import torch 约 20 s）
+python3 -m pytest code/starvla_lab/tests -q        # 128 passed（系统 python3.9，CPU，约 4 s；首次 import torch 约 20 s）
 python3 scripts/build_run_matrix.py --print-commands 2   # 生成 experiments/run_matrix*.csv + budget.md 并打印示例命令
 
 # 与真实 StarVLA 一起（StarVLA 需 Python >= 3.10；starVLA_code/ 是放在本仓库旁边的 StarVLA checkout）
 bash scripts/setup_cpu_env.sh                      # 一次：.venv-starvla（py3.12 + CPU torch + StarVLA 可编辑安装）
-PYTHONPATH=code:../starVLA_code .venv-starvla/bin/python -m pytest code/vlact_ext/tests code/starvla_lab/tests -q   # 186 passed, 2 skipped
+PYTHONPATH=code:../starVLA_code .venv-starvla/bin/python -m pytest code/vlact_ext/tests code/starvla_lab/tests -q   # 187 passed, 2 skipped
 PYTHONPATH=code:../starVLA_code .venv-starvla/bin/python scripts/smoke_starvla_integration.py   # 真实三头 + 全部 lab 钩子，约 15 s
 ```
 
@@ -48,7 +48,7 @@ PYTHONPATH=<awesome_starvla>/code accelerate launch --config_file starVLA/config
 
 ## 已验证与未验证
 
-**CPU 上已验证（127 个测试）**：探针 / 调度器 / 头 dropout 在 mock 训练器里按步生效、`calibrate_only` 只记录不干预、数据比例钩子只替换命名工厂、特征缓存复用不重算、关键帧标注块外裁剪；探针在合成数据上恢复已知线性映射；CKA 对同一表征为 1、对正交旋转与缩放不变；漂移→衰减系数单调有界；LLRD 分组层深单调、冻结层不进优化器、与 `LambdaLR` 协同后倍率保持；调度器三策略轨迹与饱和边界；辅助头损失在完美预测时为 0、mask 生效、全 mask 无 NaN；写入策略的阈值 / NMS / 冷却 / FIFO；`Qwen_MultiHeadLab` 用 mock 骨干前向返回全部 loss 键且可反传、关闭辅助头时与父类一致；协议矩阵只有允许的键在变、CSV 往返、结果聚合。
+**CPU 上已验证（128 个测试）**：探针 / 调度器 / 头 dropout 在 mock 训练器里按步生效、`calibrate_only` 只记录不干预、数据比例钩子只替换命名工厂、特征缓存复用不重算、关键帧标注块外裁剪；探针在合成数据上恢复已知线性映射；CKA 对同一表征为 1、对正交旋转与缩放不变；漂移→衰减系数单调有界；LLRD 分组层深单调、冻结层不进优化器、与 `LambdaLR` 协同后倍率保持；调度器三策略轨迹与饱和边界；辅助头损失在完美预测时为 0、mask 生效、全 mask 无 NaN；写入策略的阈值 / NMS / 冷却 / FIFO；`Qwen_MultiHeadLab` 用 mock 骨干前向返回全部 loss 键且可反传、关闭辅助头时与父类一致；协议矩阵只有允许的键在变、CSV 往返、结果聚合。
 
 **CPU 上与真实 StarVLA 一起验证（`scripts/smoke_starvla_integration.py`）**：StarVLA 真实的 OFT / GR00T / PI 头工厂构造的头注入 `QwenMultiHead` 后三头前向 / 反传 / 逐头推理；在模块树与 Qwen3-VL 一致的迷你骨干上，`llm_layers_below:1` 冻结 + `layerwise_lr_decay_groups`（冻结层不进优化器、lr 随层深单调）、`LabHooks` 的头 dropout 轮换、探针每 N 步写 JSONL 并驱动 `DriftDrivenLLRD`、`AuxDataScheduler` 把 `loss_scale.vlm` 写回配置，全部在同一个 8 步 mock 训练循环里生效。
 
@@ -65,6 +65,6 @@ starvla_lab/
 ├── train/       lab_config.py  integration.py  train_starvla_lab.py
 ├── bench/       backbone_bench.py  overhead_bench.py
 ├── configs/     protocol_f1.yaml  matrix_R0_R9.yaml
-├── tests/       test_{probes,schedules,heads,data,train,bench}_*.py（127 个）
+├── tests/       test_{probes,schedules,heads,data,train,bench}_*.py（128 个）
 └── pytest.ini
 ```
