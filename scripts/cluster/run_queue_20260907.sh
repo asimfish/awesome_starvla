@@ -5,13 +5,26 @@
 #   3. F2   fresh PI_v3 head on the frozen F4 fp32 backbones (original protocol: batch 8, 16 diffusion repeats)
 # Start through wait_for_gpu_and_run.sh so it grabs the first card with >= 62 GB free:
 #   PY=<env python> bash wait_for_gpu_and_run.sh 62000 queue0907 1440 -- bash run_queue_20260907.sh
+# Before every stage the card is re-checked (gpu_wait_free.sh): a job killed from outside can leave a zombie that
+# still holds its memory, and a co-tenant may return -- the 2026-09-07 attempt lost every stage to exactly that cascade.
 set -uo pipefail
 WORK="${WORK:-/home/dataset-assist-0/liyufeng/awesome_starvla_work}"
 PY="${PY:?set PY to the StarVLA env python}"
 S="$WORK/awesome_starvla/scripts/cluster"
 
+stage() {  # stage <name> <min_free_mib> <log_file> <command...>
+  local name="$1" need="$2" log="$3"; shift 3
+  if bash "$S/gpu_wait_free.sh" "$need" 90; then
+    echo "[queue] $(date '+%F %T') $name: start (log $log)"
+    "$@" > "$log" 2>&1
+    echo "[queue] $(date '+%F %T') $name: finished (exit $?)"
+  else
+    echo "[queue] $(date '+%F %T') $name: SKIPPED (GPU ${CUDA_VISIBLE_DEVICES:-?} never had $need MiB free)"
+  fi
+}
+
 echo "[queue] $(date '+%F %T') start on GPU ${CUDA_VISIBLE_DEVICES:-?}"
-PY="$PY" WORK="$WORK" bash "$S/run_f5_scale.sh" > "$WORK/logs/f5_chain.log" 2>&1; echo "[queue] $(date '+%F %T') F5 done"
-PY="$PY" WORK="$WORK" TAG=f3fp32 ARMS=driftllrd bash "$S/run_f3_llrd.sh" > "$WORK/logs/f3fp32_chain.log" 2>&1; echo "[queue] $(date '+%F %T') F3 fp32 done"
-PY="$PY" WORK="$WORK" bash "$S/run_f2_transfer.sh" f2 "spatial goal" "oftfp32=f4_oft_fp32 mhfp32=f4_mh_fp32" "QwenPI_v3" --trainer.lab.backbone_fp32 false > "$WORK/logs/f2fp32pi_chain.log" 2>&1; echo "[queue] $(date '+%F %T') F2 PI fp32 done"
+stage F5 60000 "$WORK/logs/f5_chain.log" env PY="$PY" WORK="$WORK" bash "$S/run_f5_scale.sh"
+stage F3fp32 60000 "$WORK/logs/f3fp32_chain.log" env PY="$PY" WORK="$WORK" TAG=f3fp32 ARMS=driftllrd bash "$S/run_f3_llrd.sh"
+stage F2PIfp32 45000 "$WORK/logs/f2fp32pi_chain.log" env PY="$PY" WORK="$WORK" bash "$S/run_f2_transfer.sh" f2 "spatial goal" "oftfp32=f4_oft_fp32 mhfp32=f4_mh_fp32" "QwenPI_v3" --trainer.lab.backbone_fp32 false
 echo "[queue] ALL_DONE"

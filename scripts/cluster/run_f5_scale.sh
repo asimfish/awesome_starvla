@@ -26,11 +26,17 @@ for stage in $STAGES; do
         "$@" > "$WORK/logs/f5_mh.log" 2>&1 || echo "[f5] FAILED: f5_mh"
       echo "[f5] done: f5_mh" ;;
     probe)
+      for r in f5_oft f5_mh; do
+        [ -f "$WORK/checkpoints/$r/final_model/pytorch_model.pt" ] || { echo "[f5] SKIP probe: $r has no final model"; continue 2; }
+      done
       echo "[f5] === cross_head_f5 ==="
       DATA_MIX="$MIX3" N_SAMPLES=3072 EXTRA_ARGS="--query_layers 33,34,35 --num_workers 4 --pool_factor 2" PY="$PY" WORK="$WORK" \
         bash "$S/run_cross_head_probe.sh" cross_head_f5 oft5=f5_oft mh5=f5_mh > "$WORK/logs/cross_head_f5.log" 2>&1 || echo "[f5] FAILED: cross_head_f5"
       echo "[f5] done: cross_head_f5" ;;
     transfer)
+      for r in f5_oft f5_mh; do
+        [ -f "$WORK/checkpoints/$r/final_model/pytorch_model.pt" ] || { echo "[f5] SKIP transfer: $r has no final model"; continue 2; }
+      done
       echo "[f5] === transfer to object ==="
       PY="$PY" WORK="$WORK" bash "$S/run_f2_transfer.sh" f5x "object" "pre=none oft5=f5_oft mh5=f5_mh" "QwenOFT" \
         --trainer.lab.backbone_fp32 false 2>&1 | sed 's/^/[f5] /' || echo "[f5] FAILED: transfer"
