@@ -141,6 +141,10 @@ class LabConfig:
     # of a bf16 ulp for most weights and is rounded away. DeepSpeed keeps fp32 master weights; this flag restores that
     # behaviour on the single-GPU path (memory: +2 bytes per trainable backbone parameter, plus fp32 optimizer states).
     backbone_fp32: bool = False
+    # Run gc.collect(1) after every N-th video decode in StarVLA's LeRobot loader (0 disables). PyAV containers are
+    # reference cycles, so their libdav1d thread pools survive container.close() until a gen-1/2 collection; in
+    # DataLoader workers those are rare and the leaked threads deadlocked the F5 run (starvla_lab.data.decoder_gc).
+    decoder_gc_every: int = 1
 
     @classmethod
     def from_cfg(cls, cfg: Any, key: str = "trainer.lab") -> "LabConfig":
@@ -153,6 +157,7 @@ class LabConfig:
             probes=_fill(ProbesConfig, cfg_get(node, "probes")),
             head_dropout=_fill(HeadDropoutConfig, cfg_get(node, "head_dropout")),
             backbone_fp32=bool(cfg_get(node, "backbone_fp32", False)),
+            decoder_gc_every=int(cfg_get(node, "decoder_gc_every", 1)),
         )
 
     def any_enabled(self) -> bool:

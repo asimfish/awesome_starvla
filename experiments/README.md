@@ -15,6 +15,7 @@
 | `results/f2_frozen_backbone_transfer/` | `scripts/cluster/run_f2_transfer.sh` → `scripts/analyze_f2.py` | **已有数字**：4 种冻结骨干 × 2 种新头 × 2 套 LIBERO 的 16 条 300 步运行（decoder lock-in 的小规模检验，2026-09-06） |
 | `results/f3_llrd/` | `scripts/cluster/run_f3_llrd.sh` → `scripts/analyze_f0.py` | **已有数字**：三头模型上静态 LLRD 0.85 vs 漂移驱动 LLRD 各 300 步，含控制器倍率轨迹与单卡 bf16 更新量化的说明（2026-09-06） |
 | `results/f4_fp32_master_weights/` | `scripts/cluster/run_f4_fp32.sh` → `scripts/analyze_f0.py` | **已有数字**：`backbone_fp32` 下 F0 两条主运行的复跑——损失好 26%、漂移大一个数量级，单卡 bf16 路径的校准（2026-09-06） |
+| `results/f5_libero_2suite_2k/` | `scripts/cluster/run_f5_scale.sh`（经 `run_queue_20260907.sh` 单卡队列） → `scripts/analyze_f0.py` / `analyze_f2.py --tag f5x` | **排队中**：goal+spatial 两套 × 2000 步 fp32，OFT vs 三头，跨头探针含未见的 object、F2 协议迁移到 object。首跑 2026-09-09 死锁于 374 步（PyAV/dav1d 解码线程泄漏，`raw/hung_20260909/` 存事故记录与前 300 步探针），修复后 09-12 重排 |
 | `results/wp6_overhead/` | `scripts/gpu_overhead_bench.py`（经 `scripts/cluster/run_overhead_bench.sh`） | **已有数字**：Qwen3-VL-4B 上单头 / 三头 / 头 dropout 的 s/step、samples/s、峰值显存与推理延迟（1×A100，2026-09-05），含 `overhead.csv`、`results.json`、`stdout.log` 与解读 `README.md` |
 
 ## 结果 JSON 约定

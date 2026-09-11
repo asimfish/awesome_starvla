@@ -13,17 +13,37 @@ STAGES="${STAGES:-train probe transfer}"
 S="$WORK/awesome_starvla/scripts/cluster"
 F5_CONFIG="$WORK/awesome_starvla/code/starvla_lab/configs/f5_libero_2suite_2k.yaml"
 MIX3="libero_goal_no_noops_1.0.0_lerobot:libero_franka,libero_spatial_no_noops_1.0.0_lerobot:libero_franka,libero_object_no_noops_1.0.0_lerobot:libero_franka"
+STALL_MIN="${STALL_MIN:-20}"   # a run whose log is silent this long is killed (run_with_stall_guard.sh) and retried once
+
+# train_run <framework> <run_id> [overrides...]: two attempts; a stalled attempt (exit 124) is archived and retried
+# from scratch once the card is free again (no intermediate checkpoints: 2000 steps take ~40 min).
+train_run() {
+  local fw="$1" rid="$2"; shift 2
+  local log="$WORK/logs/$rid.log" rc
+  for attempt in 1 2; do
+    bash "$S/run_with_stall_guard.sh" "$log" "$STALL_MIN" -- \
+      env CONFIG="$F5_CONFIG" PY="$PY" WORK="$WORK" bash "$S/run_f0_smoke.sh" "$fw" "$rid" "$@"
+    rc=$?
+    [ "$rc" -eq 0 ] && return 0
+    echo "[f5] $rid attempt $attempt exited $rc"
+    [ "$rc" -eq 124 ] || return "$rc"
+    mv "$log" "$log.stalled$attempt"
+    [ -f "$WORK/checkpoints/$rid/lab_probes.jsonl" ] && mv "$WORK/checkpoints/$rid/lab_probes.jsonl" "$WORK/checkpoints/$rid/lab_probes.stalled$attempt.jsonl"
+    bash "$S/gpu_wait_free.sh" 60000 30 || return 124
+  done
+  return 124
+}
 
 for stage in $STAGES; do
   case "$stage" in
     train)
       echo "[f5] === f5_oft ==="
-      CONFIG="$F5_CONFIG" PY="$PY" WORK="$WORK" bash "$S/run_f0_smoke.sh" QwenOFT f5_oft "$@" > "$WORK/logs/f5_oft.log" 2>&1 || echo "[f5] FAILED: f5_oft"
+      train_run QwenOFT f5_oft "$@" || echo "[f5] FAILED: f5_oft"
       echo "[f5] done: f5_oft"
       echo "[f5] === f5_mh ==="
-      CONFIG="$F5_CONFIG" PY="$PY" WORK="$WORK" bash "$S/run_f0_smoke.sh" QwenMultiHead f5_mh \
+      train_run QwenMultiHead f5_mh \
         --framework.action_model.state_dim 0 --trainer.learning_rate.heads 1e-4 --trainer.learning_rate.project_layers 1e-4 \
-        "$@" > "$WORK/logs/f5_mh.log" 2>&1 || echo "[f5] FAILED: f5_mh"
+        "$@" || echo "[f5] FAILED: f5_mh"
       echo "[f5] done: f5_mh" ;;
     probe)
       for r in f5_oft f5_mh; do

@@ -38,6 +38,7 @@ REPO = Path(__file__).resolve().parents[1]
 if str(REPO / "code") not in sys.path:
     sys.path.insert(0, str(REPO / "code"))
 
+from starvla_lab.data.decoder_gc import install_decoder_gc  # noqa: E402
 from starvla_lab.data.mixtures import parse_mixture_spec, register_mixture  # noqa: E402
 from starvla_lab.probes.action_probe import DEFAULT_RIDGE_GRID, fit_ridge_probe_cv, split_indices_by_group  # noqa: E402
 from starvla_lab.probes.qwen_extract import QWEN_IMAGE_TOKEN_ID, stratified_probe_batch  # noqa: E402
@@ -77,6 +78,9 @@ def load_samples(cfg, data_mix: str, n: int, pool_factor: int, out_dir: Path, se
     probe_cfg.seed = seed
     probe_cfg.output_dir = str(out_dir / "_data")
     (out_dir / "_data").mkdir(parents=True, exist_ok=True)
+    # Free each PyAV decoder's dav1d thread pool right after the decode (starvla_lab.data.decoder_gc): with 3072 x
+    # pool_factor samples the leaked threads would otherwise pile up in the workers exactly as in the F5 hang.
+    install_decoder_gc(every=1)
     loader = build_dataloader(cfg=probe_cfg, dataset_py="lerobot_datasets")
     pool, it, failures = [], iter(loader), 0
     while len(pool) < n * pool_factor:

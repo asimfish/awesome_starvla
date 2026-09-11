@@ -28,6 +28,7 @@ from typing import Any, List, Optional
 
 import torch
 
+from ..data.decoder_gc import install_decoder_gc
 from ..data.mixtures import register_mixture
 from ..data.subsample import install_fraction_hook
 from ..probes.qwen_extract import QwenBackboneProbe, framework_of, gather_probe_batch
@@ -151,6 +152,9 @@ def main(cfg: Any) -> None:
     cfg = base.wrap_config(cfg)
     lab = LabConfig.from_cfg(cfg)
     lab.validate()
+    # Before prepare_data(): the DataLoader workers fork from this process and must inherit the patched decoders.
+    patched = install_decoder_gc(lab.decoder_gc_every)
+    print(f"[starvla_lab] decoder_gc: {'off' if not patched else f'gc.collect(1) every {lab.decoder_gc_every} decode(s) in ' + ', '.join(patched)}")
     fraction = float(cfg_get(cfg, "datasets.vla_data.data_fraction", 1.0))
     install_fraction_hook(fraction, seed=int(cfg_get(cfg, "seed", 0)))
 

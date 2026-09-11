@@ -4,9 +4,11 @@
 #   2. F3   drift-driven LLRD arm rerun with fp32 master weights (tag f3fp32)
 #   3. F2   fresh PI_v3 head on the frozen F4 fp32 backbones (original protocol: batch 8, 16 diffusion repeats)
 # Start through wait_for_gpu_and_run.sh so it grabs the first card with >= 62 GB free:
-#   PY=<env python> bash wait_for_gpu_and_run.sh 62000 queue0907 1440 -- bash run_queue_20260907.sh
+#   PY=<env python> bash wait_for_gpu_and_run.sh 62000 queue0912 2880 -- bash run_queue_20260907.sh
 # Before every stage the card is re-checked (gpu_wait_free.sh): a job killed from outside can leave a zombie that
 # still holds its memory, and a co-tenant may return -- the 2026-09-07 attempt lost every stage to exactly that cascade.
+# History: 2026-09-07 lost to an external SIGKILL + zombie; 2026-09-09 F5 hung at step 374 (PyAV/dav1d thread leak in
+# the DataLoader workers, fixed by starvla_lab.data.decoder_gc; run_f5_scale.sh now also kills+retries a silent run).
 set -uo pipefail
 WORK="${WORK:-/home/dataset-assist-0/liyufeng/awesome_starvla_work}"
 PY="${PY:?set PY to the StarVLA env python}"

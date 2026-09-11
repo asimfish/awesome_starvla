@@ -1,0 +1,60 @@
+                          'timing/model':                                       
+                          1.0372196603566408,                                   
+                          'learning_rate/qwen_vl_interface'                     
+                          : 9.657059384750595e-06,                              
+                          'learning_rate/action_model':                         
+                          9.657059384750594e-05, 'epoch':                       
+                          0.02})                                                
+
+                          {'action_dit_loss':                                   
+                          0.1936372071504593, 'lab/drift':                      
+                          0.001977619680092394,                                 
+                          'timing/data':                                        
+                          0.0004950407892465591,                                
+                          'timing/model':                                       
+                          0.791606062091887,                                    
+                          'learning_rate/qwen_vl_interface'                     
+                          : 9.626990823891449e-06,                              
+                          'learning_rate/action_model':                         
+                          9.626990823891448e-05, 'epoch':                       
+                          0.03})                                                
+
+                          {'action_dit_loss':                                   
+                          0.2758222818374634, 'lab/drift':                      
+                          0.001977619680092394,                                 
+                          'timing/data':                                        
+                          0.0005231248214840889,                                
+                          'timing/model':                                       
+                          1.1093207141384482,                                   
+                          'learning_rate/qwen_vl_interface'                     
+                          : 9.595711967944277e-06,                              
+                          'learning_rate/action_model':                         
+                          9.595711967944276e-05, 'epoch':                       
+                          0.03})                                                
+
+                          {'action_dit_loss':                                   
+                          0.2446366250514984, 'lab/drift':                      
+                          0.001977619680092394,                                 
+                          'timing/data':                                        
+                          0.000581180676817894,                                 
+                          'timing/model':                                       
+                          1.0615550419315696,                                   
+                          'learning_rate/qwen_vl_interface'                     
+                          : 9.563231368235981e-06,                              
+                          'learning_rate/action_model':                         
+                          9.563231368235981e-05, 'epoch':                       
+                          0.03})                                                
+
+                          {'action_dit_loss':                                   
+                          0.24382269382476807, 'lab/drift':                     
+                          0.001977619680092394,                                 
+                          'timing/data':                                        
+                          0.0005502728745341301,                                
+                          'timing/model':                                       
+                          1.070252850651741,                                    
+                          'learning_rate/qwen_vl_interface'                     
+                          : 9.529557904638205e-06,                              
+                          'learning_rate/action_model':                         
+                          9.529557904638204e-05, 'epoch':                       
+                          0.03})                                                
+
