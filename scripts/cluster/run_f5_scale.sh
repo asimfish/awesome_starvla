@@ -4,7 +4,7 @@
 #   1. cross-head probe (pooled / retention / OFT query positions) on goal, spatial and the unseen LIBERO-object;
 #   2. F2-style transfer: frozen F5 backbones (+ pretrained anchor) with a fresh OFT head, 300 steps on object.
 #
-#   PY=<env python> bash run_f5_scale.sh [STAGES="train probe transfer"]
+#   PY=<env python> bash run_f5_scale.sh [STAGES="train probe transfer"] [RUNS="oft mh"]
 set -euo pipefail
 
 WORK="${WORK:-/home/dataset-assist-0/liyufeng/awesome_starvla_work}"
@@ -34,17 +34,24 @@ train_run() {
   return 124
 }
 
+RUNS="${RUNS:-oft mh}"         # training runs of the train stage; a run whose final model exists is skipped, so the
+                               # OFT run (44 GB) can go first on a smaller card and the queue later only trains the three-head model
+
 for stage in $STAGES; do
   case "$stage" in
     train)
-      echo "[f5] === f5_oft ==="
-      train_run QwenOFT f5_oft "$@" || echo "[f5] FAILED: f5_oft"
-      echo "[f5] done: f5_oft"
-      echo "[f5] === f5_mh ==="
-      train_run QwenMultiHead f5_mh \
-        --framework.action_model.state_dim 0 --trainer.learning_rate.heads 1e-4 --trainer.learning_rate.project_layers 1e-4 \
-        "$@" || echo "[f5] FAILED: f5_mh"
-      echo "[f5] done: f5_mh" ;;
+      for r in $RUNS; do
+        case "$r" in
+          oft) rid=f5_oft; fw=QwenOFT; extra=() ;;
+          mh)  rid=f5_mh; fw=QwenMultiHead
+               extra=(--framework.action_model.state_dim 0 --trainer.learning_rate.heads 1e-4 --trainer.learning_rate.project_layers 1e-4) ;;
+          *) echo "[f5] unknown run: $r"; exit 2 ;;
+        esac
+        if [ -f "$WORK/checkpoints/$rid/final_model/pytorch_model.pt" ]; then echo "[f5] skip $rid: final model exists"; continue; fi
+        echo "[f5] === $rid ==="
+        train_run "$fw" "$rid" ${extra[@]+"${extra[@]}"} "$@" || echo "[f5] FAILED: $rid"
+        echo "[f5] done: $rid"
+      done ;;
     probe)
       for r in f5_oft f5_mh; do
         [ -f "$WORK/checkpoints/$r/final_model/pytorch_model.pt" ] || { echo "[f5] SKIP probe: $r has no final model"; continue 2; }
